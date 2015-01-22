@@ -1,24 +1,25 @@
 window.BasketActions =
-  addItem: (productItem) ->
-    @_addItemToServer productItem
+  addItem: (item) ->
+    @_addItemToServer item
 
-  _addItemToServer: (productItem) ->
-    productId = productItem.product_id
-    count = productItem.count
+  _addItemToServer: (item) ->
+    goodId = item.good_id
+    count = item.count
 
     $.ajax
       dataType: 'json'
       method:   'post'
       data:
-        product_item_id: productId
-        count: count
+        cart_item:
+          good_id: goodId
+          count: count
       url:      Routes.vendor_cart_items_path()
       error: (xhr, status, err) ->
         console.log err
-      success: (response) ->
+      success: (good) ->
         BasketDispatcher.handleServerAction
           actionType: 'productAddedToBasket'
-          productItem: productItem
+          productItem: good
 
   receiveBasket: (basketItems) ->
     BasketDispatcher.handleViewAction
