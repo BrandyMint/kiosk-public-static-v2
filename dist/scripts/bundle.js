@@ -103,28 +103,30 @@ window.accounting.settings = {
 
 },{"accounting":"accounting","bootstrapSass":"bootstrapSass","eventEmitter":"eventEmitter","fancybox":"fancybox","fancybox.wannabe":"fancybox.wannabe","flux":29,"jquery":"jquery","jquery.mmenu":"jquery.mmenu","jquery.role":"jquery.role","lodash":"lodash","nouislider":"nouislider","owlCarousel":"owlCarousel","react":"react","react-mixin-manager":"react-mixin-manager","reactUjs":"reactUjs"}],3:[function(require,module,exports){
 window.BasketActions = {
-  addItem: function(productItem) {
-    return this._addItemToServer(productItem);
+  addItem: function(item) {
+    return this._addItemToServer(item);
   },
-  _addItemToServer: function(productItem) {
-    var count, productId;
-    productId = productItem.product_id;
-    count = productItem.count;
+  _addItemToServer: function(item) {
+    var count, goodId;
+    goodId = item.good_id;
+    count = item.count;
     return $.ajax({
       dataType: 'json',
       method: 'post',
       data: {
-        product_item_id: productId,
-        count: count
+        cart_item: {
+          good_id: goodId,
+          count: count
+        }
       },
       url: Routes.vendor_cart_items_path(),
       error: function(xhr, status, err) {
         return console.log(err);
       },
-      success: function(response) {
+      success: function(good) {
         return BasketDispatcher.handleServerAction({
           actionType: 'productAddedToBasket',
-          productItem: productItem
+          productItem: good
         });
       }
     });
@@ -213,8 +215,8 @@ window.BasketPopup = React.createClass({displayName: 'BasketPopup',
   handleClick: function(e) {
     return $(document).trigger("cart:clicked");
   },
-  handleBodyClick: function() {
-    if (this.state.isVisible) {
+  handleBodyClick: function(e) {
+    if (this.state.isVisible && !$(e.target).is('button')) {
       return this.setState({
         isVisible: false
       });
@@ -231,7 +233,8 @@ window.BasketPopup = React.createClass({displayName: 'BasketPopup',
     $(document).on("click", this.handleBodyClick);
     $(document).on("cart:clicked", this.handleCartClicked);
     $(document).on("keyup", this.handleBodyKey);
-    return BasketStore.addChangeListener(this._onChange);
+    BasketStore.addChangeListener(this._onChange);
+    return this._populateBasketStore();
   },
   componentWillUnmount: function() {
     $(document).off("click", this.handleBodyClick);
@@ -243,6 +246,9 @@ window.BasketPopup = React.createClass({displayName: 'BasketPopup',
       items: BasketStore.getBasketItems()
     });
     return this.handleCartClicked();
+  },
+  _populateBasketStore: function() {
+    return BasketStore._receiveBasket(this.props.items);
   },
   handleCartClicked: function(e) {
     return this.setState({
@@ -263,7 +269,7 @@ window.BasketPopup = React.createClass({displayName: 'BasketPopup',
       classNameValue += " b-float-cart_invisible";
     }
     return React.DOM.div({className: classNameValue}, React.DOM.div({className: "b-float-cart__content", onClick: this.handleClick}, 
-          BasketPopupList({items: this.props.items}), 
+          BasketPopupList({items: this.state.items}), 
           BasketPopupControl({cartUrl: this.props.cartUrl, cartClearUrl: this.props.cartClearUrl})
         ));
   }
@@ -792,32 +798,23 @@ window.InstagramFeed_Carousel = React.createClass({displayName: 'InstagramFeed_C
 /** @jsx React.DOM */
 window.AddToBasketButton = React.createClass({displayName: 'AddToBasketButton',
   propTypes: {
-    product_item_id: React.PropTypes.number.isRequired,
-    product_id: React.PropTypes.number.isRequired,
-    price: React.PropTypes.number,
-    count: React.PropTypes.number,
-    image_url: React.PropTypes.string,
-    title: React.PropTypes.string,
-    description: React.PropTypes.string,
-    articul: React.PropTypes.number
+    count: React.PropTypes.number
   },
   getDefaultProps: function() {
     return {
-      product_item_id: 4,
-      product_id: 2,
-      price: 123,
-      count: 1,
-      image_url: 'http://placehold.it/120x120',
-      title: 'title',
-      description: 'descr',
-      articul: 123
+      count: 1
     };
   },
-  addToBasket: function() {
-    var props;
-    props = $('[product-select] option:selected').data('productitem');
-    if (props != null) {
-      return BasketActions.addItem(props);
+  addToBasket: function(e) {
+    var good_id;
+    e.preventDefault();
+    e.stopPropagation();
+    good_id = $('@good_id').val();
+    if (good_id != null) {
+      return BasketActions.addItem({
+        good_id: good_id,
+        count: this.props.count
+      });
     }
   },
   render: function() {
@@ -905,11 +902,11 @@ module.exports = BaseStore;
 
 
 },{}],17:[function(require,module,exports){
-var BaseStore, _basketItems;
+var BaseStore, _items;
 
 BaseStore = require('./_base');
 
-_basketItems = [];
+_items = [];
 
 window.BasketDispatcher.register(function(payload) {
   var action;
@@ -927,38 +924,40 @@ window.BasketDispatcher.register(function(payload) {
 });
 
 window.BasketStore = _.extend(new BaseStore(), {
+  _items: [],
   getBasketItems: function() {
-    return _basketItems;
+    return this._items;
   },
   getBasketCount: function() {
     var total;
     total = 0;
-    _.forEach(_basketItems, function(item) {
+    _.forEach(this._items, function(item) {
       return total += item.count;
     });
     return total;
   },
-  _findItem: function(productItem) {
-    var thisItem;
-    thisItem = _.findIndex(_basketItems, function(item) {
-      return item.product_item_id === productItem.product_item_id;
+  _findItem: function(itemToFind) {
+    var index;
+    index = _.findIndex(this._items, function(item) {
+      return item.id === itemToFind.id;
     });
-    return _basketItems[thisItem];
+    return this._items[index];
   },
-  _addItem: function(productItem) {
-    var basketItem;
-    basketItem = BasketStore._findItem(productItem);
-    if (basketItem != null) {
-      return basketItem.count += 1;
+  _addItem: function(item) {
+    var foundItem;
+    foundItem = BasketStore._findItem(item);
+    if (foundItem != null) {
+      return foundItem.count += 1;
     } else {
-      productItem.count = 1;
-      return _basketItems.push(productItem);
+      return this._items.push(item);
     }
   },
-  _receiveBasket: function(basketItems) {
-    if (basketItems != null) {
-      return _.forEach(basketItems.items, function(basketItem) {
-        return _basketItems.push(basketItem.product_item);
+  _receiveBasket: function(items) {
+    if (items != null) {
+      return _.forEach(items, function(item) {
+        return this.basket.push(item);
+      }, {
+        basket: this._items
       });
     }
   }
@@ -969,7 +968,7 @@ window.BasketStore = _.extend(new BaseStore(), {
 },{"./_base":16}],18:[function(require,module,exports){
 window.Routes = {
   vendor_cart_items_path: function() {
-    return '/cart/cart_items/';
+    return '/cart/items/';
   }
 };
 
