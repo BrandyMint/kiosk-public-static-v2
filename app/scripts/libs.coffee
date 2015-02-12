@@ -1,7 +1,6 @@
 window._                 = require 'lodash'
 window.$ = window.jQuery = require 'jquery'
 window.React             = require 'react'
-window.ReactUjs          = require 'reactUjs'
 window.Dispatcher        = require('flux').Dispatcher
 window.EventEmitter      = require 'eventEmitter'
 window.accounting        = require 'accounting'

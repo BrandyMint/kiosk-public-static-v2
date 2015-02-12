@@ -68,19 +68,17 @@ TooltipController = require('./react/controllers/tooltip');
 
 new TooltipController();
 
-window.ReactUjs.initialize();
+global.KioskApp = require('./react/application');
 
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./libs":2,"./react/actions/view/basket":3,"./react/api/api":4,"./react/components/basket/button":5,"./react/components/basket/popup":6,"./react/components/catalogFilter/catalogFilter":8,"./react/components/design/bglist":16,"./react/components/design/colorlist":17,"./react/components/design/designer":18,"./react/components/design/fontlist":19,"./react/components/design/layoutlist":20,"./react/components/design/toggle":21,"./react/components/design/valueslider":22,"./react/components/designSettings/designSettings":29,"./react/components/instagram/instagram":37,"./react/components/product/add_to_basket_button":38,"./react/controllers/events":39,"./react/controllers/tooltip":40,"./react/dispatchers/basket":42,"./react/stores/basket":44,"./routes/api":45,"./routes/routes":46,"./shared/app":47,"./shared/application_slider":48,"./shared/cart":49,"./shared/checkout":50,"./shared/jump":51,"./shared/lightbox":52,"./shared/load_more":53,"./shared/mobile_navigation":54,"./shared/product_images_slider":55,"./shared/theme_switcher":56}],2:[function(require,module,exports){
+},{"./libs":2,"./react/actions/view/basket":3,"./react/api/api":4,"./react/application":5,"./react/components/basket/button":6,"./react/components/basket/popup":7,"./react/components/catalogFilter/catalogFilter":9,"./react/components/design/bglist":17,"./react/components/design/colorlist":18,"./react/components/design/designer":19,"./react/components/design/fontlist":20,"./react/components/design/layoutlist":21,"./react/components/design/toggle":22,"./react/components/design/valueslider":23,"./react/components/designSettings/designSettings":30,"./react/components/instagram/instagram":38,"./react/components/product/add_to_basket_button":39,"./react/controllers/events":40,"./react/controllers/tooltip":41,"./react/dispatchers/basket":43,"./react/stores/basket":45,"./routes/api":46,"./routes/routes":47,"./shared/app":48,"./shared/application_slider":49,"./shared/cart":50,"./shared/checkout":51,"./shared/jump":52,"./shared/lightbox":53,"./shared/load_more":54,"./shared/mobile_navigation":55,"./shared/product_images_slider":56,"./shared/theme_switcher":57}],2:[function(require,module,exports){
 window._ = require('lodash');
 
 window.$ = window.jQuery = require('jquery');
 
 window.React = require('react');
-
-window.ReactUjs = require('reactUjs');
 
 window.Dispatcher = require('flux').Dispatcher;
 
@@ -121,7 +119,7 @@ window.accounting.settings = {
 
 
 
-},{"accounting":"accounting","bootstrapSass":"bootstrapSass","eventEmitter":"eventEmitter","fancybox":"fancybox","fancybox.wannabe":"fancybox.wannabe","flux":57,"jquery":"jquery","jquery.mmenu":"jquery.mmenu","jquery.role":"jquery.role","lodash":"lodash","nouislider":"nouislider","owlCarousel":"owlCarousel","react":"react","react-mixin-manager":"react-mixin-manager","reactUjs":"reactUjs"}],3:[function(require,module,exports){
+},{"accounting":"accounting","bootstrapSass":"bootstrapSass","eventEmitter":"eventEmitter","fancybox":"fancybox","fancybox.wannabe":"fancybox.wannabe","flux":58,"jquery":"jquery","jquery.mmenu":"jquery.mmenu","jquery.role":"jquery.role","lodash":"lodash","nouislider":"nouislider","owlCarousel":"owlCarousel","react":"react","react-mixin-manager":"react-mixin-manager"}],3:[function(require,module,exports){
 window.BasketActions = {
   addGood: function(good) {
     return this._addItemToServer(good);
@@ -160,6 +158,7 @@ window.BasketActions = {
 
 
 },{}],4:[function(require,module,exports){
+(function (global){
 var Api, TIMEOUT, abortPendingRequests, deleteRequest, getRequest, postRequest, putRequest, request, vendorKey, _pendingRequests;
 
 TIMEOUT = 10000;
@@ -174,7 +173,7 @@ abortPendingRequests = function(key) {
 };
 
 vendorKey = function() {
-  return 'c3d753f03d73251bb4aa707e077ec8e7';
+  return global.vendorKey;
 };
 
 request = function(_method, url, data) {
@@ -246,7 +245,30 @@ module.exports = Api;
 
 
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],5:[function(require,module,exports){
+(function (global){
+var KioskApp, ReactUjs;
+
+ReactUjs = require('reactUjs');
+
+KioskApp = {
+  start: function(vendorKey) {
+    if (vendorKey == null) {
+      vendorKey = '';
+    }
+    global.vendorKey = localStorage.getItem('vendorKey') || vendorKey;
+    console.log('KioskApp start');
+    return ReactUjs.initialize();
+  }
+};
+
+module.exports = KioskApp;
+
+
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"reactUjs":"reactUjs"}],6:[function(require,module,exports){
 
 /** @jsx React.DOM */
 window.BasketButton = React.createClass({displayName: 'BasketButton',
@@ -305,7 +327,7 @@ window.BasketButton_Empty = React.createClass({displayName: 'BasketButton_Empty'
 
 
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 
 /** @jsx React.DOM */
 window.BasketPopup = React.createClass({displayName: 'BasketPopup',
@@ -448,7 +470,7 @@ window.BasketPopupControl = React.createClass({displayName: 'BasketPopupControl'
 
 
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var CatalogFilter_ShowResultsButton, PropTypes;
@@ -468,7 +490,7 @@ module.exports = CatalogFilter_ShowResultsButton;
 
 
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var CatalogFilter, CatalogFilterList, CatalogFilterMixin, CatalogFilter_ShowResultsButton, PropTypes;
@@ -517,7 +539,7 @@ module.exports = CatalogFilter;
 
 
 
-},{"./buttons/showResults":7,"./list":9,"./mixins/catalogFilter":14}],9:[function(require,module,exports){
+},{"./buttons/showResults":8,"./list":10,"./mixins/catalogFilter":15}],10:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var CatalogFilterList, CatalogFilterList_Checkbox, CatalogFilterList_Color, CatalogFilterList_Range, CatalogFilterList_SelectedOptions, PropTypes;
@@ -548,7 +570,7 @@ CatalogFilterList = React.createClass({displayName: 'CatalogFilterList',
     var listItems, that;
     that = this;
     return listItems = this.props.options.map(function(item, i) {
-      var from, items, paramName, title, to, units;
+      var items, paramName, range, start, title, units;
       switch (item.type) {
         case 'checkbox':
           title = item.title, paramName = item.paramName, items = item.items;
@@ -559,14 +581,14 @@ CatalogFilterList = React.createClass({displayName: 'CatalogFilterList',
                items: items, 
                key: i });
         case 'range':
-          title = item.title, paramName = item.paramName, units = item.units, from = item.from, to = item.to;
+          title = item.title, paramName = item.paramName, units = item.units, start = item.start, range = item.range;
           return CatalogFilterList_Range({
                title: title, 
                paramName: paramName, 
                filterName:  that.props.filterName, 
                units: units, 
-               from: from, 
-               to: to, 
+               start: start, 
+               range: range, 
                key: i });
         case 'color':
           title = item.title, paramName = item.paramName, items = item.items;
@@ -587,7 +609,7 @@ module.exports = CatalogFilterList;
 
 
 
-},{"./list/checkbox":10,"./list/color":11,"./list/range":12,"./list/selectedOptions":13}],10:[function(require,module,exports){
+},{"./list/checkbox":11,"./list/color":12,"./list/range":13,"./list/selectedOptions":14}],11:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var CatalogFilterList_Checkbox, PropTypes;
@@ -648,7 +670,7 @@ module.exports = CatalogFilterList_Checkbox;
 
 
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var CatalogFilterList_Color, PropTypes;
@@ -711,7 +733,7 @@ module.exports = CatalogFilterList_Color;
 
 
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var CatalogFilterList_Range, PropTypes;
@@ -724,25 +746,22 @@ CatalogFilterList_Range = React.createClass({displayName: 'CatalogFilterList_Ran
     paramName: PropTypes.string.isRequired,
     filterName: PropTypes.string.isRequired,
     units: PropTypes.string,
-    from: PropTypes.number.isRequired,
-    to: PropTypes.number.isRequired
+    start: PropTypes.array.isRequired,
+    range: PropTypes.object.isRequired
   },
   getInitialState: function() {
     return {
-      from: this.props.from,
-      to: this.props.to
+      from: this.props.start[0],
+      to: this.props.start[1]
     };
   },
   componentDidMount: function() {
     var slider;
     slider = this.refs.slider.getDOMNode();
     $(slider).noUiSlider({
-      start: [this.state.from, this.state.to],
-      connect: true,
-      range: {
-        'min': this.state.from,
-        'max': this.state.to
-      }
+      start: this.props.start,
+      range: this.props.range,
+      connect: true
     });
     $(slider).on('slide', this.handleSlide);
     return $(slider).on('change', this.handleChange);
@@ -765,7 +784,7 @@ CatalogFilterList_Range = React.createClass({displayName: 'CatalogFilterList_Ran
           React.DOM.div({ref: "rangeValue", 
                className: "b-full-filter__slider__value"}, 
              this.state.from, 
-            React.DOM.span(null, " – "), 
+            React.DOM.span({className: "slider-divider"}, " – "), 
              this.state.to, " ", React.DOM.span({dangerouslySetInnerHTML: { __html: this.props.units}})
           ), 
           React.DOM.div({ref: "slider", 
@@ -803,7 +822,7 @@ module.exports = CatalogFilterList_Range;
 
 
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var CatalogFilterList_SelectedOptions, PropTypes;
@@ -850,7 +869,7 @@ module.exports = CatalogFilterList_SelectedOptions;
 
 
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 var CatalogFilterMixin;
 
 CatalogFilterMixin = {
@@ -897,8 +916,11 @@ CatalogFilterMixin = {
           type: 'range',
           paramName: 'price',
           units: '&#x20BD;',
-          from: 10000,
-          to: 50000
+          start: [20322, 35023],
+          range: {
+            min: 10000,
+            max: 50000
+          }
         }, {
           title: 'Показывать',
           type: 'checkbox',
@@ -997,7 +1019,7 @@ module.exports = CatalogFilterMixin;
 
 
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var Api, ERROR_STATE, FilteredCountTooltip, LOADED_STATE, LOADING_STATE, PropTypes, TIMEOUT;
@@ -1093,7 +1115,7 @@ module.exports = FilteredCountTooltip;
 
 
 
-},{"../../../api/api":4}],16:[function(require,module,exports){
+},{"../../../api/api":4}],17:[function(require,module,exports){
 
 /** @jsx React.DOM */
 window.BackgroundList = React.createClass({displayName: 'BackgroundList',
@@ -1144,7 +1166,7 @@ window.BackgroundListElement = React.createClass({displayName: 'BackgroundListEl
 
 
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 
 /** @jsx React.DOM */
 window.ColorList = React.createClass({displayName: 'ColorList',
@@ -1202,7 +1224,7 @@ window.ColorSelect = React.createClass({displayName: 'ColorSelect',
 
 
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 
 /** @jsx React.DOM */
 window.Designer = React.createClass({displayName: 'Designer',
@@ -1378,7 +1400,7 @@ window.DesignerElementValueLayout = React.createClass({displayName: 'DesignerEle
 
 
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 
 /** @jsx React.DOM */
 window.FontList = React.createClass({displayName: 'FontList',
@@ -1433,7 +1455,7 @@ window.FontSelect = React.createClass({displayName: 'FontSelect',
 
 
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 
 /** @jsx React.DOM */
 window.LayoutList = React.createClass({displayName: 'LayoutList',
@@ -1484,7 +1506,7 @@ window.LayoutSelect = React.createClass({displayName: 'LayoutSelect',
 
 
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 
 /** @jsx React.DOM */
 window.Toggle = React.createClass({displayName: 'Toggle',
@@ -1512,7 +1534,7 @@ window.Toggle = React.createClass({displayName: 'Toggle',
 
 
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 
 /** @jsx React.DOM */
 window.ValueSlider = React.createClass({displayName: 'ValueSlider',
@@ -1560,7 +1582,7 @@ window.ValueSlider = React.createClass({displayName: 'ValueSlider',
 
 
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var BUTTON_TEXT, DesignSettings_SaveButton, PropTypes;
@@ -1585,7 +1607,7 @@ module.exports = DesignSettings_SaveButton;
 
 
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var DesignSettings_Checkbox, PropTypes;
@@ -1652,7 +1674,7 @@ module.exports = DesignSettings_Checkbox;
 
 
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var DesignSettings_Color, DesignSettings_ColorCustomItem, DesignSettings_ColorItem, PropTypes;
@@ -1711,7 +1733,7 @@ module.exports = DesignSettings_Color;
 
 
 
-},{"./color/customItem":26,"./color/item":27}],26:[function(require,module,exports){
+},{"./color/customItem":27,"./color/item":28}],27:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var DesignSettings_ColorCustomItem, PropTypes;
@@ -1746,7 +1768,7 @@ module.exports = DesignSettings_ColorCustomItem;
 
 
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var DesignSettings_ColorItem, PropTypes;
@@ -1781,7 +1803,7 @@ module.exports = DesignSettings_ColorItem;
 
 
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var DesignSettings_Range, PropTypes;
@@ -1834,7 +1856,7 @@ module.exports = DesignSettings_Range;
 
 
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var DESIGN_SETTINGS_TITLE, DesignSettings, DesignSettingsMixin, DesignSettings_Checkbox, DesignSettings_Color, DesignSettings_FeedOpacity, DesignSettings_Font, DesignSettings_FontSize, DesignSettings_PageBackground, DesignSettings_ProductLayout, DesignSettings_ProductsInRow, DesignSettings_SaveButton, PropTypes, changeAlpha, changeBackgroundColor, hexToRgb, jss, setDesignClass;
@@ -2123,7 +2145,7 @@ setDesignClass = function(el, name, value) {
 
 
 
-},{"./buttons/save":23,"./common/checkbox":24,"./common/color":25,"./feedOpacity":30,"./font":31,"./fontSize":32,"./mixins/designSettings":33,"./pageBackground":34,"./productLayout":35,"./productsInRow":36,"jss":60}],30:[function(require,module,exports){
+},{"./buttons/save":24,"./common/checkbox":25,"./common/color":26,"./feedOpacity":31,"./font":32,"./fontSize":33,"./mixins/designSettings":34,"./pageBackground":35,"./productLayout":36,"./productsInRow":37,"jss":61}],31:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var DesignSettings_FeedOpacity, DesignSettings_Range, PropTypes;
@@ -2159,7 +2181,7 @@ module.exports = DesignSettings_FeedOpacity;
 
 
 
-},{"./common/range":28}],31:[function(require,module,exports){
+},{"./common/range":29}],32:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var DesignSettings_Font, PropTypes;
@@ -2208,7 +2230,7 @@ module.exports = DesignSettings_Font;
 
 
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var DesignSettings_FontSize, DesignSettings_Range, PropTypes;
@@ -2249,7 +2271,7 @@ module.exports = DesignSettings_FontSize;
 
 
 
-},{"./common/range":28}],33:[function(require,module,exports){
+},{"./common/range":29}],34:[function(require,module,exports){
 var DesignSettingsMixin;
 
 DesignSettingsMixin = {
@@ -2346,7 +2368,7 @@ module.exports = DesignSettingsMixin;
 
 
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var DesignSettings_PageBackground, PropTypes;
@@ -2404,7 +2426,7 @@ module.exports = DesignSettings_PageBackground;
 
 
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var DesignSettings_ProductLayout, PropTypes;
@@ -2453,7 +2475,7 @@ module.exports = DesignSettings_ProductLayout;
 
 
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var DesignSettings_ProductsInRow, DesignSettings_Range, PropTypes;
@@ -2494,7 +2516,7 @@ module.exports = DesignSettings_ProductsInRow;
 
 
 
-},{"./common/range":28}],37:[function(require,module,exports){
+},{"./common/range":29}],38:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var INSTAGRAM_API_URL, InstagramFeed_Mixin, STATE_ERROR, STATE_LOADED, STATE_LOADING;
@@ -2667,7 +2689,7 @@ window.InstagramFeed_Carousel = React.createClass({displayName: 'InstagramFeed_C
 
 
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 
 /** @jsx React.DOM */
 window.AddToBasketButton = React.createClass({displayName: 'AddToBasketButton',
@@ -2697,7 +2719,7 @@ window.AddToBasketButton = React.createClass({displayName: 'AddToBasketButton',
 
 
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 var KioskEvents;
 
 KioskEvents = new EventEmitter();
@@ -2712,7 +2734,7 @@ module.exports = KioskEvents;
 
 
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 
 /** @jsx React.DOM */
 var FilteredCountTooltip, TooltipController,
@@ -2770,7 +2792,7 @@ module.exports = TooltipController;
 
 
 
-},{"../components/common/tooltip/filteredCount":15}],41:[function(require,module,exports){
+},{"../components/common/tooltip/filteredCount":16}],42:[function(require,module,exports){
 var BaseDispatcher,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2804,7 +2826,7 @@ module.exports = BaseDispatcher;
 
 
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 var BaseDispatcher;
 
 BaseDispatcher = require('./_base');
@@ -2813,7 +2835,7 @@ window.BasketDispatcher = new BaseDispatcher();
 
 
 
-},{"./_base":41}],43:[function(require,module,exports){
+},{"./_base":42}],44:[function(require,module,exports){
 var BaseStore, CHANGE_EVENT,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2847,7 +2869,7 @@ module.exports = BaseStore;
 
 
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 var BaseStore, _cartItems;
 
 BaseStore = require('./_base');
@@ -2909,12 +2931,12 @@ window.BasketStore = _.extend(new BaseStore(), {
 
 
 
-},{"./_base":43}],45:[function(require,module,exports){
+},{"./_base":44}],46:[function(require,module,exports){
 var ApiRoutes;
 
 ApiRoutes = {
   productsFilteredCount: function(filter) {
-    return gon.vendor_api_root_url + '/v1/operator/products/filtered/count?' + filter;
+    return gon.vendor_api_root_url + '/v1/products/filtered/count?' + filter;
   }
 };
 
@@ -2922,7 +2944,7 @@ module.exports = ApiRoutes;
 
 
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 window.Routes = {
   vendor_cart_items_path: function() {
     return '/cart/cart_items/';
@@ -2931,7 +2953,7 @@ window.Routes = {
 
 
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 $(function() {
   var bPage, lenta, page, thisPage;
   if ('ontouchstart' in document) {
@@ -3026,7 +3048,7 @@ $(function() {
 
 
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 $(function() {
   var defaultCarouselOptions;
   defaultCarouselOptions = {
@@ -3062,7 +3084,7 @@ $(function() {
 
 
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 $(function() {
   var $cartTotal, setCartItemCount, updateCartTotal;
   $cartTotal = $('[cart-total]');
@@ -3099,7 +3121,7 @@ $(function() {
 
 
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 $(function() {
   var $checkoutTotal, findSelectedDeliveryType, selectDeliveryType, setCheckoutDeliveryPrice, setOnlyCity, toggleDeliveryOnlyElementsVisibility, updateCheckoutTotal;
   $checkoutTotal = $('[checkout-total]');
@@ -3168,7 +3190,7 @@ $(function() {
 
 
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 $(function() {
   $('[ks-jump]').on('click', function(e) {
     var href;
@@ -3188,7 +3210,7 @@ $(function() {
 
 
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 $(function() {
   return $('[lightbox]').fancybox({
     padding: 0,
@@ -3209,7 +3231,7 @@ $(function() {
 
 
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 $(function() {
   var LOADING_TITLE, isRequest;
   isRequest = false;
@@ -3253,7 +3275,7 @@ $(function() {
 
 
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 $(function() {
   var menuCopy, navOpen, searchBlock;
   menuCopy = $('[ks-mob-nav]');
@@ -3276,7 +3298,7 @@ $(function() {
 
 
 
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 $(function() {
   var center, productSlider, productThumbs, syncPosition;
   productSlider = $('#product-slider');
@@ -3337,7 +3359,7 @@ $(function() {
 
 
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 $(function() {
   var logo;
   logo = $('.b-logo__img');
@@ -3352,7 +3374,7 @@ $(function() {
 
 
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 /**
  * Copyright (c) 2014, Facebook, Inc.
  * All rights reserved.
@@ -3364,7 +3386,7 @@ $(function() {
 
 module.exports.Dispatcher = require('./lib/Dispatcher')
 
-},{"./lib/Dispatcher":58}],58:[function(require,module,exports){
+},{"./lib/Dispatcher":59}],59:[function(require,module,exports){
 /*
  * Copyright (c) 2014, Facebook, Inc.
  * All rights reserved.
@@ -3616,7 +3638,7 @@ var _prefix = 'ID_';
 
 module.exports = Dispatcher;
 
-},{"./invariant":59}],59:[function(require,module,exports){
+},{"./invariant":60}],60:[function(require,module,exports){
 /**
  * Copyright (c) 2014, Facebook, Inc.
  * All rights reserved.
@@ -3671,7 +3693,7 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 
 module.exports = invariant;
 
-},{}],60:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 /**
  * StyleSheets written in javascript.
  *
@@ -3682,7 +3704,7 @@ module.exports = invariant;
 
 module.exports = require('./lib/index')
 
-},{"./lib/index":63}],61:[function(require,module,exports){
+},{"./lib/index":64}],62:[function(require,module,exports){
 'use strict'
 
 var plugins = require('./plugins')
@@ -3907,7 +3929,7 @@ function indent(level, str) {
     return indentStr + str
 }
 
-},{"./plugins":64}],62:[function(require,module,exports){
+},{"./plugins":65}],63:[function(require,module,exports){
 'use strict'
 
 var Rule = require('./Rule')
@@ -4172,7 +4194,7 @@ StyleSheet.prototype.createElement = function () {
     return element
 }
 
-},{"./Rule":61,"./plugins":64}],63:[function(require,module,exports){
+},{"./Rule":62,"./plugins":65}],64:[function(require,module,exports){
 'use strict'
 
 var StyleSheet = require('./StyleSheet')
@@ -4219,7 +4241,7 @@ exports.createRule = function (selector, style) {
  */
 exports.use = exports.plugins.use
 
-},{"./Rule":61,"./StyleSheet":62,"./plugins":64}],64:[function(require,module,exports){
+},{"./Rule":62,"./StyleSheet":63,"./plugins":65}],65:[function(require,module,exports){
 'use strict'
 
 /**
