@@ -6,9 +6,7 @@ abortPendingRequests = (key) ->
     _pendingRequests[key].abort()
     _pendingRequests[key] = null
 
-vendorKey = ->
-  #FIXME: get real vendor key
-  'c3d753f03d73251bb4aa707e077ec8e7'
+vendorKey = -> global.vendorKey
 
 request = (_method, url, data = {}) ->
   headers =

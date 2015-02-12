@@ -21,8 +21,10 @@ CatalogFilterMixin =
       type: 'range'
       paramName: 'price'
       units: '&#x20BD;'
-      from: 10000
-      to: 50000
+      start: [20322, 35023]
+      range:
+        min: 10000
+        max: 50000
     }, {
       title: 'Показывать'
       type: 'checkbox'
