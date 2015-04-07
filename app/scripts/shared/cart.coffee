@@ -15,8 +15,11 @@ $ ->
 
     updateCartTotal()
 
+  selectedPackage = ->
+    $('[data-package]:checked')
+
   packagePrice = ->
-    $p = $('[data-package]:checked')
+    $p = selectedPackage()
 
     if $p
       $p.data('price')
@@ -37,12 +40,30 @@ $ ->
       accounting.formatMoney price
     else
       ''
-
     $('[data-total-package-price]').html price
+
+  updatePackage = (url, value)->
+    $.ajax
+      url: url
+      method: 'post'
+      async: false
+      data:
+        cart:
+          package_good_global_id: value
 
   $('[data-package]').on 'change', ->
     updatePackageTotal()
     updateCartTotal()
+
+  $('[data-package-add-btn]').on 'click', (e)->
+    e.preventDefault()
+    packageInput = selectedPackage()
+    if packageInput.length
+      updatePackage $(this).data('url'), packageInput.val()
+
+  $('[data-package-remove-btn]').on 'click', (e)->
+    e.preventDefault()
+    updatePackage $(this).data('url'), ''
 
   $('[cart-item-selector]').on 'change', ->
     $e = $ @

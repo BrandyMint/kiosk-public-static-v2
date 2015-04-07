@@ -5,7 +5,4677 @@ require('./bundle');
 
 
 
-},{"./appLibs":2,"./bundle":3}],"accounting":[function(require,module,exports){
+},{"./appLibs":2,"./bundle":3}],2:[function(require,module,exports){
+window._ = require('lodash');
+
+window.Dispatcher = require('flux').Dispatcher;
+
+window.EventEmitter = require('eventEmitter');
+
+window.accounting = require('accounting');
+
+require('jquery.role');
+
+require('jquery.mmenu');
+
+require('bootstrapSass');
+
+require('owlCarousel');
+
+require('fancybox');
+
+require('fancybox.wannabe');
+
+require('nouislider');
+
+window.accounting.settings = {
+  currency: {
+    symbol: 'руб.',
+    format: '%v %s',
+    decimal: ',',
+    thousand: ' ',
+    precision: 0
+  },
+  number: {
+    precision: 0,
+    thousand: '',
+    decimal: ','
+  }
+};
+
+
+
+},{"accounting":"accounting","bootstrapSass":"bootstrapSass","eventEmitter":"eventEmitter","fancybox":"fancybox","fancybox.wannabe":"fancybox.wannabe","flux":61,"jquery.mmenu":"jquery.mmenu","jquery.role":"jquery.role","lodash":"lodash","nouislider":"nouislider","owlCarousel":"owlCarousel"}],3:[function(require,module,exports){
+(function (global){
+var TooltipController;
+
+require('./shared/app');
+
+require('./shared/cart');
+
+require('./shared/load_more');
+
+require('./shared/lightbox');
+
+require('./shared/jump');
+
+require('./shared/product_images_slider');
+
+require('./shared/application_slider');
+
+require('./shared/theme_switcher');
+
+require('./shared/mobile_navigation');
+
+require('./shared/checkout');
+
+window.Routes = require('./routes/routes');
+
+window.ApiRoutes = require('./routes/api');
+
+require('./react/components/basket/button');
+
+require('./react/components/basket/popup');
+
+require('./react/components/product/add_to_basket_button');
+
+require('./react/components/instagram/instagram_feed_mixin');
+
+require('./react/components/instagram/instagram');
+
+require('./react/components/instagram/instagram_v2');
+
+require('./react/components/design/designer');
+
+require('./react/components/design/colorlist');
+
+require('./react/components/design/bglist');
+
+require('./react/components/design/fontlist');
+
+require('./react/components/design/toggle');
+
+require('./react/components/design/valueslider');
+
+require('./react/components/design/layoutlist');
+
+global.CatalogFilter = require('./react/components/catalogFilter/catalogFilter');
+
+global.DesignSettings = require('./react/components/designSettings/designSettings');
+
+require('./react/dispatchers/basket');
+
+require('./react/actions/view/basket');
+
+require('./react/stores/basket');
+
+window.Api = require('./react/api/api');
+
+window.KioskEvents = require('./react/controllers/events');
+
+TooltipController = require('./react/controllers/tooltip');
+
+new TooltipController();
+
+
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./react/actions/view/basket":4,"./react/api/api":5,"./react/components/basket/button":6,"./react/components/basket/popup":7,"./react/components/catalogFilter/catalogFilter":9,"./react/components/design/bglist":18,"./react/components/design/colorlist":19,"./react/components/design/designer":20,"./react/components/design/fontlist":21,"./react/components/design/layoutlist":22,"./react/components/design/toggle":23,"./react/components/design/valueslider":24,"./react/components/designSettings/designSettings":31,"./react/components/instagram/instagram":39,"./react/components/instagram/instagram_feed_mixin":40,"./react/components/instagram/instagram_v2":41,"./react/components/product/add_to_basket_button":42,"./react/controllers/events":43,"./react/controllers/tooltip":44,"./react/dispatchers/basket":46,"./react/stores/basket":48,"./routes/api":49,"./routes/routes":50,"./shared/app":51,"./shared/application_slider":52,"./shared/cart":53,"./shared/checkout":54,"./shared/jump":55,"./shared/lightbox":56,"./shared/load_more":57,"./shared/mobile_navigation":58,"./shared/product_images_slider":59,"./shared/theme_switcher":60}],4:[function(require,module,exports){
+window.BasketActions = {
+  addGood: function(good) {
+    return this._addItemToServer(good);
+  },
+  _addItemToServer: function(good, count) {
+    if (count == null) {
+      count = 1;
+    }
+    return $.ajax({
+      dataType: 'json',
+      method: 'post',
+      data: {
+        good_id: good.good_id,
+        count: count
+      },
+      url: Routes.vendor_cart_items_path(),
+      error: function(xhr, status, err) {
+        return typeof console.error === "function" ? console.error(err) : void 0;
+      },
+      success: function(response) {
+        return BasketDispatcher.handleServerAction({
+          actionType: 'productAddedToBasket',
+          cartItem: cartItem
+        });
+      }
+    });
+  },
+  receiveBasket: function(cartItems) {
+    return BasketDispatcher.handleViewAction({
+      actionType: 'receiveBasket',
+      cartItems: cartItems
+    });
+  }
+};
+
+
+
+},{}],5:[function(require,module,exports){
+var Api, TIMEOUT, abortPendingRequests, deleteRequest, getRequest, postRequest, putRequest, request, vendorKey, _pendingRequests;
+
+TIMEOUT = 10000;
+
+_pendingRequests = {};
+
+abortPendingRequests = function(key) {
+  if (_pendingRequests[key]) {
+    _pendingRequests[key].abort();
+    return _pendingRequests[key] = null;
+  }
+};
+
+vendorKey = function() {
+  return 'c3d753f03d73251bb4aa707e077ec8e7';
+};
+
+request = function(_method, url, data) {
+  var headers, method;
+  if (data == null) {
+    data = {};
+  }
+  headers = {
+    'X-Requested-With': 'XMLHttpRequest',
+    'X-Vendor-Key': vendorKey()
+  };
+  method = (function() {
+    switch (_method) {
+      case 'GET':
+        return 'GET';
+      case 'POST':
+      case 'PUT':
+      case 'DELETE':
+        return 'POST';
+      default:
+        return 'GET';
+    }
+  })();
+  _.extend(data, {
+    _method: _method
+  });
+  return $.ajax({
+    url: url,
+    method: method,
+    data: data,
+    headers: headers,
+    timeout: TIMEOUT,
+    xhrFields: {
+      withCredentials: true,
+      crossDomain: true
+    }
+  });
+};
+
+getRequest = function(url, data) {
+  return request('GET', url, data);
+};
+
+postRequest = function(url, data) {
+  return request('POST', url, data);
+};
+
+putRequest = function(url, data) {
+  return request('PUT', url, data);
+};
+
+deleteRequest = function(url, data) {
+  return request('DELETE', url, data);
+};
+
+Api = {
+  products: {
+    filteredCount: function(filter) {
+      var key, url;
+      url = ApiRoutes.productsFilteredCount(filter);
+      key = 'productsFilteredCount';
+      abortPendingRequests(key);
+      return _pendingRequests[key] = getRequest(url);
+    }
+  }
+};
+
+module.exports = Api;
+
+
+
+},{}],6:[function(require,module,exports){
+window.BasketButton = React.createClass({
+  propTypes: {
+    itemsCount: React.PropTypes.number,
+    cartUrl: React.PropTypes.string.isRequired
+  },
+  getDefaultProps: function() {
+    return {
+      cartUrl: "/cart.html"
+    };
+  },
+  getInitialState: function() {
+    return {
+      itemsCount: this.props.itemsCount || BasketStore.getBasketCount()
+    };
+  },
+  componentDidMount: function() {
+    this.getDOMNode().parentElement.removeAttribute('data-react-class');
+    return BasketStore.addChangeListener(this._onChange);
+  },
+  componentDidUnmount: function() {
+    return BasketStore.removeChangeListener(this._onChange);
+  },
+  _onChange: function() {
+    return this.setState({
+      itemsCount: BasketStore.getBasketCount()
+    });
+  },
+  render: function() {
+    if (this.state.itemsCount > 0) {
+      return React.createElement(BasketButton_Full, {
+        "cartUrl": this.props.cartUrl,
+        "itemsCount": this.state.itemsCount
+      });
+    } else {
+      return React.createElement(BasketButton_Empty, {
+        "cartUrl": this.props.cartUrl
+      });
+    }
+  }
+});
+
+window.BasketButton_Full = React.createClass({
+  propTypes: {
+    itemsCount: React.PropTypes.number.isRequired,
+    cartUrl: React.PropTypes.string.isRequired
+  },
+  render: function() {
+    return React.createElement("a", {
+      "className": 'b-cart-trigger b-cart-trigger_full',
+      "href": this.props.cartUrl
+    }, React.createElement("span", {
+      "className": 'b-cart-trigger__count'
+    }, this.props.itemsCount));
+  }
+});
+
+window.BasketButton_Empty = React.createClass({
+  propTypes: {
+    cartUrl: React.PropTypes.string.isRequired
+  },
+  render: function() {
+    return React.createElement("a", {
+      "className": 'b-cart-trigger',
+      "href": this.props.cartUrl
+    });
+  }
+});
+
+
+
+},{}],7:[function(require,module,exports){
+window.BasketPopup = React.createClass({
+  propTypes: {
+    cartUrl: React.PropTypes.string.isRequired,
+    cartClearUrl: React.PropTypes.string.isRequired,
+    cartItems: React.PropTypes.array.isRequired
+  },
+  getDefaultProps: function() {
+    return {
+      cartUrl: "/cart.html",
+      cartClearUrl: "/cart.html?clear",
+      items: null
+    };
+  },
+  getInitialState: function() {
+    return {
+      isVisible: false,
+      items: null
+    };
+  },
+  componentDidMount: function() {
+    $(document).on("click", this.handleBodyClick);
+    $(document).on("cart:clicked", this.handleCartClicked);
+    $(document).on("keyup", this.handleBodyKey);
+    return BasketStore.addChangeListener(this._onChange);
+  },
+  componentWillUnmount: function() {
+    $(document).off("click", this.handleBodyClick);
+    $(document).off("cart:clicked", this.handleCartClicked);
+    return $(document).off("keyup", this.handleBodyKey);
+  },
+  render: function() {
+    var classNameValue;
+    classNameValue = "b-float-cart";
+    if (this.state.isVisible === false) {
+      classNameValue += " b-float-cart_invisible";
+    }
+    return React.createElement("div", {
+      "className": classNameValue
+    }, React.createElement("div", {
+      "className": 'b-float-cart__content',
+      "onClick": this.handleClick
+    }, React.createElement(BasketPopupList, {
+      "items": this.props.items
+    }), React.createElement(BasketPopupControl, {
+      "cartUrl": this.props.cartUrl,
+      "cartClearUrl": this.props.cartClearUrl
+    })));
+  },
+  _onChange: function() {
+    this.setState({
+      items: BasketStore.getBasketItems()
+    });
+    return this.handleCartClicked();
+  },
+  handleCartClicked: function(e) {
+    return this.setState({
+      isVisible: true
+    });
+  },
+  handleClick: function(e) {
+    return $(document).trigger("cart:clicked");
+  },
+  handleBodyClick: function() {
+    if (this.state.isVisible) {
+      return this.setState({
+        isVisible: false
+      });
+    }
+  },
+  handleBodyKey: function(e) {
+    if (e.keyCode === 27) {
+      return this.setState({
+        isVisible: false
+      });
+    }
+  }
+});
+
+window.BasketPopupList = React.createClass({
+  propTypes: {
+    items: React.PropTypes.array
+  },
+  render: function() {
+    var itemsList;
+    if (!this.props.items) {
+      return null;
+    }
+    itemsList = this.props.items.map(function(item) {
+      return React.createElement(BasketPopupItem, {
+        "key": item.id,
+        "item": item
+      });
+    });
+    return React.createElement("div", {
+      "className": "b-float-cart__item-wrap"
+    }, itemsList);
+  }
+});
+
+window.BasketPopupItem = React.createClass({
+  propTypes: {
+    product_url: React.PropTypes.string,
+    good_id: React.PropTypes.number,
+    price: React.PropTypes.number,
+    count: React.PropTypes.number,
+    image_url: React.PropTypes.string,
+    title: React.PropTypes.string,
+    description: React.PropTypes.string,
+    article: React.PropTypes.string,
+    count: React.PropTypes.number
+  },
+  render: function() {
+    return React.createElement("div", {
+      "className": "b-float-cart__item"
+    }, React.createElement("div", {
+      "className": "b-float-cart__item__inner"
+    }, React.createElement("div", {
+      "className": "b-float-cart__item__img"
+    }, React.createElement("a", {
+      "href": this.props.product_url
+    }, React.createElement("img", {
+      "src": this.props.image_url,
+      "alt": this.props.title
+    }))), React.createElement("div", {
+      "className": "b-float-cart__item__info"
+    }, React.createElement("a", {
+      "className": "b-float-cart__item__name",
+      "href": this.props.product_url
+    }, this.props.title), React.createElement("div", {
+      "className": "b-float-cart__item__param"
+    }, this.props.description), React.createElement("div", {
+      "className": "b-float-cart__item__param"
+    }, this.props.article)), React.createElement("div", {
+      "className": "b-float-cart__item__q"
+    }, this.props.count), React.createElement("div", {
+      "className": "b-float-cart__item__price"
+    }, React.createElement("div", {
+      "className": "b-float-cart__item__price-val"
+    }, accounting.formatMoney((this.props.price.cents / 100).toFixed(2) * this.props.count)))));
+  }
+});
+
+window.BasketPopupControl = React.createClass({
+  propTypes: {
+    cartUrl: React.PropTypes.string.isRequired,
+    cartClearUrl: React.PropTypes.string.isRequired
+  },
+  render: function() {
+    return React.createElement("div", {
+      "className": "b-float-cart__control"
+    }, React.createElement("a", {
+      "className": "b-float-cart__url b-btn",
+      "href": this.props.cartUrl
+    }, "\u041f\u0435\u0440\u0435\u0439\u0442\u0438 \u0432 \u043a\u043e\u0440\u0437\u0438\u043d\u0443"), React.createElement("a", {
+      "className": "b-float-cart__clear",
+      "href": this.props.cartClearUrl
+    }, "\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c \u043a\u043e\u0440\u0437\u0438\u043d\u0443"));
+  }
+});
+
+
+
+},{}],8:[function(require,module,exports){
+var CatalogFilter_ShowResultsButton, PropTypes;
+
+PropTypes = React.PropTypes;
+
+CatalogFilter_ShowResultsButton = React.createClass({
+  render: function() {
+    return React.createElement("button", {
+      "className": "b-btn b-full-filter__submit",
+      "onClick": this.props.onClick
+    }, "\u041f\u043e\u043a\u0430\u0437\u0430\u0442\u044c");
+  }
+});
+
+module.exports = CatalogFilter_ShowResultsButton;
+
+
+
+},{}],9:[function(require,module,exports){
+var CatalogFilter, CatalogFilterList, CatalogFilterMixin, CatalogFilter_ShowResultsButton, PropTypes;
+
+CatalogFilterMixin = require('./mixins/catalogFilter');
+
+CatalogFilterList = require('./list');
+
+CatalogFilter_ShowResultsButton = require('./buttons/showResults');
+
+PropTypes = React.PropTypes;
+
+CatalogFilter = React.createClass({
+  mixins: [CatalogFilterMixin],
+  propTypes: {
+    options: PropTypes.array.isRequired,
+    selectedOptions: PropTypes.array,
+    filterName: PropTypes.string,
+    categoryId: PropTypes.number
+  },
+  getDefaultProps: function() {
+    return {
+      filterName: 'f'
+    };
+  },
+  render: function() {
+    return React.createElement("div", {
+      "className": "b-full-filter"
+    }, React.createElement("input", {
+      "className": "b-full-filter__toggle",
+      "id": "filter-toggle",
+      "type": "checkbox"
+    }), React.createElement("label", {
+      "className": "b-full-filter__trigger",
+      "htmlFor": "filter-toggle"
+    }, React.createElement("span", {
+      "className": "b-btn b-full-filter__trigger__action b-full-filter__trigger__action_open"
+    }, "\u041f\u043e\u043a\u0430\u0437\u0430\u0442\u044c \u0444\u0438\u043b\u044c\u0442\u0440"), React.createElement("span", {
+      "className": "b-btn b-full-filter__trigger__action b-full-filter__trigger__action_close"
+    }, "\u0421\u043a\u0440\u044b\u0442\u044c \u0444\u0438\u043b\u044c\u0442\u0440")), React.createElement(CatalogFilterList, {
+      "options": this.props.options,
+      "selectedOptions": this.props.selectedOptions,
+      "categoryId": this.props.categoryId,
+      "filterName": this.props.filterName
+    }), React.createElement(CatalogFilter_ShowResultsButton, null));
+  }
+});
+
+module.exports = CatalogFilter;
+
+
+
+},{"./buttons/showResults":8,"./list":10,"./mixins/catalogFilter":16}],10:[function(require,module,exports){
+var CatalogFilterList, CatalogFilterList_Checkbox, CatalogFilterList_Color, CatalogFilterList_Radio, CatalogFilterList_Range, CatalogFilterList_SelectedOptions, PropTypes;
+
+CatalogFilterList_SelectedOptions = require('./list/selectedOptions');
+
+CatalogFilterList_Checkbox = require('./list/checkbox');
+
+CatalogFilterList_Radio = require('./list/radio');
+
+CatalogFilterList_Range = require('./list/range');
+
+CatalogFilterList_Color = require('./list/color');
+
+PropTypes = React.PropTypes;
+
+CatalogFilterList = React.createClass({
+  propTypes: {
+    options: PropTypes.array.isRequired,
+    selectedOptions: PropTypes.array.isRequired,
+    filterName: PropTypes.string.isRequired,
+    categoryId: PropTypes.number
+  },
+  getDefaultProps: function() {
+    return {
+      categoryId: null
+    };
+  },
+  render: function() {
+    return React.createElement("ul", {
+      "className": "b-full-filter__list-wrap"
+    }, React.createElement(CatalogFilterList_SelectedOptions, {
+      "selectedOptions": this.props.selectedOptions
+    }), this.renderListItems());
+  },
+  renderListItems: function() {
+    var listItems, that;
+    that = this;
+    return listItems = this.props.options.map(function(item, i) {
+      var from, items, paramName, title, to, units, value, valueFrom, valueTo;
+      switch (item.type) {
+        case 'checkbox':
+          title = item.title, paramName = item.paramName, items = item.items;
+          return React.createElement(CatalogFilterList_Checkbox, {
+            "title": title,
+            "paramName": paramName,
+            "filterName": that.props.filterName,
+            "items": items,
+            "categoryId": that.props.categoryId,
+            "key": i
+          });
+        case 'radio':
+          title = item.title, value = item.value, paramName = item.paramName, items = item.items;
+          return React.createElement(CatalogFilterList_Radio, {
+            "title": title,
+            "value": value,
+            "paramName": paramName,
+            "filterName": that.props.filterName,
+            "items": items,
+            "categoryId": that.props.categoryId,
+            "key": i
+          });
+        case 'range':
+          title = item.title, paramName = item.paramName, units = item.units, valueFrom = item.valueFrom, valueTo = item.valueTo, from = item.from, to = item.to;
+          return React.createElement(CatalogFilterList_Range, {
+            "title": title,
+            "paramName": paramName,
+            "filterName": that.props.filterName,
+            "units": units,
+            "valueFrom": valueFrom,
+            "valueTo": valueTo,
+            "from": from,
+            "to": to,
+            "categoryId": that.props.categoryId,
+            "key": i
+          });
+        case 'color':
+          title = item.title, paramName = item.paramName, items = item.items;
+          return React.createElement(CatalogFilterList_Color, {
+            "title": title,
+            "paramName": paramName,
+            "filterName": that.props.filterName,
+            "items": items,
+            "categoryId": that.props.categoryId,
+            "key": i
+          });
+        default:
+          return typeof console.warn === "function" ? console.warn('Unknown item type of CatalogFilterList component', item) : void 0;
+      }
+    });
+  }
+});
+
+module.exports = CatalogFilterList;
+
+
+
+},{"./list/checkbox":11,"./list/color":12,"./list/radio":13,"./list/range":14,"./list/selectedOptions":15}],11:[function(require,module,exports){
+var CatalogFilterList_Checkbox, PropTypes;
+
+PropTypes = React.PropTypes;
+
+CatalogFilterList_Checkbox = React.createClass({
+  propTypes: {
+    title: PropTypes.string.isRequired,
+    paramName: PropTypes.string.isRequired,
+    filterName: PropTypes.string.isRequired,
+    items: PropTypes.array.isRequired,
+    categoryId: PropTypes.number.isRequired
+  },
+  render: function() {
+    return React.createElement("li", {
+      "className": "b-full-filter__item"
+    }, React.createElement("div", {
+      "className": "b-full-filter__item__title"
+    }, this.props.title), this.renderListItems());
+  },
+  renderListItems: function() {
+    var listItems, that;
+    that = this;
+    listItems = this.props.items.map(function(item, i) {
+      return React.createElement("label", {
+        "className": "b-cbox",
+        "key": i
+      }, React.createElement("input", {
+        "type": "checkbox",
+        "name": that.getFieldName(item),
+        "defaultChecked": item.checked,
+        "className": "b-cbox__native",
+        "onChange": that.handleChange
+      }), React.createElement("div", {
+        "className": "b-cbox__val"
+      }, item.name));
+    });
+    return React.createElement("div", {
+      "className": "b-full-filter__widget"
+    }, listItems);
+  },
+  getFieldName: function(item) {
+    return "" + this.props.filterName + "[" + this.props.paramName + "][" + item.paramValue + "]";
+  },
+  handleChange: function(e) {
+    var elRect, filter, offsetLeft, position;
+    elRect = e.target.getBoundingClientRect();
+    offsetLeft = 15;
+    filter = $(this.getDOMNode()).closest('form').serialize() + ("&category_id=" + this.props.categoryId);
+    position = {
+      left: elRect.right + offsetLeft,
+      top: elRect.top + document.body.scrollTop - elRect.height / 2
+    };
+    return KioskEvents.emit(KioskEvents.keys.commandTooltipShow(), position, filter);
+  }
+});
+
+module.exports = CatalogFilterList_Checkbox;
+
+
+
+},{}],12:[function(require,module,exports){
+var CatalogFilterList_Color, PropTypes;
+
+PropTypes = React.PropTypes;
+
+CatalogFilterList_Color = React.createClass({
+  propTypes: {
+    title: PropTypes.string.isRequired,
+    paramName: PropTypes.string.isRequired,
+    filterName: PropTypes.string.isRequired,
+    items: PropTypes.array.isRequired,
+    categoryId: PropTypes.number.isRequired
+  },
+  render: function() {
+    return React.createElement("li", {
+      "className": "b-full-filter__item"
+    }, React.createElement("div", {
+      "className": "b-full-filter__item__title"
+    }, this.props.title), this.renderListItems());
+  },
+  renderListItems: function() {
+    var listItems, that;
+    that = this;
+    listItems = this.props.items.map(function(item, i) {
+      return React.createElement("label", {
+        "className": "b-cbox b-cbox_color",
+        "key": i
+      }, React.createElement("input", {
+        "type": "checkbox",
+        "name": that.getFieldName(item),
+        "defaultChecked": item.checked,
+        "title": item.name,
+        "className": "b-cbox__native",
+        "onChange": that.handleChange
+      }), React.createElement("div", {
+        "style": {
+          backgroundColor: item.hexCode
+        },
+        "className": "b-cbox__val"
+      }));
+    });
+    return React.createElement("div", {
+      "ref": "list",
+      "className": "b-full-filter__widget"
+    }, listItems);
+  },
+  getFieldName: function(item) {
+    return "" + this.props.filterName + "[" + this.props.paramName + "][" + item.paramValue + "]";
+  },
+  handleChange: function(e) {
+    var elRect, filter, listRect, offsetLeft, position;
+    elRect = e.target.getBoundingClientRect();
+    listRect = this.refs.list.getDOMNode().getBoundingClientRect();
+    offsetLeft = 15;
+    filter = $(this.getDOMNode()).closest('form').serialize() + ("&category_id=" + this.props.categoryId);
+    position = {
+      left: listRect.right + offsetLeft,
+      top: elRect.top + document.body.scrollTop - elRect.height / 2
+    };
+    return KioskEvents.emit(KioskEvents.keys.commandTooltipShow(), position, filter);
+  }
+});
+
+module.exports = CatalogFilterList_Color;
+
+
+
+},{}],13:[function(require,module,exports){
+var CatalogFilterList_Radio, PropTypes;
+
+PropTypes = React.PropTypes;
+
+CatalogFilterList_Radio = React.createClass({
+  propTypes: {
+    title: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+    paramName: PropTypes.string.isRequired,
+    filterName: PropTypes.string.isRequired,
+    items: PropTypes.array.isRequired,
+    categoryId: PropTypes.number.isRequired
+  },
+  render: function() {
+    return React.createElement("li", {
+      "className": "b-full-filter__item"
+    }, React.createElement("div", {
+      "className": "b-full-filter__item__title"
+    }, this.props.title), this.renderListItems());
+  },
+  renderListItems: function() {
+    var listItems, that;
+    that = this;
+    listItems = this.props.items.map(function(item, i) {
+      return React.createElement("label", {
+        "className": "b-radio",
+        "key": i
+      }, React.createElement("input", {
+        "type": "radio",
+        "name": that.getFieldName(item),
+        "defaultChecked": item.paramValue === that.props.value,
+        "value": item.paramValue,
+        "className": "b-radio__native",
+        "onChange": that.handleChange
+      }), React.createElement("div", {
+        "className": "b-radio__val"
+      }, item.name));
+    });
+    return React.createElement("div", {
+      "className": "b-full-filter__widget"
+    }, listItems);
+  },
+  getFieldName: function(item) {
+    return "" + this.props.filterName + "[" + this.props.paramName + "]";
+  },
+  handleChange: function(e) {
+    var elRect, filter, offsetLeft, position;
+    elRect = e.target.getBoundingClientRect();
+    offsetLeft = 15;
+    filter = $(this.getDOMNode()).closest('form').serialize() + ("&category_id=" + this.props.categoryId);
+    position = {
+      left: elRect.right + offsetLeft,
+      top: elRect.top + document.body.scrollTop - elRect.height / 2
+    };
+    return KioskEvents.emit(KioskEvents.keys.commandTooltipShow(), position, filter);
+  }
+});
+
+module.exports = CatalogFilterList_Radio;
+
+
+
+},{}],14:[function(require,module,exports){
+var CatalogFilterList_Range, PropTypes;
+
+PropTypes = React.PropTypes;
+
+CatalogFilterList_Range = React.createClass({
+  propTypes: {
+    title: PropTypes.string.isRequired,
+    paramName: PropTypes.string.isRequired,
+    filterName: PropTypes.string.isRequired,
+    units: PropTypes.string,
+    valueFrom: PropTypes.number,
+    valueTo: PropTypes.number,
+    from: PropTypes.number.isRequired,
+    to: PropTypes.number.isRequired,
+    categoryId: PropTypes.number.isRequired
+  },
+  getInitialState: function() {
+    return {
+      from: this.props.valueFrom || this.props.from,
+      to: this.props.valueTo || this.props.to
+    };
+  },
+  componentDidMount: function() {
+    var slider;
+    slider = this.refs.slider.getDOMNode();
+    $(slider).noUiSlider({
+      start: [this.state.from, this.state.to],
+      range: {
+        min: this.props.from,
+        max: this.props.to
+      },
+      connect: true
+    });
+    $(slider).on('slide', this.handleSlide);
+    return $(slider).on('change', this.handleChange);
+  },
+  componentWillUnmount: function() {
+    var slider;
+    slider = this.refs.slider.getDOMNode();
+    $(slider).off('slide', this.handleSlide);
+    $(slider).off('change', this.handleChange);
+    return $(slider).destroy();
+  },
+  render: function() {
+    return React.createElement("li", {
+      "className": "b-full-filter__item b-full-filter__item_price"
+    }, React.createElement("div", {
+      "className": "b-full-filter__item__title"
+    }, this.props.title), React.createElement("div", {
+      "className": "b-full-filter__widget",
+      "onClick": this.handleClick
+    }, React.createElement("div", {
+      "className": "b-full-filter__slider"
+    }, React.createElement("div", {
+      "ref": "rangeValue",
+      "className": "b-full-filter__slider__value"
+    }, this.state.from, React.createElement("span", {
+      "className": "slider-divider"
+    }, " \u2013 "), this.state.to, " ", React.createElement("span", {
+      "dangerouslySetInnerHTML": {
+        __html: this.props.units
+      }
+    })), React.createElement("div", {
+      "ref": "slider",
+      "className": "b-full-filter__slider__embed"
+    }))), React.createElement("input", {
+      "type": "hidden",
+      "name": this.props.filterName + '[' + this.props.paramName + '][from]',
+      "value": this.state.from
+    }), React.createElement("input", {
+      "type": "hidden",
+      "name": this.props.filterName + '[' + this.props.paramName + '][to]',
+      "value": this.state.to
+    }));
+  },
+  handleSlide: function(e, range) {
+    return this.setState({
+      from: parseInt(range[0]),
+      to: parseInt(range[1])
+    });
+  },
+  handleChange: function() {
+    var elRect, filter, offsetLeft, position;
+    elRect = this.refs.rangeValue.getDOMNode().getBoundingClientRect();
+    offsetLeft = 15;
+    filter = $(this.getDOMNode()).closest('form').serialize() + ("&category_id=" + this.props.categoryId);
+    position = {
+      left: elRect.right + offsetLeft,
+      top: elRect.top + document.body.scrollTop - elRect.height / 2
+    };
+    return KioskEvents.emit(KioskEvents.keys.commandTooltipShow(), position, filter);
+  }
+});
+
+module.exports = CatalogFilterList_Range;
+
+
+
+},{}],15:[function(require,module,exports){
+var CatalogFilterList_SelectedOptions, PropTypes;
+
+PropTypes = React.PropTypes;
+
+CatalogFilterList_SelectedOptions = React.createClass({
+  propTypes: {
+    selectedOptions: PropTypes.array.isRequired
+  },
+  render: function() {
+    if (this.hasOptions()) {
+      return React.createElement("li", {
+        "className": "b-full-filter__item"
+      }, React.createElement("div", {
+        "className": "b-full-filter__item__title"
+      }, "\u0422\u0435\u043a\u0443\u0449\u0438\u0439 \u0432\u044b\u0431\u043e\u0440"), this.renderListItems());
+    } else {
+      return null;
+    }
+  },
+  renderListItems: function() {
+    var listItems, selectedOptions;
+    selectedOptions = this;
+    listItems = this.props.selectedOptions.map(function(item, i) {
+      return React.createElement("span", {
+        "className": "b-full-filter__value",
+        "onClick": selectedOptions.removeOption.bind(null, item.url),
+        "key": i
+      }, item.name);
+    });
+    return React.createElement("div", {
+      "className": "b-full-filter__widget"
+    }, listItems);
+  },
+  hasOptions: function() {
+    return this.props.selectedOptions.length;
+  },
+  removeOption: function(url) {
+    return window.location = url;
+  }
+});
+
+module.exports = CatalogFilterList_SelectedOptions;
+
+
+
+},{}],16:[function(require,module,exports){
+var CatalogFilterMixin;
+
+CatalogFilterMixin = {
+  getDefaultProps: function() {
+    return {
+      selectedOptions: [
+        {
+          name: 'Цена от 20 000 до 5000 Р',
+          url: '?filter_without_price'
+        }, {
+          name: 'Категория: гибридные',
+          url: '?filter_without_category'
+        }, {
+          name: 'Материал: карбон',
+          url: '?filter_without_material'
+        }
+      ],
+      options: [
+        {
+          title: 'Показывать',
+          type: 'radio',
+          paramName: 'availability',
+          value: 'all',
+          items: [
+            {
+              name: 'Все',
+              paramValue: 'all'
+            }, {
+              name: 'В наличии',
+              paramValue: 'in-stock'
+            }, {
+              name: 'Под заказ',
+              paramValue: 'on-request'
+            }, {
+              name: 'Распродажа',
+              paramValue: 'sale'
+            }
+          ]
+        }, {
+          title: 'Ценовой диапазон',
+          type: 'range',
+          paramName: 'price',
+          units: '&#x20BD;',
+          valueFrom: 20322,
+          valueTo: 35023,
+          from: 10000,
+          to: 50000
+        }, {
+          title: 'Показывать',
+          type: 'checkbox',
+          paramName: 'type',
+          items: [
+            {
+              name: 'Все',
+              paramValue: 'all',
+              checked: true
+            }, {
+              name: 'Гибридные',
+              paramValue: 'hybrid',
+              checked: false
+            }, {
+              name: 'Складные',
+              paramValue: 'foldable',
+              checked: true
+            }, {
+              name: 'Электро',
+              paramValue: 'electro',
+              checked: false
+            }
+          ]
+        }, {
+          title: 'Цвет',
+          type: 'color',
+          paramName: 'color',
+          items: [
+            {
+              name: 'Красный',
+              paramValue: 'red',
+              hexCode: '#fe2a2a',
+              checked: false
+            }, {
+              name: 'Оранжевый',
+              paramValue: 'orange',
+              hexCode: '#feac2a',
+              checked: true
+            }, {
+              name: 'Голубой',
+              paramValue: 'cyan',
+              hexCode: '#2fe1ec',
+              checked: false
+            }, {
+              name: 'Серый',
+              paramValue: 'grey',
+              hexCode: '#aeaeae',
+              checked: true
+            }
+          ]
+        }, {
+          title: 'Материал рамы',
+          type: 'checkbox',
+          paramName: 'frame-material',
+          items: [
+            {
+              name: 'Сталь',
+              paramValue: 'steal',
+              checked: false
+            }, {
+              name: 'Карбон',
+              paramValue: 'carbon',
+              checked: true
+            }, {
+              name: 'Алюминий',
+              paramValue: 'aluminum',
+              checked: false
+            }
+          ]
+        }, {
+          title: 'Модельный ряд',
+          type: 'checkbox',
+          paramName: 'series',
+          items: [
+            {
+              name: '2014',
+              paramValue: '2014',
+              checked: false
+            }, {
+              name: '2013',
+              paramValue: '2013',
+              checked: false
+            }, {
+              name: '2012',
+              paramValue: '2012',
+              checked: true
+            }
+          ]
+        }
+      ]
+    };
+  }
+};
+
+module.exports = CatalogFilterMixin;
+
+
+
+},{}],17:[function(require,module,exports){
+var Api, ERROR_STATE, FilteredCountTooltip, LOADED_STATE, LOADING_STATE, PropTypes, TIMEOUT;
+
+Api = require('../../../api/api');
+
+PropTypes = React.PropTypes;
+
+TIMEOUT = 3000;
+
+LOADING_STATE = 'loading';
+
+LOADED_STATE = 'loaded';
+
+ERROR_STATE = 'error';
+
+FilteredCountTooltip = React.createClass({
+  propTypes: {
+    title: PropTypes.string,
+    filter: PropTypes.string.isRequired,
+    timeout: PropTypes.number,
+    position: PropTypes.shape({
+      left: PropTypes.number.isRequired,
+      top: PropTypes.number.isRequired
+    }).isRequired
+  },
+  getDefaultProps: function() {
+    return {
+      title: 'Показать',
+      timeout: TIMEOUT,
+      position: {
+        left: 0,
+        top: 0
+      }
+    };
+  },
+  getInitialState: function() {
+    return {
+      currentState: LOADING_STATE,
+      count: null
+    };
+  },
+  componentDidMount: function() {
+    this.timeout = setTimeout(this.props.onClose, this.props.timeout);
+    return Api.products.filteredCount(this.props.filter).then((function(_this) {
+      return function(count) {
+        return _this.setState({
+          currentState: LOADED_STATE,
+          count: count
+        });
+      };
+    })(this)).fail(this.activateErrorState);
+  },
+  componentWillUnmount: function() {
+    if (this.timeout != null) {
+      return clearTimeout(this.timeout);
+    }
+  },
+  render: function() {
+    return React.createElement("div", {
+      "style": this.getStyles(),
+      "className": "b-tooltip"
+    }, this.renderContent());
+  },
+  renderContent: function() {
+    switch (this.state.currentState) {
+      case LOADING_STATE:
+        return 'Загрузка..';
+      case ERROR_STATE:
+        return 'Ошибка загрузки:(';
+      case LOADED_STATE:
+        return React.createElement("span", null, "\u0412\u044b\u0431\u0440\u0430\u043d\u043e \u0432\u0430\u0440\u0438\u0430\u043d\u0442\u043e\u0432: ", this.state.count, " ", React.createElement("a", {
+          "href": '?' + this.props.filter
+        }, this.props.title));
+    }
+  },
+  activateErrorState: function() {
+    return this.setState({
+      currentState: ERROR_STATE
+    });
+  },
+  getStyles: function() {
+    var left, top, _ref;
+    _ref = this.props.position, left = _ref.left, top = _ref.top;
+    return {
+      left: left,
+      top: top
+    };
+  }
+});
+
+module.exports = FilteredCountTooltip;
+
+
+
+},{"../../../api/api":5}],18:[function(require,module,exports){
+window.BackgroundList = React.createClass({
+  propTypes: {
+    name: React.PropTypes.string.isRequired,
+    bgSet: React.PropTypes.object.isRequired,
+    value: React.PropTypes.string
+  },
+  getDefaultProps: function() {
+    return {
+      bgSet: {
+        'bg-pikachu': 'http://cs9514.vk.me/v9514976/2b7d/dV_vHdU34H8.jpg',
+        'bg-slowpoke': 'http://cs9514.vk.me/v9514976/2b7d/dV_vHdU34H8.jpg'
+      }
+    };
+  },
+  handleChange: function(background) {
+    var _base;
+    return typeof (_base = this.props).onChange === "function" ? _base.onChange(background) : void 0;
+  },
+  render: function() {
+    var bgSetList;
+    bgSetList = _.map(this.props.bgSet, (function(_this) {
+      return function(background, key) {
+        var checked;
+        checked = false;
+        checked = _this.props.value && _this.props.value === key;
+        return React.createElement(BackgroundListElement, {
+          "name": _this.props.name,
+          "checked": checked,
+          "background": background,
+          "key": key,
+          "onChange": _this.handleChange.bind(background, key)
+        });
+      };
+    })(this));
+    return React.createElement("div", null, bgSetList);
+  }
+});
+
+window.BackgroundListElement = React.createClass({
+  propTypes: {
+    background: React.PropTypes.string.isRequired,
+    name: React.PropTypes.string.isRequired,
+    checked: React.PropTypes.bool.isRequired
+  },
+  render: function() {
+    return React.createElement("label", {
+      "className": "b-design-option__color b-design-option__color_img"
+    }, React.createElement("input", {
+      "type": "radio",
+      "name": this.props.name,
+      "defaultChecked": this.props.checked,
+      "value": this.props.background,
+      "onChange": this.props.onChange
+    }), React.createElement("span", {
+      "className": "b-design-option__color__ind"
+    }, React.createElement("img", {
+      "src": this.props.background,
+      "alt": ""
+    })));
+  }
+});
+
+
+
+},{}],19:[function(require,module,exports){
+window.ColorList = React.createClass({
+  propTypes: {
+    name: React.PropTypes.string.isRequired,
+    colorSet: React.PropTypes.object.isRequired,
+    value: React.PropTypes.string
+  },
+  getDefaultProps: function() {
+    return {
+      colorSet: {
+        'bg-dark': '#000',
+        'bg-white': '#fff',
+        'layer-dark': '#000',
+        'layer-light': '#fff'
+      }
+    };
+  },
+  handleChange: function(color) {
+    var _base;
+    return typeof (_base = this.props).onChange === "function" ? _base.onChange(color) : void 0;
+  },
+  render: function() {
+    var colorSetList;
+    colorSetList = _.map(this.props.colorSet, (function(_this) {
+      return function(color, key) {
+        var checked;
+        checked = false;
+        checked = _this.props.value && _this.props.value === key;
+        return React.createElement(ColorSelect, {
+          "name": _this.props.name,
+          "checked": checked,
+          "color": color,
+          "colorName": key,
+          "key": key,
+          "onChange": _this.handleChange.bind(color, key)
+        });
+      };
+    })(this));
+    return React.createElement("div", null, colorSetList);
+  }
+});
+
+window.ColorSelect = React.createClass({
+  propTypes: {
+    color: React.PropTypes.string.isRequired,
+    colorName: React.PropTypes.string.isRequired,
+    name: React.PropTypes.string.isRequired,
+    checked: React.PropTypes.bool.isRequired
+  },
+  render: function() {
+    var divStyle;
+    divStyle = {
+      backgroundColor: this.props.color
+    };
+    return React.createElement("label", {
+      "className": "b-design-option__color"
+    }, React.createElement("input", {
+      "type": "radio",
+      "name": this.props.name,
+      "defaultChecked": this.props.checked,
+      "value": this.props.colorName,
+      "onChange": this.props.onChange
+    }), React.createElement("span", {
+      "className": "b-design-option__color__ind",
+      "style": divStyle
+    }));
+  }
+});
+
+
+
+},{}],20:[function(require,module,exports){
+window.Designer = React.createClass({
+  propTypes: {
+    options: React.PropTypes.array.isRequired
+  },
+  getDefaultProps: function() {
+    return {
+      options: [
+        {
+          "type": "ColorList",
+          "name": "цвет страницы",
+          "props": {
+            "name": "background_color",
+            "colorSet": {
+              'dark': '#000',
+              'white': '#fff',
+              'gray': '#eee'
+            },
+            "value": "white"
+          }
+        }, {
+          "type": "BgList",
+          "name": "фон страницы",
+          "props": {
+            "name": "background_image",
+            "bgSet": {
+              'pokeball': 'https://s-media-cache-ak0.pinimg.com/originals/56/b8/bd/56b8bdb28de8e41c9acbaa993e16a1eb.jpg',
+              'bg2': 'https://s-media-cache-ak0.pinimg.com/originals/56/b8/bd/56b8bdb28de8e41c9acbaa993e16a1eb.jpg'
+            },
+            "value": "pokeball"
+          }
+        }, {
+          "type": "FontList",
+          "name": "шрифт",
+          "props": {
+            "name": "font_family",
+            "value": "gotham"
+          }
+        }, {
+          "type": "ValueSlider",
+          "name": "размер шрифта",
+          "props": {
+            "name": "font_size",
+            "step": 1,
+            "range": {
+              "min": 13,
+              "max": 15
+            },
+            "value": 14
+          }
+        }, {
+          "type": "Toggle",
+          "name": "главная страница",
+          "props": {
+            "name": "banner",
+            "label": "большой баннер",
+            "value": true
+          }
+        }, {
+          "type": "LayoutList",
+          "name": "лейаут страницы",
+          "props": {
+            "name": "layout",
+            "layoutSet": {
+              'one': 'http://cs9514.vk.me/v9514976/2b7d/dV_vHdU34H8.jpg',
+              'two': 'http://cs9514.vk.me/v9514976/2b7d/dV_vHdU34H8.jpg'
+            },
+            "value": "one"
+          }
+        }
+      ]
+    };
+  },
+  handleChange: function(option, newValue) {
+    var newState;
+    newState = {};
+    newState[option.props.name] = newValue;
+    return this.setState(newState);
+  },
+  _createDesignComponent: function(options) {
+    switch (options.type) {
+      case 'ColorList':
+        return React.createElement(DesignerElementLayout, {
+          "name": options.name,
+          "type": "color",
+          "set": options.props.colorSet,
+          "value": options.props.value
+        }, React.createElement(ColorList, {
+          "name": options.props.name,
+          "colorSet": options.props.colorSet,
+          "value": options.props.value,
+          "onChange": this.handleChange.bind(this, options)
+        }));
+      case 'BgList':
+        return React.createElement(DesignerElementLayout, {
+          "name": options.name,
+          "type": "image",
+          "set": options.props.bgSet,
+          "value": options.props.value
+        }, React.createElement(BackgroundList, {
+          "name": options.props.name,
+          "bgSet": options.props.bgSet,
+          "value": options.props.value,
+          "onChange": this.handleChange.bind(this, options)
+        }));
+      case 'LayoutList':
+        return React.createElement(DesignerElementLayout, {
+          "name": options.name,
+          "type": "simplified"
+        }, React.createElement(LayoutList, {
+          "name": options.props.name,
+          "layoutSet": options.props.layoutSet,
+          "value": options.props.value,
+          "onChange": this.handleChange.bind(this, options)
+        }));
+      case 'FontList':
+        return React.createElement(DesignerElementLayout, {
+          "name": options.name,
+          "type": "simplified"
+        }, React.createElement(FontList, {
+          "name": options.props.name,
+          "fontSet": options.props.fontSet,
+          "value": options.props.value,
+          "onChange": this.handleChange.bind(this, options)
+        }));
+      case 'ValueSlider':
+        return React.createElement(DesignerElementLayout, {
+          "name": options.name,
+          "type": "simplified"
+        }, React.createElement(ValueSlider, {
+          "name": options.props.name,
+          "step": options.props.step,
+          "range": options.props.range,
+          "value": options.props.value,
+          "onChange": this.handleChange.bind(this, options)
+        }));
+      case 'Toggle':
+        return React.createElement(DesignerElementLayout, {
+          "name": options.name,
+          "type": "simplified"
+        }, React.createElement(Toggle, {
+          "name": options.props.name,
+          "value": options.props.value,
+          "onChange": this.handleChange.bind(this, options)
+        }));
+    }
+  },
+  render: function() {
+    var designItems;
+    designItems = _.map(this.props.options, (function(_this) {
+      return function(option) {
+        return _this._createDesignComponent(option);
+      };
+    })(this));
+    return React.createElement("div", {
+      "className": "b-design-option"
+    }, React.createElement("div", {
+      "className": "b-design-option__title"
+    }, "\u0423\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435 \u0434\u0438\u0437\u0430\u0439\u043d\u043e\u043c"), React.createElement("span", {
+      "className": "b-design-option__close"
+    }, "\u0417\u0430\u043a\u0440\u044b\u0442\u044c"), React.createElement("div", {
+      "className": "b-design-option__body"
+    }, designItems), React.createElement("button", {
+      "type": "button",
+      "className": "b-design-option__save"
+    }, "\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c"));
+  }
+});
+
+window.DesignerElementLayout = React.createClass({
+  render: function() {
+    if ((this.props.type != null) && this.props.type === 'simplified') {
+      return React.createElement("div", {
+        "className": "b-design-option__item"
+      }, React.createElement("span", {
+        "className": "b-design-option__item__name"
+      }, this.props.name), React.createElement("div", {
+        "className": "b-design-option__item__val"
+      }, this.props.children));
+    } else {
+      return React.createElement("div", {
+        "className": "b-design-option__item"
+      }, React.createElement("div", {
+        "className": "b-design-option__item__current-params"
+      }, React.createElement("span", {
+        "className": "b-design-option__item__name"
+      }, this.props.name), React.createElement(DesignerElementValueLayout, {
+        "value": this.props.value,
+        "type": this.props.type,
+        "set": this.props.set
+      })), React.createElement("div", {
+        "className": "b-design-option__item__available-params"
+      }, this.props.children));
+    }
+  }
+});
+
+window.DesignerElementValueLayout = React.createClass({
+  propTypes: {
+    type: React.PropTypes.string.isRequired,
+    set: React.PropTypes.array,
+    value: React.PropTypes.string
+  },
+  render: function() {
+    var divStyle, value;
+    value = this.props.set[this.props.value];
+    if (this.props.type === 'color') {
+      divStyle = {
+        backgroundColor: value
+      };
+      return React.createElement("div", {
+        "className": "b-design-option__item__val"
+      }, React.createElement("div", {
+        "className": "b-design-option__color__ind",
+        "style": divStyle
+      }));
+    }
+    if (this.props.type === 'image') {
+      return React.createElement("div", {
+        "className": "b-design-option__item__val"
+      }, React.createElement("div", {
+        "className": "b-design-option__color b-design-option__color_img"
+      }, React.createElement("div", {
+        "className": "b-design-option__color__ind"
+      }, React.createElement("img", {
+        "src": value,
+        "alt": ""
+      }))));
+    }
+    return null;
+  }
+});
+
+
+
+},{}],21:[function(require,module,exports){
+window.FontList = React.createClass({
+  propTypes: {
+    name: React.PropTypes.string.isRequired,
+    fontSet: React.PropTypes.object.isRequired,
+    value: React.PropTypes.string
+  },
+  getDefaultProps: function() {
+    return {
+      fontSet: {
+        'default': 'default',
+        'verdana': 'verdana',
+        'gotham': 'gotham',
+        'apercu': 'apercu'
+      }
+    };
+  },
+  handleChange: function(font) {
+    var _base;
+    return typeof (_base = this.props).onChange === "function" ? _base.onChange(font) : void 0;
+  },
+  render: function() {
+    var fontSetList;
+    fontSetList = _.map(this.props.fontSet, (function(_this) {
+      return function(font, key) {
+        var checked;
+        checked = false;
+        checked = _this.props.value && _this.props.value === key;
+        return React.createElement(FontSelect, {
+          "font": font,
+          "key": font,
+          "name": _this.props.name,
+          "checked": checked,
+          "onChange": _this.handleChange.bind(key, font)
+        });
+      };
+    })(this));
+    return React.createElement("div", null, fontSetList);
+  }
+});
+
+window.FontSelect = React.createClass({
+  propTypes: {
+    font: React.PropTypes.string.isRequired,
+    name: React.PropTypes.string.isRequired,
+    checked: React.PropTypes.bool.isRequired
+  },
+  render: function() {
+    var className;
+    className = "b-design-option__type b-design-option__type_" + this.props.font;
+    return React.createElement("label", {
+      "className": className
+    }, React.createElement("input", {
+      "type": "radio",
+      "onChange": this.props.onChange,
+      "defaultChecked": this.props.checked,
+      "name": this.props.name,
+      "value": this.props.font
+    }), React.createElement("span", {
+      "className": "b-design-option__type__ind"
+    }, "Aa"));
+  }
+});
+
+
+
+},{}],22:[function(require,module,exports){
+window.LayoutList = React.createClass({
+  propTypes: {
+    name: React.PropTypes.string.isRequired,
+    layoutSet: React.PropTypes.object.isRequired,
+    value: React.PropTypes.string
+  },
+  getDefaultProps: function() {
+    return {
+      layoutSet: {
+        'layout-one': 'http://cs9514.vk.me/v9514976/2b7d/dV_vHdU34H8.jpg',
+        'layout-two': 'http://cs9514.vk.me/v9514976/2b7d/dV_vHdU34H8.jpg'
+      }
+    };
+  },
+  handleChange: function(layout) {
+    var _base;
+    return typeof (_base = this.props).onChange === "function" ? _base.onChange(layout) : void 0;
+  },
+  render: function() {
+    var layoutSetList;
+    layoutSetList = _.map(this.props.layoutSet, (function(_this) {
+      return function(layout, key) {
+        var checked;
+        checked = false;
+        checked = _this.props.value && _this.props.value === key;
+        return React.createElement(LayoutSelect, {
+          "name": _this.props.name,
+          "layoutName": key,
+          "layout": layout,
+          "key": key,
+          "checked": checked,
+          "onChange": _this.handleChange.bind(layout, key)
+        });
+      };
+    })(this));
+    return React.createElement("div", null, layoutSetList);
+  }
+});
+
+window.LayoutSelect = React.createClass({
+  propTypes: {
+    layout: React.PropTypes.string.isRequired,
+    name: React.PropTypes.string.isRequired,
+    checked: React.PropTypes.bool.isRequired
+  },
+  render: function() {
+    return React.createElement("label", {
+      "className": "b-design-option__layout"
+    }, React.createElement("input", {
+      "onChange": this.props.onChange,
+      "type": "radio",
+      "defaultChecked": this.props.checked,
+      "value": this.props.layout,
+      "name": this.props.name
+    }), React.createElement("span", {
+      "className": "b-design-option__layout__ind"
+    }, this.props.layoutName));
+  }
+});
+
+
+
+},{}],23:[function(require,module,exports){
+window.Toggle = React.createClass({
+  propTypes: {
+    name: React.PropTypes.string.isRequired,
+    value: React.PropTypes.bool
+  },
+  getDefaultProps: function() {
+    return {
+      value: false
+    };
+  },
+  handleChange: function(e) {
+    var toggleState, _base;
+    toggleState = $(e.target).prop('checked');
+    return typeof (_base = this.props).onChange === "function" ? _base.onChange(toggleState) : void 0;
+  },
+  render: function() {
+    return React.createElement("label", {
+      "className": "b-design-option__cbox"
+    }, React.createElement("input", {
+      "type": "checkbox",
+      "defaultChecked": this.props.value,
+      "onChange": this.handleChange
+    }), this.props.name);
+  }
+});
+
+
+
+},{}],24:[function(require,module,exports){
+window.ValueSlider = React.createClass({
+  propTypes: {
+    name: React.PropTypes.string.isRequired,
+    range: React.PropTypes.object.isRequired,
+    step: React.PropTypes.number.isRequired,
+    start: React.PropTypes.string
+  },
+  getDefaultProps: function() {
+    return {
+      range: {
+        min: 0,
+        max: 1
+      },
+      value: 0,
+      step: .1
+    };
+  },
+  componentDidMount: function() {
+    var domNode;
+    domNode = $(this.getDOMNode());
+    domNode.noUiSlider({
+      start: this.props.value,
+      step: this.props.step,
+      range: this.props.range
+    });
+    return domNode.on({
+      slide: (function(_this) {
+        return function() {
+          var currentValue, _base;
+          currentValue = domNode.val();
+          _this.setState({
+            value: currentValue
+          });
+          return typeof (_base = _this.props).onChange === "function" ? _base.onChange(currentValue) : void 0;
+        };
+      })(this)
+    });
+  },
+  render: function() {
+    return React.createElement("div", null);
+  }
+});
+
+
+
+},{}],25:[function(require,module,exports){
+var BUTTON_TEXT, DesignSettings_SaveButton, PropTypes;
+
+PropTypes = React.PropTypes;
+
+BUTTON_TEXT = 'Сохранить';
+
+DesignSettings_SaveButton = React.createClass({
+  propTypes: {
+    onClick: PropTypes.func.isRequired
+  },
+  render: function() {
+    return React.createElement("button", {
+      "className": "b-design-option__save",
+      "onClick": this.props.onClick
+    }, BUTTON_TEXT);
+  }
+});
+
+module.exports = DesignSettings_SaveButton;
+
+
+
+},{}],26:[function(require,module,exports){
+var DesignSettings_Checkbox, PropTypes;
+
+PropTypes = React.PropTypes;
+
+DesignSettings_Checkbox = React.createClass({
+  propTypes: {
+    title: PropTypes.string.isRequired,
+    value: PropTypes.array.isRequired,
+    items: PropTypes.object.isRequired,
+    onChange: PropTypes.func.isRequired
+  },
+  render: function() {
+    return React.createElement("div", {
+      "className": "b-design-option__item"
+    }, React.createElement("span", {
+      "className": "b-design-option__item__name"
+    }, this.props.title), this.renderParamList());
+  },
+  renderParamList: function() {
+    var listItems, that;
+    that = this;
+    listItems = _.map(this.props.items, function(value, key) {
+      return React.createElement("label", {
+        "className": "b-design-option__cbox",
+        "key": key
+      }, React.createElement("input", {
+        "type": "checkbox",
+        "name": value,
+        "defaultChecked": that.isItemChecked(key),
+        "onChange": that.handleChange.bind(null, key)
+      }), value);
+    });
+    return React.createElement("div", {
+      "className": "b-design-option__item__val"
+    }, listItems);
+  },
+  isItemChecked: function(key) {
+    var result;
+    result = this.props.value.filter(function(item) {
+      return item === key;
+    });
+    return !!result.length;
+  },
+  handleChange: function(key, e) {
+    var index, newValue;
+    newValue = this.props.value.slice(0);
+    index = newValue.indexOf(key);
+    if (e.target.checked) {
+      if (index === -1) {
+        newValue.push(key);
+      }
+    } else {
+      if (index !== -1) {
+        newValue.splice(index, 1);
+      }
+    }
+    return this.props.onChange(newValue);
+  }
+});
+
+module.exports = DesignSettings_Checkbox;
+
+
+
+},{}],27:[function(require,module,exports){
+var DesignSettings_Color, DesignSettings_ColorCustomItem, DesignSettings_ColorItem, PropTypes;
+
+DesignSettings_ColorItem = require('./color/item');
+
+DesignSettings_ColorCustomItem = require('./color/customItem');
+
+PropTypes = React.PropTypes;
+
+DesignSettings_Color = React.createClass({
+  propTypes: {
+    value: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    items: PropTypes.array.isRequired,
+    onChange: PropTypes.func.isRequired
+  },
+  render: function() {
+    var selectedItemStyles;
+    selectedItemStyles = {
+      backgroundColor: this.props.value
+    };
+    return React.createElement("div", {
+      "className": "b-design-option__item"
+    }, React.createElement("div", {
+      "className": "b-design-option__item__current-params"
+    }, React.createElement("span", {
+      "className": "b-design-option__item__name"
+    }, this.props.title), React.createElement("div", {
+      "className": "b-design-option__item__val"
+    }, React.createElement("div", {
+      "className": "b-design-option__color__ind",
+      "style": selectedItemStyles
+    }))), this.renderParamList());
+  },
+  renderParamList: function() {
+    var listItems, that;
+    that = this;
+    listItems = _.map(this.props.items, function(hexCode) {
+      return React.createElement(DesignSettings_ColorItem, {
+        "hexCode": hexCode,
+        "checked": hexCode === that.props.value,
+        "onChange": that.handleChange,
+        "key": hexCode
+      });
+    });
+    return React.createElement("div", {
+      "className": "b-design-option__item__available-params"
+    }, listItems);
+  },
+  handleChange: function(hexCode) {
+    return this.props.onChange(hexCode);
+  }
+});
+
+module.exports = DesignSettings_Color;
+
+
+
+},{"./color/customItem":28,"./color/item":29}],28:[function(require,module,exports){
+var DesignSettings_ColorCustomItem, PropTypes;
+
+PropTypes = React.PropTypes;
+
+DesignSettings_ColorCustomItem = React.createClass({
+  propTypes: {
+    hexCode: PropTypes.string.isRequired,
+    checked: PropTypes.bool.isRequired,
+    onChange: PropTypes.func.isRequired
+  },
+  render: function() {
+    var itemStyles;
+    itemStyles = {
+      backgroundColor: this.props.hexCode
+    };
+    return React.createElement("label", {
+      "className": "b-design-option__color"
+    }, React.createElement("input", {
+      "type": "radio",
+      "checked": this.props.checked,
+      "onChange": this.handleChange
+    }), React.createElement("span", {
+      "className": "b-design-option__color__ind",
+      "style": itemStyles
+    }));
+  },
+  handleChange: function() {
+    return this.props.onChange(this.props.hexCode);
+  }
+});
+
+module.exports = DesignSettings_ColorCustomItem;
+
+
+
+},{}],29:[function(require,module,exports){
+var DesignSettings_ColorItem, PropTypes;
+
+PropTypes = React.PropTypes;
+
+DesignSettings_ColorItem = React.createClass({
+  propTypes: {
+    hexCode: PropTypes.string.isRequired,
+    checked: PropTypes.bool.isRequired,
+    onChange: PropTypes.func.isRequired
+  },
+  render: function() {
+    var itemStyles;
+    itemStyles = {
+      backgroundColor: this.props.hexCode
+    };
+    return React.createElement("label", {
+      "className": "b-design-option__color"
+    }, React.createElement("input", {
+      "type": "radio",
+      "checked": this.props.checked,
+      "onChange": this.handleChange
+    }), React.createElement("span", {
+      "className": "b-design-option__color__ind",
+      "style": itemStyles
+    }));
+  },
+  handleChange: function() {
+    return this.props.onChange(this.props.hexCode);
+  }
+});
+
+module.exports = DesignSettings_ColorItem;
+
+
+
+},{}],30:[function(require,module,exports){
+var DesignSettings_Range, PropTypes;
+
+PropTypes = React.PropTypes;
+
+DesignSettings_Range = React.createClass({
+  propTypes: {
+    value: PropTypes.number.isRequired,
+    from: PropTypes.number,
+    to: PropTypes.number,
+    step: PropTypes.number,
+    onChange: PropTypes.func.isRequired
+  },
+  getDefaultProps: function() {
+    return {
+      from: 0,
+      to: 1,
+      step: .1
+    };
+  },
+  componentDidMount: function() {
+    var slider;
+    slider = this.getDOMNode();
+    $(slider).noUiSlider({
+      start: this.props.value,
+      step: this.props.step,
+      range: {
+        min: this.props.from,
+        max: this.props.to
+      }
+    });
+    return $(slider).on('change', this.handleChange);
+  },
+  componentWillUnmount: function() {
+    var slider;
+    slider = this.getDOMNode();
+    $(slider).off('change', this.handleChange);
+    return $(slider).destroy();
+  },
+  render: function() {
+    return React.createElement("div", null);
+  },
+  handleChange: function(e, value) {
+    return this.props.onChange(parseFloat(value));
+  }
+});
+
+module.exports = DesignSettings_Range;
+
+
+
+},{}],31:[function(require,module,exports){
+var DESIGN_SETTINGS_TITLE, DesignSettings, DesignSettingsMixin, DesignSettings_Checkbox, DesignSettings_Color, DesignSettings_FeedOpacity, DesignSettings_Font, DesignSettings_FontSize, DesignSettings_PageBackground, DesignSettings_ProductLayout, DesignSettings_ProductsInRow, DesignSettings_SaveButton, PropTypes, changeAlpha, changeBackgroundColor, hexToRgb, jss, setDesignClass;
+
+jss = require('jss');
+
+DesignSettingsMixin = require('./mixins/designSettings');
+
+DesignSettings_Color = require('./common/color');
+
+DesignSettings_Checkbox = require('./common/checkbox');
+
+DesignSettings_SaveButton = require('./buttons/save');
+
+DesignSettings_PageBackground = require('./pageBackground');
+
+DesignSettings_FeedOpacity = require('./feedOpacity');
+
+DesignSettings_Font = require('./font');
+
+DesignSettings_FontSize = require('./fontSize');
+
+DesignSettings_ProductLayout = require('./productLayout');
+
+DesignSettings_ProductsInRow = require('./productsInRow');
+
+PropTypes = React.PropTypes;
+
+DESIGN_SETTINGS_TITLE = 'Управление дизайном';
+
+DesignSettings = React.createClass({
+  mixins: [DesignSettingsMixin],
+  propTypes: {
+    pageColor: PropTypes.object.isRequired,
+    pageBackground: PropTypes.object.isRequired,
+    feedColor: PropTypes.object.isRequired,
+    feedOpacity: PropTypes.object.isRequired,
+    font: PropTypes.object.isRequired,
+    fontColor: PropTypes.object.isRequired,
+    fontSize: PropTypes.object.isRequired,
+    activeElementsColor: PropTypes.object.isRequired,
+    productLayout: PropTypes.object.isRequired,
+    catalog: PropTypes.object.isRequired,
+    productsInRow: PropTypes.object.isRequired,
+    mainPage: PropTypes.object.isRequired
+  },
+  getInitialState: function() {
+    var initialSettings;
+    initialSettings = _.reduce(this.props, (function(_this) {
+      return function(result, n, key) {
+        result[key] = _this.props[key].value;
+        return result;
+      };
+    })(this), {});
+    return {
+      settings: initialSettings
+    };
+  },
+  componentDidMount: function() {
+    this.sheet = jss.createStyleSheet({}, {
+      named: false,
+      link: true
+    }).attach();
+    window.sheet = this.sheet;
+    return this.sheet.element.setAttribute('design-settings-sheet', '');
+  },
+  componentWillUnmount: function() {
+    this.sheet.detach();
+    return this.sheet = null;
+  },
+  render: function() {
+    return React.createElement("div", {
+      "className": "b-design-option"
+    }, React.createElement("div", {
+      "className": "b-design-option__title"
+    }, DESIGN_SETTINGS_TITLE), React.createElement("div", {
+      "className": "b-design-option__close"
+    }), React.createElement("div", {
+      "className": "b-design-option__body"
+    }, React.createElement(DesignSettings_Color, {
+      "value": this.state.settings.pageColor,
+      "title": this.props.pageColor.title,
+      "items": this.props.pageColor.items,
+      "onChange": this.updateSettings.bind(null, this.props.pageColor.optionName)
+    }), React.createElement(DesignSettings_PageBackground, {
+      "value": this.state.settings.pageBackground,
+      "title": this.props.pageBackground.title,
+      "items": this.props.pageBackground.items,
+      "onChange": this.updateSettings.bind(null, this.props.pageBackground.optionName)
+    }), React.createElement(DesignSettings_Color, {
+      "value": this.state.settings.feedColor,
+      "title": this.props.feedColor.title,
+      "items": this.props.feedColor.items,
+      "onChange": this.updateSettings.bind(null, this.props.feedColor.optionName)
+    }), React.createElement(DesignSettings_FeedOpacity, {
+      "value": this.state.settings.feedOpacity,
+      "title": this.props.feedOpacity.title,
+      "onChange": this.updateSettings.bind(null, this.props.feedOpacity.optionName)
+    }), React.createElement(DesignSettings_Color, {
+      "value": this.state.settings.fontColor,
+      "title": this.props.fontColor.title,
+      "items": this.props.fontColor.items,
+      "onChange": this.updateSettings.bind(null, this.props.fontColor.optionName)
+    }), React.createElement(DesignSettings_Color, {
+      "value": this.state.settings.activeElementsColor,
+      "title": this.props.activeElementsColor.title,
+      "items": this.props.activeElementsColor.items,
+      "onChange": this.updateSettings.bind(null, this.props.activeElementsColor.optionName)
+    }), React.createElement(DesignSettings_Font, {
+      "value": this.state.settings.font,
+      "title": this.props.font.title,
+      "items": this.props.font.items,
+      "onChange": this.updateSettings.bind(null, this.props.font.optionName)
+    }), React.createElement(DesignSettings_FontSize, {
+      "value": this.state.settings.fontSize,
+      "title": this.props.fontSize.title,
+      "from": this.props.fontSize.from,
+      "to": this.props.fontSize.to,
+      "onChange": this.updateSettings.bind(null, this.props.fontSize.optionName)
+    }), React.createElement(DesignSettings_ProductLayout, {
+      "value": this.state.settings.productLayout,
+      "title": this.props.productLayout.title,
+      "items": this.props.productLayout.items,
+      "onChange": this.updateSettings.bind(null, this.props.productLayout.optionName)
+    }), React.createElement(DesignSettings_Checkbox, {
+      "value": this.state.settings.catalog,
+      "title": this.props.catalog.title,
+      "items": this.props.catalog.items,
+      "onChange": this.updateSettings.bind(null, this.props.catalog.optionName)
+    }), React.createElement(DesignSettings_ProductsInRow, {
+      "value": this.state.settings.productsInRow,
+      "title": this.props.productsInRow.title,
+      "from": this.props.productsInRow.from,
+      "to": this.props.productsInRow.to,
+      "onChange": this.updateSettings.bind(null, this.props.productsInRow.optionName)
+    }), React.createElement(DesignSettings_Checkbox, {
+      "value": this.state.settings.mainPage,
+      "title": this.props.mainPage.title,
+      "items": this.props.mainPage.items,
+      "onChange": this.updateSettings.bind(null, this.props.mainPage.optionName)
+    })), React.createElement(DesignSettings_SaveButton, {
+      "onClick": this.saveSettings
+    }));
+  },
+  updateSettings: function(optionName, value) {
+    var activeElSelectors, newSettings, pageEl;
+    newSettings = this.state.settings;
+    newSettings[optionName] = value;
+    pageEl = document.querySelector('.b-page');
+    activeElSelectors = ['.b-btn', '.b-paginator__item', '.pagination .next a', '.pagination .prev a', '.pagination .first a', '.pagination .last a', '.pagination .page a'];
+    switch (optionName) {
+      case 'pageColor':
+        this.setStyles('.b-page', {
+          'background-color': value
+        });
+        break;
+      case 'pageBackground':
+        this.setStyles('.b-page', {
+          'background-image': "url('" + value + "')"
+        });
+        break;
+      case 'feedColor':
+        this.setStyles('.b-page__content__inner', {
+          'background-color__color': value
+        });
+        break;
+      case 'feedOpacity':
+        this.setStyles('.b-page__content__inner', {
+          'background-color__opacity': value
+        });
+        break;
+      case 'fontColor':
+        this.setStyles('.b-page', {
+          'color': value
+        });
+        break;
+      case 'activeElementsColor':
+        this.setStyles(activeElSelectors.join(', '), {
+          'color': value
+        });
+        break;
+      case 'font':
+        if (pageEl != null) {
+          setDesignClass(pageEl, 'b-page_ff-', value);
+        }
+        break;
+      case 'fontSize':
+        this.setStyles('.b-page', {
+          'font-size': "" + value + "px"
+        });
+        break;
+      case 'productsInRow':
+        if (pageEl != null) {
+          pageEl.setAttribute('data-in-row', value);
+        }
+        break;
+      case 'productLayout':
+        if (pageEl != null) {
+          setDesignClass(pageEl, 'b-page_layout-', value);
+        }
+        $(window).trigger('resize');
+        break;
+      default:
+        if (typeof console.warn === "function") {
+          console.warn('Unknown type of design option', optionName);
+        }
+    }
+    return this.setState({
+      settings: newSettings
+    });
+  },
+  saveSettings: function() {
+    return console.log('saveSettings', this.state.settings);
+  },
+  setStyles: function(selector, styles) {
+    var newStyles, rule;
+    if (styles == null) {
+      styles = {};
+    }
+    rule = this.sheet.getRule(selector);
+    newStyles = {};
+    _.map(styles, function(value, key) {
+      var match, rgba, updatedRgba;
+      match = /(.*)__(\w+)/g.exec(key);
+      if (match != null) {
+        rgba = (rule != null ? rule.prop('background-color') : void 0) || 'rgba(0,0,0,1)';
+        switch (match[2]) {
+          case 'color':
+            updatedRgba = changeBackgroundColor(rgba, value);
+            return newStyles['background-color'] = updatedRgba;
+          case 'opacity':
+            updatedRgba = changeAlpha(rgba, value);
+            return newStyles['background-color'] = updatedRgba;
+        }
+      } else {
+        return newStyles[key] = value;
+      }
+    });
+    if (rule != null) {
+      return _.map(newStyles, function(value, key) {
+        return rule.prop(key, value);
+      });
+    } else {
+      return this.sheet.addRule(selector, newStyles);
+    }
+  }
+});
+
+module.exports = DesignSettings;
+
+hexToRgb = function(hex) {
+  var result, shorthandRegex;
+  shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+  hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+    return r + r + g + g + b + b;
+  });
+  result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (result) {
+    return [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)];
+  } else {
+    return null;
+  }
+};
+
+changeBackgroundColor = function(rgba, hex) {
+  var a, match, rgb;
+  match = /rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,)?(\s*\d+[\.\d+]*)*\)/g.exec(rgba);
+  rgb = hexToRgb(hex);
+  a = parseFloat(match[4]) || 1;
+  return 'rgba(' + [rgb[0], rgb[1], rgb[2], a].join(',') + ')';
+};
+
+changeAlpha = function(rgba, a) {
+  a = a > 1 ? a / 100 : a;
+  return 'rgba(' + [match[1], match[2], match[3], a].join(',') + ')';
+};
+
+setDesignClass = function(el, name, value) {
+  var classes;
+  classes = el.className.split(' ').filter(function(c) {
+    return c.lastIndexOf(name, 0) !== 0;
+  });
+  classes.push(name + value);
+  return document.body.className = _.trim(classes.join(' '));
+};
+
+
+
+},{"./buttons/save":25,"./common/checkbox":26,"./common/color":27,"./feedOpacity":32,"./font":33,"./fontSize":34,"./mixins/designSettings":35,"./pageBackground":36,"./productLayout":37,"./productsInRow":38,"jss":64}],32:[function(require,module,exports){
+var DesignSettings_FeedOpacity, DesignSettings_Range, PropTypes;
+
+DesignSettings_Range = require('./common/range');
+
+PropTypes = React.PropTypes;
+
+DesignSettings_FeedOpacity = React.createClass({
+  propTypes: {
+    title: PropTypes.string.isRequired,
+    value: PropTypes.number.isRequired,
+    onChange: PropTypes.func.isRequired
+  },
+  render: function() {
+    return React.createElement("div", {
+      "className": "b-design-option__item"
+    }, React.createElement("span", {
+      "className": "b-design-option__item__name"
+    }, this.props.title), React.createElement("div", {
+      "className": "b-design-option__item__val"
+    }, React.createElement(DesignSettings_Range, {
+      "value": this.props.value,
+      "onChange": this.handleChange
+    })));
+  },
+  handleChange: function(opacity) {
+    return this.props.onChange(opacity);
+  }
+});
+
+module.exports = DesignSettings_FeedOpacity;
+
+
+
+},{"./common/range":30}],33:[function(require,module,exports){
+var DesignSettings_Font, PropTypes;
+
+PropTypes = React.PropTypes;
+
+DesignSettings_Font = React.createClass({
+  propTypes: {
+    title: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+    items: PropTypes.array.isRequired,
+    onChange: PropTypes.func.isRequired
+  },
+  render: function() {
+    return React.createElement("div", {
+      "className": "b-design-option__item"
+    }, React.createElement("span", {
+      "className": "b-design-option__item__name"
+    }, this.props.title), this.renderParamList());
+  },
+  renderParamList: function() {
+    var listItems, that;
+    that = this;
+    listItems = _.map(this.props.items, function(fontName) {
+      var itemClasses;
+      itemClasses = 'b-design-option__type b-design-option__type_' + fontName;
+      return React.createElement("label", {
+        "className": itemClasses,
+        "key": fontName
+      }, React.createElement("input", {
+        "type": "radio",
+        "checked": fontName === that.props.value,
+        "onChange": that.handleChange.bind(null, fontName)
+      }), React.createElement("span", {
+        "className": "b-design-option__type__ind"
+      }, "Aa"));
+    });
+    return React.createElement("div", {
+      "className": "b-design-option__item__val"
+    }, listItems);
+  },
+  handleChange: function(fontName) {
+    return this.props.onChange(fontName);
+  }
+});
+
+module.exports = DesignSettings_Font;
+
+
+
+},{}],34:[function(require,module,exports){
+var DesignSettings_FontSize, DesignSettings_Range, PropTypes;
+
+DesignSettings_Range = require('./common/range');
+
+PropTypes = React.PropTypes;
+
+DesignSettings_FontSize = React.createClass({
+  propTypes: {
+    title: PropTypes.string.isRequired,
+    value: PropTypes.number.isRequired,
+    from: PropTypes.number.isRequired,
+    to: PropTypes.number.isRequired,
+    onChange: PropTypes.func.isRequired
+  },
+  render: function() {
+    return React.createElement("div", {
+      "className": "b-design-option__item"
+    }, React.createElement("span", {
+      "className": "b-design-option__item__name"
+    }, this.props.title), React.createElement("div", {
+      "className": "b-design-option__item__val"
+    }, React.createElement(DesignSettings_Range, {
+      "value": this.props.value,
+      "from": this.props.from,
+      "to": this.props.to,
+      "step": 1.,
+      "onChange": this.handleChange
+    })));
+  },
+  handleChange: function(fontSize) {
+    return this.props.onChange(fontSize);
+  }
+});
+
+module.exports = DesignSettings_FontSize;
+
+
+
+},{"./common/range":30}],35:[function(require,module,exports){
+var DesignSettingsMixin;
+
+DesignSettingsMixin = {
+  getDefaultProps: function() {
+    return {
+      pageColor: {
+        title: 'цвет страницы',
+        optionName: 'pageColor',
+        value: '#ff0000',
+        items: ['#bf443f', '#569a9f', '#4f617d', '#f4d3c4', '#d4c3c9']
+      },
+      pageBackground: {
+        title: 'фон страницы',
+        optionName: 'pageBackground',
+        value: 'http://img.faceyourmanga.com/mangatars/0/0/39/large_511.png',
+        items: ['https://s-media-cache-ak0.pinimg.com/originals/56/b8/bd/56b8bdb28de8e41c9acbaa993e16a1eb.jpg', 'http://img.faceyourmanga.com/mangatars/0/0/39/large_511.png']
+      },
+      feedColor: {
+        title: 'цвет ленты',
+        optionName: 'feedColor',
+        value: '#ffd46c',
+        items: ['#894c00', '#fff2a6', '#720000', '#513100', '#ffd46c']
+      },
+      feedOpacity: {
+        title: 'прозрачность ленты',
+        optionName: 'feedOpacity',
+        value: 1
+      },
+      font: {
+        title: 'шрифт',
+        optionName: 'font',
+        value: 'helvetica',
+        items: ['helvetica', 'ptserif', 'ptsans', 'verdana', 'courier']
+      },
+      fontColor: {
+        title: 'цвет текста',
+        optionName: 'fontColor',
+        value: '#c3a96c',
+        items: ['#264c35', '#c3a96c', '#fa3c58', '#772d3c', '#1a0f17']
+      },
+      fontSize: {
+        title: 'размер шрифта',
+        optionName: 'fontSize',
+        value: 14,
+        from: 13,
+        to: 15
+      },
+      activeElementsColor: {
+        title: 'цвет активных элементов',
+        optionName: 'activeElementsColor',
+        value: '#264c35',
+        items: ['#264c35', '#c3a96c', '#fa3c58', '#772d3c', '#1a0f17']
+      },
+      productLayout: {
+        title: 'лейаут товара',
+        optionName: 'productLayout',
+        value: 'bigpic',
+        items: {
+          bigpic: 'http://cs9514.vk.me/v9514976/2b7d/dV_vHdU34H8.jpg',
+          layoutTwo: 'http://cs9514.vk.me/v9514976/2b7d/dV_vHdU34H8.jpg'
+        }
+      },
+      catalog: {
+        title: 'каталог',
+        optionName: 'catalog',
+        value: ['filter', 'menu'],
+        items: {
+          menu: 'Меню',
+          filter: 'Фильтр',
+          search: 'Поиск'
+        }
+      },
+      productsInRow: {
+        title: 'товаров в ряд',
+        optionName: 'productsInRow',
+        value: 3,
+        from: 2,
+        to: 4
+      },
+      mainPage: {
+        title: 'главная страница',
+        optionName: 'mainPage',
+        value: ['bigBanner'],
+        items: {
+          bigBanner: 'Большой баннер',
+          callback: 'Форма обратного звонка'
+        }
+      }
+    };
+  }
+};
+
+module.exports = DesignSettingsMixin;
+
+
+
+},{}],36:[function(require,module,exports){
+var DesignSettings_PageBackground, PropTypes;
+
+PropTypes = React.PropTypes;
+
+DesignSettings_PageBackground = React.createClass({
+  propTypes: {
+    title: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+    items: PropTypes.array.isRequired,
+    onChange: PropTypes.func.isRequired
+  },
+  render: function() {
+    return React.createElement("div", {
+      "className": "b-design-option__item"
+    }, React.createElement("div", {
+      "className": "b-design-option__item__current-params"
+    }, React.createElement("span", {
+      "className": "b-design-option__item__name"
+    }, this.props.title), React.createElement("div", {
+      "className": "b-design-option__item__val"
+    }, React.createElement("div", {
+      "className": "b-design-option__color b-design-option__color_img"
+    }, React.createElement("div", {
+      "className": "b-design-option__color__ind"
+    }, React.createElement("img", {
+      "src": this.props.value
+    }))))), this.renderParamList());
+  },
+  renderParamList: function() {
+    var listItems, that;
+    that = this;
+    listItems = _.map(this.props.items, function(backgroundUrl) {
+      return React.createElement("label", {
+        "className": "b-design-option__color b-design-option__color_img",
+        "key": backgroundUrl
+      }, React.createElement("input", {
+        "type": "radio",
+        "checked": backgroundUrl === that.props.value,
+        "onChange": that.handleChange.bind(null, backgroundUrl)
+      }), React.createElement("span", {
+        "className": "b-design-option__color__ind"
+      }, React.createElement("img", {
+        "src": backgroundUrl
+      })));
+    });
+    return React.createElement("div", {
+      "className": "b-design-option__item__available-params"
+    }, listItems);
+  },
+  handleChange: function(backgroundUrl) {
+    return this.props.onChange(backgroundUrl);
+  }
+});
+
+module.exports = DesignSettings_PageBackground;
+
+
+
+},{}],37:[function(require,module,exports){
+var DesignSettings_ProductLayout, PropTypes;
+
+PropTypes = React.PropTypes;
+
+DesignSettings_ProductLayout = React.createClass({
+  propTypes: {
+    title: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+    items: PropTypes.object.isRequired,
+    onChange: PropTypes.func.isRequired
+  },
+  render: function() {
+    return React.createElement("div", {
+      "className": "b-design-option__item"
+    }, React.createElement("span", {
+      "className": "b-design-option__item__name"
+    }, this.props.title), this.renderParamList());
+  },
+  renderParamList: function() {
+    var listItems, that;
+    that = this;
+    listItems = _.map(this.props.items, function(url, name) {
+      return React.createElement("label", {
+        "className": "b-design-option__layout",
+        "key": name
+      }, React.createElement("input", {
+        "type": "radio",
+        "checked": name === that.props.value,
+        "onChange": that.handleChange.bind(null, name)
+      }), React.createElement("span", {
+        "className": "b-design-option__layout__ind"
+      }, name));
+    });
+    return React.createElement("div", {
+      "className": "b-design-option__item__val"
+    }, listItems);
+  },
+  handleChange: function(layout) {
+    return this.props.onChange(layout);
+  }
+});
+
+module.exports = DesignSettings_ProductLayout;
+
+
+
+},{}],38:[function(require,module,exports){
+var DesignSettings_ProductsInRow, DesignSettings_Range, PropTypes;
+
+DesignSettings_Range = require('./common/range');
+
+PropTypes = React.PropTypes;
+
+DesignSettings_ProductsInRow = React.createClass({
+  propTypes: {
+    title: PropTypes.string.isRequired,
+    value: PropTypes.number.isRequired,
+    from: PropTypes.number.isRequired,
+    to: PropTypes.number.isRequired,
+    onChange: PropTypes.func.isRequired
+  },
+  render: function() {
+    return React.createElement("div", {
+      "className": "b-design-option__item"
+    }, React.createElement("span", {
+      "className": "b-design-option__item__name"
+    }, this.props.title), React.createElement("div", {
+      "className": "b-design-option__item__val"
+    }, React.createElement(DesignSettings_Range, {
+      "value": this.props.value,
+      "from": this.props.from,
+      "to": this.props.to,
+      "step": 1.,
+      "onChange": this.handleChange
+    })));
+  },
+  handleChange: function(productsInRow) {
+    return this.props.onChange(productsInRow);
+  }
+});
+
+module.exports = DesignSettings_ProductsInRow;
+
+
+
+},{"./common/range":30}],39:[function(require,module,exports){
+window.InstagramFeed_Controllable = React.createClass({
+  propTypes: {
+    isVisible: React.PropTypes.bool.isRequired,
+    clientId: React.PropTypes.string.isRequired,
+    userId: React.PropTypes.number.isRequired,
+    limit: React.PropTypes.number
+  },
+  getInitialState: function() {
+    return {
+      isVisible: this.props.isVisible
+    };
+  },
+  componentDidMount: function() {
+    return $(document).on("instagram:clicked", this.toggleVisibleState);
+  },
+  componentWillUnmount: function() {
+    return $(document).off("instagram:clicked", this.toggleVisibleState);
+  },
+  render: function() {
+    if (this.state.isVisible) {
+      return React.createElement(InstagramFeed, {
+        "clientId": this.props.clientId,
+        "userId": this.props.userId,
+        "limit": this.props.limit
+      });
+    } else {
+      return React.createElement("span", null);
+    }
+  },
+  toggleVisibleState: function() {
+    if (InstagramFeed_Mixin.STATE_LOADED) {
+      return this.setState({
+        isVisible: !this.state.isVisible
+      });
+    }
+  }
+});
+
+window.InstagramFeed = React.createClass({
+  mixins: [InstagramFeed_Mixin],
+  propTypes: {
+    clientId: React.PropTypes.string.isRequired,
+    userId: React.PropTypes.number.isRequired,
+    limit: React.PropTypes.number
+  },
+  getInitialState: function() {
+    return {
+      currentState: this.STATE_LOADING,
+      isVisible: false,
+      photos: null,
+      username: '',
+      hashtag: ''
+    };
+  },
+  componentDidMount: function() {
+    return this._loadPhotos();
+  },
+  render: function() {
+    switch (this.state.currentState) {
+      case this.STATE_LOADED:
+        return React.createElement(InstagramFeed_Carousel, {
+          "photos": this.state.photos
+        });
+      case this.STATE_LOADING:
+        return React.createElement(InstagramFeed_Spinner, null);
+      case this.STATE_ERROR:
+        return React.createElement(InstagramFeed_Error, null);
+      default:
+        return console.warn('Неизвестное состояние #{@state.currentState}');
+    }
+  }
+});
+
+window.InstagramFeed_Error = React.createClass({
+  render: function() {
+    return React.createElement("div", {
+      "className": 'b-instafeed b-insafeed_error'
+    }, "\u041e\u0448\u0438\u0431\u043a\u0430 \u043f\u0440\u0438 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0435 \u0444\u043e\u0442\u043e\u0433\u0440\u0430\u0444\u0438\u0439");
+  }
+});
+
+window.InstagramFeed_Spinner = React.createClass({
+  render: function() {
+    return React.createElement("div", {
+      "className": 'b-instafeed b-instafeed_loading'
+    }, React.createElement("span", {
+      "className": 'b-instafeed__loader'
+    }));
+  }
+});
+
+window.InstagramFeed_Photo = React.createClass({
+  propTypes: {
+    photo: React.PropTypes.object.isRequired
+  },
+  render: function() {
+    return React.createElement("a", {
+      "className": 'b-instafeed__photo',
+      "href": this.props.photo.standard_resolution.url
+    }, React.createElement("img", {
+      "className": 'lazyOwl',
+      "data-src": this.props.photo.low_resolution.url
+    }));
+  }
+});
+
+window.InstagramFeed_Carousel = React.createClass({
+  propTypes: {
+    photos: React.PropTypes.array.isRequired
+  },
+  componentDidMount: function() {
+    return this._initCarousel();
+  },
+  componentWillUnmount: function() {
+    return this._destroyCarousel();
+  },
+  render: function() {
+    var photos;
+    photos = _.map(this.props.photos, function(photo) {
+      return React.createElement(InstagramFeed_Photo, {
+        "photo": photo.images,
+        "key": photo.id
+      });
+    });
+    return React.createElement("div", {
+      "className": "b-instafeed"
+    }, photos);
+  },
+  _initCarousel: function() {
+    return $(this.getDOMNode()).owlCarousel({
+      items: 6,
+      itemsDesktop: 6,
+      pagination: false,
+      autoPlay: 5000,
+      navigation: true,
+      lazyLoad: true
+    });
+  },
+  _destroyCarousel: function() {
+    return $(this.getDOMNode()).data('owlCarousel').destroy();
+  }
+});
+
+
+
+},{}],40:[function(require,module,exports){
+window.InstagramFeed_Mixin = {
+  STATE_LOADING: 'loading',
+  STATE_LOADED: 'loaded',
+  STATE_ERROR: 'error',
+  INSTAGRAM_API_URL: 'https://api.instagram.com/v1/',
+  _getRequestUrl: function() {
+    var url;
+    url = this.INSTAGRAM_API_URL + 'users/' + this.props.userId + '/media/recent/?client_id=' + this.props.clientId;
+    if (this.props.limit != null) {
+      url += '&count=' + this.props.limit;
+    }
+    return url;
+  },
+  _loadPhotos: function() {
+    return $.ajax({
+      dataType: "jsonp",
+      url: this._getRequestUrl(),
+      success: (function(_this) {
+        return function(photos) {
+          if (_this.isMounted() && (photos != null)) {
+            return _this.setState({
+              currentState: _this.STATE_LOADED,
+              photos: photos.data,
+              profileUrl: 'http://instagram.com/' + photos.data[0].user.username,
+              hashtag: '@' + photos.data[0].user.username
+            });
+          }
+        };
+      })(this),
+      error: (function(_this) {
+        return function(data) {
+          return _this._activateErrorState();
+        };
+      })(this)
+    });
+  },
+  _activateErrorState: function() {
+    if (this.isMounted()) {
+      return this.setState({
+        currentState: this.STATE_ERROR
+      });
+    }
+  }
+};
+
+
+
+},{}],41:[function(require,module,exports){
+window.InstagramFeed_Controllable_v2 = React.createClass({
+  propTypes: {
+    isVisible: React.PropTypes.bool.isRequired,
+    clientId: React.PropTypes.string.isRequired,
+    userId: React.PropTypes.number.isRequired,
+    limit: React.PropTypes.number
+  },
+  getDefaultProps: function() {
+    return {
+      limit: 10
+    };
+  },
+  getInitialState: function() {
+    return {
+      isVisible: this.props.isVisible
+    };
+  },
+  componentDidMount: function() {
+    return $(document).on("instagram:clicked", this.toggleVisibleState);
+  },
+  componentWillUnmount: function() {
+    return $(document).off("instagram:clicked", this.toggleVisibleState);
+  },
+  render: function() {
+    if (this.state.isVisible) {
+      return React.createElement(InstagramFeed_v2, {
+        "clientId": this.props.clientId,
+        "userId": this.props.userId,
+        "limit": this.props.limit
+      });
+    } else {
+      return React.createElement("span", null);
+    }
+  },
+  toggleVisibleState: function() {
+    if (InstagramFeed_Mixin.STATE_LOADED) {
+      return this.setState({
+        isVisible: !this.state.isVisible
+      });
+    }
+  }
+});
+
+window.InstagramFeed_v2 = React.createClass({
+  mixins: [InstagramFeed_Mixin],
+  propTypes: {
+    clientId: React.PropTypes.string.isRequired,
+    userId: React.PropTypes.number.isRequired,
+    limit: React.PropTypes.number
+  },
+  getInitialState: function() {
+    return {
+      currentState: this.STATE_LOADING,
+      isVisible: false,
+      photos: null,
+      profileUrl: '',
+      hashtag: ''
+    };
+  },
+  componentDidMount: function() {
+    return this._loadPhotos();
+  },
+  render: function() {
+    var result;
+    result = (function() {
+      switch (this.state.currentState) {
+        case this.STATE_LOADED:
+          return React.createElement(InstagramFeed_v2_Feed, {
+            "photos": this.state.photos,
+            "profileUrl": this.state.profileUrl
+          });
+        case this.STATE_LOADING:
+          return React.createElement(InstagramFeed_v2_Spinner, null);
+        case this.STATE_ERROR:
+          return React.createElement(InstagramFeed_v2_Error, null);
+        default:
+          return console.warn('Неизвестное состояние #{@state.currentState}');
+      }
+    }).call(this);
+    return React.createElement("div", null, React.createElement("h2", {
+      "className": "b-item-list__title b-instafeed-v2__title"
+    }, React.createElement("a", {
+      "href": this.state.profileUrl,
+      "rel": 'nofollow',
+      "target": '_blank'
+    }, this.state.hashtag)), result);
+  }
+});
+
+window.InstagramFeed_v2_Error = React.createClass({
+  render: function() {
+    return React.createElement("div", {
+      "className": 'b-instafeed-v2 b-insafeed_error'
+    }, "\u041e\u0448\u0438\u0431\u043a\u0430 \u043f\u0440\u0438 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0435 \u0444\u043e\u0442\u043e\u0433\u0440\u0430\u0444\u0438\u0439");
+  }
+});
+
+window.InstagramFeed_v2_Spinner = React.createClass({
+  render: function() {
+    return React.createElement("div", {
+      "className": 'b-instafeed-v2 b-instafeed-v2_loading'
+    }, React.createElement("span", {
+      "className": 'b-instafeed-v2__loader'
+    }));
+  }
+});
+
+window.InstagramFeed_v2_Feed = React.createClass({
+  propTypes: {
+    photos: React.PropTypes.array.isRequired,
+    profileUrl: React.PropTypes.string.isRequired
+  },
+  render: function() {
+    var photos, that;
+    that = this;
+    photos = _.map(this.props.photos, function(photo) {
+      return React.createElement(InstagramFeed_v2_Photo, {
+        "photo": photo.images,
+        "profileUrl": that.props.profileUrl,
+        "key": photo.id
+      });
+    });
+    return React.createElement("div", {
+      "className": "b-instafeed-v2"
+    }, photos);
+  }
+});
+
+window.InstagramFeed_v2_Photo = React.createClass({
+  propTypes: {
+    photo: React.PropTypes.object.isRequired,
+    profileUrl: React.PropTypes.string.isRequired
+  },
+  render: function() {
+    return React.createElement("a", {
+      "className": 'b-instafeed-v2__photo',
+      "rel": 'nofollow',
+      "target": '_blank',
+      "href": this.props.profileUrl
+    }, React.createElement("img", {
+      "src": this.props.photo.low_resolution.url
+    }));
+  }
+});
+
+
+
+},{}],42:[function(require,module,exports){
+window.AddToBasketButton = React.createClass({
+  propTypes: {
+    elementQuery: React.PropTypes.string,
+    dataAttr: React.PropTypes.string
+  },
+  getDefaultProps: function() {
+    return {
+      elementQuery: '[good-select] option:selected',
+      dataAttr: 'good'
+    };
+  },
+  addToBasket: function() {
+    var good;
+    good = $(this.props.elementQuery).data(this.props.dataAttr);
+    if (good != null) {
+      return BasketActions.addGood(good);
+    } else {
+      return alert("Ошибка при добавлении товара в корзину. Нет атрибута good в выбранном пункте");
+    }
+  },
+  render: function() {
+    return React.createElement("button", {
+      "className": "b-btn",
+      "onClick": this.addToBasket
+    }, "\u0412 \u043a\u043e\u0440\u0437\u0438\u043d\u0443");
+  }
+});
+
+
+
+},{}],43:[function(require,module,exports){
+var KioskEvents;
+
+KioskEvents = new EventEmitter();
+
+KioskEvents.keys = {
+  commandTooltipShow: function() {
+    return 'command:tooltip:show';
+  }
+};
+
+module.exports = KioskEvents;
+
+
+
+},{}],44:[function(require,module,exports){
+var FilteredCountTooltip, TooltipController,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+FilteredCountTooltip = require('../components/common/tooltip/filteredCount');
+
+TooltipController = (function() {
+  TooltipController.prototype._pendingTooltip = null;
+
+  function TooltipController() {
+    this._getContainer = __bind(this._getContainer, this);
+    this.close = __bind(this.close, this);
+    this.show = __bind(this.show, this);
+    KioskEvents.on(KioskEvents.keys.commandTooltipShow(), this.show);
+  }
+
+  TooltipController.prototype.show = function(position, filter, timeout) {
+    var container, tooltip;
+    if (timeout == null) {
+      timeout = 3000;
+    }
+    container = this._getContainer();
+    this.close();
+    tooltip = React.render(React.createElement(FilteredCountTooltip, {
+      "filter": filter,
+      "position": position,
+      "onClose": this.close
+    }), container);
+    return this._pendingTooltip = tooltip;
+  };
+
+  TooltipController.prototype.close = function() {
+    var container;
+    container = this._getContainer();
+    React.unmountComponentAtNode(container);
+    return this._pendingTooltip = null;
+  };
+
+  TooltipController.prototype._getContainer = function() {
+    var container;
+    container = document.querySelector('[tooltip-container]');
+    if (container == null) {
+      container = document.createElement('div');
+      container.setAttribute('tooltip-container', '');
+      document.body.appendChild(container);
+    }
+    return container;
+  };
+
+  return TooltipController;
+
+})();
+
+module.exports = TooltipController;
+
+
+
+},{"../components/common/tooltip/filteredCount":17}],45:[function(require,module,exports){
+var BaseDispatcher,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+BaseDispatcher = (function(_super) {
+  __extends(BaseDispatcher, _super);
+
+  function BaseDispatcher() {
+    return BaseDispatcher.__super__.constructor.apply(this, arguments);
+  }
+
+  BaseDispatcher.prototype.handleViewAction = function(action) {
+    return this.dispatch({
+      source: 'VIEW_ACTION',
+      action: action
+    });
+  };
+
+  BaseDispatcher.prototype.handleServerAction = function(action) {
+    return this.dispatch({
+      source: 'SERVER_ACTION',
+      action: action
+    });
+  };
+
+  return BaseDispatcher;
+
+})(Dispatcher);
+
+module.exports = BaseDispatcher;
+
+
+
+},{}],46:[function(require,module,exports){
+var BaseDispatcher;
+
+BaseDispatcher = require('./_base');
+
+window.BasketDispatcher = new BaseDispatcher();
+
+
+
+},{"./_base":45}],47:[function(require,module,exports){
+var BaseStore, CHANGE_EVENT,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+CHANGE_EVENT = 'change';
+
+BaseStore = (function(_super) {
+  __extends(BaseStore, _super);
+
+  function BaseStore() {
+    return BaseStore.__super__.constructor.apply(this, arguments);
+  }
+
+  BaseStore.prototype.emitChange = function() {
+    return this.emit(CHANGE_EVENT);
+  };
+
+  BaseStore.prototype.addChangeListener = function(cb) {
+    return this.on(CHANGE_EVENT, cb);
+  };
+
+  BaseStore.prototype.removeChangeListener = function(cb) {
+    return this.off(CHANGE_EVENT, cb);
+  };
+
+  return BaseStore;
+
+})(EventEmitter);
+
+module.exports = BaseStore;
+
+
+
+},{}],48:[function(require,module,exports){
+var BaseStore, _cartItems;
+
+BaseStore = require('./_base');
+
+_cartItems = [];
+
+window.BasketDispatcher.register(function(payload) {
+  var action;
+  action = payload.action;
+  switch (action.actionType) {
+    case 'productAddedToBasket':
+      BasketStore._addItem(action.productItem);
+      BasketStore.emitChange();
+      break;
+    case 'receiveBasket':
+      BasketStore._receiveBasket(action.cartItems);
+      BasketStore.emitChange();
+      break;
+  }
+});
+
+window.BasketStore = _.extend(new BaseStore(), {
+  getBasketItems: function() {
+    return _cartItems;
+  },
+  getBasketCount: function() {
+    var total;
+    total = 0;
+    _.forEach(_cartItems, function(item) {
+      return total += item.count;
+    });
+    return total;
+  },
+  _findItem: function(productItem) {
+    var thisItem;
+    thisItem = _.findIndex(_cartItems, function(item) {
+      return item.product_item_id === productItem.product_item_id;
+    });
+    return _cartItems[thisItem];
+  },
+  _addItem: function(productItem) {
+    var cartItem;
+    cartItem = BasketStore._findItem(productItem);
+    if (cartItem != null) {
+      return cartItem.count += 1;
+    } else {
+      productItem.count = 1;
+      return _cartItems.push(productItem);
+    }
+  },
+  _receiveBasket: function(cartItems) {
+    if (cartItems != null) {
+      return _.forEach(cartItems.items, function(cartItem) {
+        return _cartItems.push(cartItem.product_item);
+      });
+    }
+  }
+});
+
+
+
+},{"./_base":47}],49:[function(require,module,exports){
+var ApiRoutes;
+
+ApiRoutes = {
+  productsFilteredCount: function(filter) {
+    return gon.public_api_url + '/v1/products/filtered/count?' + filter;
+  }
+};
+
+module.exports = ApiRoutes;
+
+
+
+},{}],50:[function(require,module,exports){
+window.Routes = {
+  vendor_cart_items_path: function() {
+    return '/cart/cart_items/';
+  }
+};
+
+
+
+},{}],51:[function(require,module,exports){
+$(function() {
+  var bPage, lenta, page, thisPage;
+  if ('ontouchstart' in document) {
+    $("html").addClass("feature_touch");
+  } else {
+    $("html").addClass("feature_no-touch");
+  }
+  $('[tooltip]').tooltip();
+  if ($("[range_slider]").length) {
+    $("[range_slider]").noUiSlider({
+      start: [20, 80],
+      connect: true,
+      range: {
+        'min': 0,
+        'max': 100
+      }
+    });
+  }
+  bPage = $('.b-page');
+  $('[ks-design]').on('click', function() {
+    var className;
+    className = $(this).data('classname');
+    bPage.addClass(className);
+    return false;
+  });
+  if ($("[ks-opacity_slider]").length) {
+    $("[ks-opacity_slider]").noUiSlider({
+      start: 0,
+      step: .1,
+      range: {
+        'min': 0,
+        'max': 1
+      }
+    });
+    lenta = $('.b-page__content__inner');
+    $("[ks-opacity_slider]").on({
+      slide: function() {
+        var opacity;
+        opacity = $("[ks-opacity_slider]").val();
+        return lenta.css('background-color', 'rgba(236, 208, 120,' + opacity + ')');
+      }
+    });
+  }
+  if ($("[ks-fontsize_slider]").length) {
+    $("[ks-fontsize_slider]").noUiSlider({
+      start: 14,
+      step: 2,
+      range: {
+        'min': 12,
+        'max': 16
+      }
+    });
+    page = $('html');
+    $("[ks-fontsize_slider]").on({
+      slide: function() {
+        var fontSize;
+        fontSize = $("[ks-fontsize_slider]").val();
+        fontSize = fontSize.substring(0, fontSize.length - 2);
+        return page.css('font-size', fontSize + 'px');
+      }
+    });
+  }
+  thisPage = $('.b-page');
+  if ($("[ks-row_slider]").length) {
+    $("[ks-row_slider]").noUiSlider({
+      start: 3,
+      step: 1,
+      range: {
+        'min': 2,
+        'max': 4
+      }
+    });
+    $("[ks-row_slider]").on({
+      slide: function() {
+        var inRow;
+        inRow = $("[ks-row_slider]").val();
+        inRow = inRow.substring(0, inRow.length - 3);
+        return thisPage.attr('data-in-row', inRow);
+      }
+    });
+  }
+  $('[ks-show-slider]').on('click', function() {
+    return thisPage.toggleClass('b-page_hide-slider');
+  });
+  $('[ks-show-filter]').on('click', function() {
+    return thisPage.toggleClass('b-page_hide-catalog');
+  });
+  return $('[ks-layout-change]').on('click', function() {
+    return thisPage.addClass('b-page_layout-l1');
+  });
+});
+
+
+
+},{}],52:[function(require,module,exports){
+$(function() {
+  var defaultCarouselOptions, slider, sliderThumbs, sliderThumbsContainer;
+  defaultCarouselOptions = {
+    pagination: false,
+    autoPlay: 5000,
+    navigation: true
+  };
+  slider = $('[application-slider]');
+  slider.each(function() {
+    var options;
+    options = _.clone(defaultCarouselOptions);
+    if ($(this).hasClass('b-slider_promo')) {
+      options['singleItem'] = true;
+      options['autoHeight'] = true;
+      options['lazyLoad'] = true;
+      options['afterInit'] = function() {
+        return this.$elem.addClass('loaded');
+      };
+    }
+    if ($(this).hasClass('application-slider_photos')) {
+      options['singleItem'] = false;
+      options['items'] = 3;
+      options['itemsDesktop'] = 3;
+    }
+    if ($(this).hasClass('application-slider_instagram')) {
+      options['singleItem'] = false;
+      options['items'] = 6;
+      options['itemsDesktop'] = 6;
+      options['lazyLoad'] = true;
+    }
+    return $(this).owlCarousel(options);
+  });
+  sliderThumbsContainer = $('[slider-thumbs]');
+  sliderThumbs = sliderThumbsContainer.find('.b-slider-thumbs__item');
+  return sliderThumbsContainer.on('click', '.b-slider-thumbs__item', function(e) {
+    var number;
+    e.preventDefault();
+    sliderThumbs.removeClass('active');
+    $(this).addClass('active');
+    number = $(this).index();
+    return slider.trigger('owl.goTo', number);
+  });
+});
+
+
+
+},{}],53:[function(require,module,exports){
+$(function() {
+  var $cartTotal, packagePrice, selectedPackage, setCartItemCount, updateCartTotal, updatePackage, updatePackageTotal;
+  $cartTotal = $('[cart-total]');
+  setCartItemCount = function($el, count) {
+    var $price_el, $selector, price, total;
+    price = +$el.data('item-price');
+    total = price * count;
+    $el.data('item-total-price', total);
+    $price_el = $el.find('[cart-item-total-price]');
+    $price_el.html(accounting.formatMoney(total));
+    $selector = $el.find('[cart-item-selector]');
+    $selector.val(count);
+    return updateCartTotal();
+  };
+  selectedPackage = function() {
+    return $('[data-package]:checked');
+  };
+  packagePrice = function() {
+    var $p;
+    $p = selectedPackage();
+    if ($p) {
+      return $p.data('price');
+    } else {
+      return 0;
+    }
+  };
+  updateCartTotal = function() {
+    var totalPrice;
+    totalPrice = packagePrice();
+    $('[cart-item]').each(function(idx, block) {
+      return totalPrice += +$(block).data('item-total-price');
+    });
+    return $cartTotal.html(accounting.formatMoney(totalPrice));
+  };
+  updatePackageTotal = function() {
+    var price;
+    price = packagePrice();
+    price = price > 0 ? accounting.formatMoney(price) : '';
+    return $('[data-total-package-price]').html(price);
+  };
+  updatePackage = function(url, value) {
+    return $.ajax({
+      url: url,
+      method: 'post',
+      async: false,
+      data: {
+        cart: {
+          package_good_global_id: value
+        }
+      }
+    });
+  };
+  $('[data-package]').on('change', function() {
+    updatePackageTotal();
+    return updateCartTotal();
+  });
+  $('[data-package-add-btn]').on('click', function(e) {
+    var packageInput;
+    e.preventDefault();
+    packageInput = selectedPackage();
+    if (packageInput.length) {
+      return updatePackage($(this).data('url'), packageInput.val());
+    }
+  });
+  $('[data-package-remove-btn]').on('click', function(e) {
+    e.preventDefault();
+    return updatePackage($(this).data('url'), '');
+  });
+  return $('[cart-item-selector]').on('change', function() {
+    var $e, $el;
+    $e = $(this);
+    $el = $e.closest('[cart-item]');
+    return setCartItemCount($el, parseInt($e.val()));
+  });
+});
+
+
+
+},{}],54:[function(require,module,exports){
+$(function() {
+  var $checkoutTotal, findSelectedDeliveryType, selectDeliveryType, setCheckoutDeliveryPrice, toggleDeliveryOnlyElementsVisibility, updateCheckoutTotal;
+  $checkoutTotal = $('[checkout-total]');
+  setCheckoutDeliveryPrice = function(price) {
+    $checkoutTotal.data('delivery-price', price);
+    return updateCheckoutTotal();
+  };
+  updateCheckoutTotal = function() {
+    var totalPrice;
+    totalPrice = $checkoutTotal.data('delivery-price') + $checkoutTotal.data('products-price');
+    return $checkoutTotal.html(accounting.formatMoney(totalPrice));
+  };
+  toggleDeliveryOnlyElementsVisibility = function(showFieldsQuery) {
+    var $el;
+    $('[hideable]').slideUp();
+    if (showFieldsQuery) {
+      $el = $(showFieldsQuery);
+      return $el.stop().slideDown();
+    }
+  };
+  selectDeliveryType = function($e) {
+    if ($e != null) {
+      setCheckoutDeliveryPrice(parseInt($e.data('delivery-price')));
+      return toggleDeliveryOnlyElementsVisibility($e.data('show-fields-query'));
+    } else {
+      return typeof console.error === "function" ? console.error('Ни один способ доставки по умолчанию не выбран') : void 0;
+    }
+  };
+  $('[delivery-type]').on('change', function() {
+    return selectDeliveryType($(this));
+  });
+  findSelectedDeliveryType = function() {
+    var $el;
+    $el = $('[delivery-type]').filter(':checked');
+    if ($el.length === 0) {
+      return null;
+    } else {
+      return $el;
+    }
+  };
+  return window.InitializeCheckout = function() {
+    console.log('Initialize Checkout');
+    return selectDeliveryType(findSelectedDeliveryType());
+  };
+});
+
+
+
+},{}],55:[function(require,module,exports){
+$(function() {
+  $('[ks-jump]').on('click', function(e) {
+    var href;
+    href = $(this).attr('ks-jump');
+    if (href !== '') {
+      if (event.shiftKey || event.ctrlKey || event.metaKey) {
+        return window.open(target, '_blank');
+      } else {
+        return window.location = href;
+      }
+    }
+  });
+  return $('[ks-jump] .dropdown, [ks-jump] input').on('click', function(e) {
+    return e.stopPropagation();
+  });
+});
+
+
+
+},{}],56:[function(require,module,exports){
+$(function() {
+  return $('[lightbox]').fancybox({
+    padding: 0,
+    margin: 0,
+    helpers: {
+      thumbs: {
+        width: 8,
+        height: 8
+      }
+    },
+    tpl: {
+      closeBtn: '<a title="Close" class="fancybox-item fancybox-close" href="javascript:;"><i></i></a>',
+      next: '<a title="Next" class="fancybox-nav fancybox-next" href="javascript:;"><i></i></a>',
+      prev: '<a title="Previous" class="fancybox-nav fancybox-prev" href="javascript:;"><i></i></a>'
+    }
+  });
+});
+
+
+
+},{}],57:[function(require,module,exports){
+$(function() {
+  var LOADING_TITLE, isRequest;
+  isRequest = false;
+  LOADING_TITLE = 'Загружаю';
+  return $('[ks-load-more]').on('click', function(e) {
+    var $root, $target, current_page, next_page, saved_title, total_pages, url;
+    if (isRequest) {
+      return;
+    }
+    $target = $(e.target);
+    saved_title = $target.text();
+    $target.text($target.data('loading-title') || LOADING_TITLE);
+    $root = $target.parents('[ks-products-container]');
+    current_page = $root.data("current-page") || 1;
+    total_pages = $root.data("total-pages");
+    url = $root.data('url') || '';
+    next_page = current_page + 1;
+    if (next_page > total_pages) {
+      return;
+    }
+    return $.ajax({
+      url: url,
+      data: {
+        page: next_page
+      },
+      beforeSend: function(xhr) {
+        return isRequest = true;
+      }
+    }).done(function(resp) {
+      $('[ks-product-item]').last().after(resp);
+      $target.text(saved_title);
+      $root.data('current-page', next_page);
+      if (next_page >= total_pages) {
+        return $target.hide();
+      }
+    }).always(function(resp) {
+      return isRequest = false;
+    });
+  });
+});
+
+
+
+},{}],58:[function(require,module,exports){
+$(function() {
+  var menuCopy, navOpen, searchBlock;
+  menuCopy = $('[ks-mob-nav]');
+  searchBlock = $('[ks-search]');
+  menuCopy.mmenu({
+    classes: false,
+    counters: false
+  });
+  if (searchBlock.length) {
+    searchBlock.clone().prependTo(menuCopy.find('#mm-0')).wrap('<li/>');
+  }
+  navOpen = $('[ks-open-nav]');
+  menuCopy.on('opened.mm', function() {
+    return navOpen.addClass('mmenu-open_active');
+  });
+  return menuCopy.on('closed.mm', function() {
+    return navOpen.removeClass('mmenu-open_active');
+  });
+});
+
+
+
+},{}],59:[function(require,module,exports){
+$(function() {
+  var center, productSlider, productThumbs, syncPosition;
+  productSlider = $('#product-slider');
+  productThumbs = $('#product-thumbs');
+  syncPosition = function(el) {
+    var current;
+    current = this.currentItem;
+    productThumbs.find(".owl-item").removeClass("synced").eq(current).addClass("synced");
+    if (productThumbs.data("owlCarousel") !== undefined) {
+      center(current);
+    }
+  };
+  center = function(number) {
+    var found, i, num, sync2visible;
+    sync2visible = productThumbs.data("owlCarousel").owl.visibleItems;
+    num = number;
+    found = false;
+    for (i in sync2visible) {
+      if (num === sync2visible[i]) {
+        found = true;
+      }
+    }
+    if (found === false) {
+      if (num > sync2visible[sync2visible.length - 1]) {
+        return productThumbs.trigger("owl.goTo", num - sync2visible.length + 2);
+      } else {
+        if (num - 1 === -1) {
+          num = 0;
+        }
+        return productThumbs.trigger("owl.goTo", num);
+      }
+    } else if (num === sync2visible[sync2visible.length - 1]) {
+      return productThumbs.trigger("owl.goTo", sync2visible[1]);
+    } else {
+      if (num === sync2visible[0]) {
+        return productThumbs.trigger("owl.goTo", num - 1);
+      }
+    }
+  };
+  productSlider.owlCarousel({
+    singleItem: true,
+    afterAction: syncPosition
+  });
+  productThumbs.owlCarousel({
+    items: 4,
+    pagination: false,
+    afterInit: function(el) {
+      el.find(".owl-item").eq(0).addClass("synced");
+    }
+  });
+  return productThumbs.on("click", ".owl-item", function(e) {
+    var number;
+    e.preventDefault();
+    number = $(this).data("owlItem");
+    productSlider.trigger("owl.goTo", number);
+  });
+});
+
+
+
+},{}],60:[function(require,module,exports){
+$(function() {
+  var logo;
+  logo = $('.b-logo__img');
+  return $('[ks-theme-switcher]').on('click', function() {
+    var classlistVal, logoUrl;
+    classlistVal = $(this).data("classlist");
+    logoUrl = $(this).data("logourl");
+    $('body').attr('class', classlistVal);
+    return logo.attr('src', logoUrl);
+  });
+});
+
+
+
+},{}],61:[function(require,module,exports){
+/**
+ * Copyright (c) 2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+
+module.exports.Dispatcher = require('./lib/Dispatcher')
+
+},{"./lib/Dispatcher":62}],62:[function(require,module,exports){
+/*
+ * Copyright (c) 2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule Dispatcher
+ * @typechecks
+ */
+
+"use strict";
+
+var invariant = require('./invariant');
+
+var _lastID = 1;
+var _prefix = 'ID_';
+
+/**
+ * Dispatcher is used to broadcast payloads to registered callbacks. This is
+ * different from generic pub-sub systems in two ways:
+ *
+ *   1) Callbacks are not subscribed to particular events. Every payload is
+ *      dispatched to every registered callback.
+ *   2) Callbacks can be deferred in whole or part until other callbacks have
+ *      been executed.
+ *
+ * For example, consider this hypothetical flight destination form, which
+ * selects a default city when a country is selected:
+ *
+ *   var flightDispatcher = new Dispatcher();
+ *
+ *   // Keeps track of which country is selected
+ *   var CountryStore = {country: null};
+ *
+ *   // Keeps track of which city is selected
+ *   var CityStore = {city: null};
+ *
+ *   // Keeps track of the base flight price of the selected city
+ *   var FlightPriceStore = {price: null}
+ *
+ * When a user changes the selected city, we dispatch the payload:
+ *
+ *   flightDispatcher.dispatch({
+ *     actionType: 'city-update',
+ *     selectedCity: 'paris'
+ *   });
+ *
+ * This payload is digested by `CityStore`:
+ *
+ *   flightDispatcher.register(function(payload) {
+ *     if (payload.actionType === 'city-update') {
+ *       CityStore.city = payload.selectedCity;
+ *     }
+ *   });
+ *
+ * When the user selects a country, we dispatch the payload:
+ *
+ *   flightDispatcher.dispatch({
+ *     actionType: 'country-update',
+ *     selectedCountry: 'australia'
+ *   });
+ *
+ * This payload is digested by both stores:
+ *
+ *    CountryStore.dispatchToken = flightDispatcher.register(function(payload) {
+ *     if (payload.actionType === 'country-update') {
+ *       CountryStore.country = payload.selectedCountry;
+ *     }
+ *   });
+ *
+ * When the callback to update `CountryStore` is registered, we save a reference
+ * to the returned token. Using this token with `waitFor()`, we can guarantee
+ * that `CountryStore` is updated before the callback that updates `CityStore`
+ * needs to query its data.
+ *
+ *   CityStore.dispatchToken = flightDispatcher.register(function(payload) {
+ *     if (payload.actionType === 'country-update') {
+ *       // `CountryStore.country` may not be updated.
+ *       flightDispatcher.waitFor([CountryStore.dispatchToken]);
+ *       // `CountryStore.country` is now guaranteed to be updated.
+ *
+ *       // Select the default city for the new country
+ *       CityStore.city = getDefaultCityForCountry(CountryStore.country);
+ *     }
+ *   });
+ *
+ * The usage of `waitFor()` can be chained, for example:
+ *
+ *   FlightPriceStore.dispatchToken =
+ *     flightDispatcher.register(function(payload) {
+ *       switch (payload.actionType) {
+ *         case 'country-update':
+ *           flightDispatcher.waitFor([CityStore.dispatchToken]);
+ *           FlightPriceStore.price =
+ *             getFlightPriceStore(CountryStore.country, CityStore.city);
+ *           break;
+ *
+ *         case 'city-update':
+ *           FlightPriceStore.price =
+ *             FlightPriceStore(CountryStore.country, CityStore.city);
+ *           break;
+ *     }
+ *   });
+ *
+ * The `country-update` payload will be guaranteed to invoke the stores'
+ * registered callbacks in order: `CountryStore`, `CityStore`, then
+ * `FlightPriceStore`.
+ */
+
+  function Dispatcher() {
+    this.$Dispatcher_callbacks = {};
+    this.$Dispatcher_isPending = {};
+    this.$Dispatcher_isHandled = {};
+    this.$Dispatcher_isDispatching = false;
+    this.$Dispatcher_pendingPayload = null;
+  }
+
+  /**
+   * Registers a callback to be invoked with every dispatched payload. Returns
+   * a token that can be used with `waitFor()`.
+   *
+   * @param {function} callback
+   * @return {string}
+   */
+  Dispatcher.prototype.register=function(callback) {
+    var id = _prefix + _lastID++;
+    this.$Dispatcher_callbacks[id] = callback;
+    return id;
+  };
+
+  /**
+   * Removes a callback based on its token.
+   *
+   * @param {string} id
+   */
+  Dispatcher.prototype.unregister=function(id) {
+    invariant(
+      this.$Dispatcher_callbacks[id],
+      'Dispatcher.unregister(...): `%s` does not map to a registered callback.',
+      id
+    );
+    delete this.$Dispatcher_callbacks[id];
+  };
+
+  /**
+   * Waits for the callbacks specified to be invoked before continuing execution
+   * of the current callback. This method should only be used by a callback in
+   * response to a dispatched payload.
+   *
+   * @param {array<string>} ids
+   */
+  Dispatcher.prototype.waitFor=function(ids) {
+    invariant(
+      this.$Dispatcher_isDispatching,
+      'Dispatcher.waitFor(...): Must be invoked while dispatching.'
+    );
+    for (var ii = 0; ii < ids.length; ii++) {
+      var id = ids[ii];
+      if (this.$Dispatcher_isPending[id]) {
+        invariant(
+          this.$Dispatcher_isHandled[id],
+          'Dispatcher.waitFor(...): Circular dependency detected while ' +
+          'waiting for `%s`.',
+          id
+        );
+        continue;
+      }
+      invariant(
+        this.$Dispatcher_callbacks[id],
+        'Dispatcher.waitFor(...): `%s` does not map to a registered callback.',
+        id
+      );
+      this.$Dispatcher_invokeCallback(id);
+    }
+  };
+
+  /**
+   * Dispatches a payload to all registered callbacks.
+   *
+   * @param {object} payload
+   */
+  Dispatcher.prototype.dispatch=function(payload) {
+    invariant(
+      !this.$Dispatcher_isDispatching,
+      'Dispatch.dispatch(...): Cannot dispatch in the middle of a dispatch.'
+    );
+    this.$Dispatcher_startDispatching(payload);
+    try {
+      for (var id in this.$Dispatcher_callbacks) {
+        if (this.$Dispatcher_isPending[id]) {
+          continue;
+        }
+        this.$Dispatcher_invokeCallback(id);
+      }
+    } finally {
+      this.$Dispatcher_stopDispatching();
+    }
+  };
+
+  /**
+   * Is this Dispatcher currently dispatching.
+   *
+   * @return {boolean}
+   */
+  Dispatcher.prototype.isDispatching=function() {
+    return this.$Dispatcher_isDispatching;
+  };
+
+  /**
+   * Call the callback stored with the given id. Also do some internal
+   * bookkeeping.
+   *
+   * @param {string} id
+   * @internal
+   */
+  Dispatcher.prototype.$Dispatcher_invokeCallback=function(id) {
+    this.$Dispatcher_isPending[id] = true;
+    this.$Dispatcher_callbacks[id](this.$Dispatcher_pendingPayload);
+    this.$Dispatcher_isHandled[id] = true;
+  };
+
+  /**
+   * Set up bookkeeping needed when dispatching.
+   *
+   * @param {object} payload
+   * @internal
+   */
+  Dispatcher.prototype.$Dispatcher_startDispatching=function(payload) {
+    for (var id in this.$Dispatcher_callbacks) {
+      this.$Dispatcher_isPending[id] = false;
+      this.$Dispatcher_isHandled[id] = false;
+    }
+    this.$Dispatcher_pendingPayload = payload;
+    this.$Dispatcher_isDispatching = true;
+  };
+
+  /**
+   * Clear bookkeeping used for dispatching.
+   *
+   * @internal
+   */
+  Dispatcher.prototype.$Dispatcher_stopDispatching=function() {
+    this.$Dispatcher_pendingPayload = null;
+    this.$Dispatcher_isDispatching = false;
+  };
+
+
+module.exports = Dispatcher;
+
+},{"./invariant":63}],63:[function(require,module,exports){
+/**
+ * Copyright (c) 2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule invariant
+ */
+
+"use strict";
+
+/**
+ * Use invariant() to assert state which your program assumes to be true.
+ *
+ * Provide sprintf-style format (only %s is supported) and arguments
+ * to provide information about what broke and what you were
+ * expecting.
+ *
+ * The invariant message will be stripped in production, but the invariant
+ * will remain to ensure logic does not differ in production.
+ */
+
+var invariant = function(condition, format, a, b, c, d, e, f) {
+  if (false) {
+    if (format === undefined) {
+      throw new Error('invariant requires an error message argument');
+    }
+  }
+
+  if (!condition) {
+    var error;
+    if (format === undefined) {
+      error = new Error(
+        'Minified exception occurred; use the non-minified dev environment ' +
+        'for the full error message and additional helpful warnings.'
+      );
+    } else {
+      var args = [a, b, c, d, e, f];
+      var argIndex = 0;
+      error = new Error(
+        'Invariant Violation: ' +
+        format.replace(/%s/g, function() { return args[argIndex++]; })
+      );
+    }
+
+    error.framesToPop = 1; // we don't care about invariant's own frame
+    throw error;
+  }
+};
+
+module.exports = invariant;
+
+},{}],64:[function(require,module,exports){
+/**
+ * StyleSheets written in javascript.
+ *
+ * @copyright Oleg Slobodskoi 2014
+ * @website https://github.com/jsstyles/jss
+ * @license MIT
+ */
+
+module.exports = require('./lib/index')
+
+},{"./lib/index":67}],65:[function(require,module,exports){
+'use strict'
+
+var plugins = require('./plugins')
+
+var uid = 0
+
+var toString = Object.prototype.toString
+
+/**
+ * Rule is selector + style hash.
+ *
+ * @param {String} [selector]
+ * @param {Object} [style] declarations block
+ * @param {Object} [options]
+ * @api public
+ */
+function Rule(selector, style, options) {
+    if (typeof selector == 'object') {
+        options = style
+        style = selector
+        selector = null
+    }
+
+    this.id = Rule.uid++
+    this.options = options || {}
+    if (this.options.named == null) this.options.named = true
+
+    if (selector) {
+        this.selector = selector
+        this.isAtRule = selector[0] == '@'
+    } else {
+        this.isAtRule = false
+        this.className = Rule.NAMESPACE_PREFIX + '-' + this.id
+        this.selector = '.' + this.className
+    }
+
+    this.style = style
+    // Will be set by StyleSheet#link if link option is true.
+    this.CSSRule = null
+    // When at-rule has sub rules.
+    this.rules = null
+    if (this.isAtRule && this.style) this.extractAtRules()
+}
+
+module.exports = Rule
+
+/**
+ * Class name prefix when generated.
+ *
+ * @type {String}
+ * @api private
+ */
+Rule.NAMESPACE_PREFIX = 'jss'
+
+/**
+ * Indentation string for formatting toString output.
+ *
+ * @type {String}
+ * @api private
+ */
+Rule.INDENTATION = '  '
+
+/**
+ * Unique id, right now just a counter, because there is no need for better uid.
+ *
+ * @type {Number}
+ * @api private
+ */
+Rule.uid = 0
+
+/**
+ * Get or set a style property.
+ *
+ * @param {String} name
+ * @param {String|Number} [value]
+ * @return {Rule|String|Number}
+ * @api public
+ */
+Rule.prototype.prop = function (name, value) {
+    // Its a setter.
+    if (value) {
+        if (!this.style) this.style = {}
+        this.style[name] = value
+        // If linked option in StyleSheet is not passed, CSSRule is not defined.
+        if (this.CSSRule) this.CSSRule.style[name] = value
+        return this
+    }
+
+    // Its a getter.
+    if (this.style) value = this.style[name]
+
+    // Read the value from the DOM if its not cached.
+    if (value == null && this.CSSRule) {
+        value = this.CSSRule.style[name]
+        // Cache the value after we have got it from the DOM once.
+        this.style[name] = value
+    }
+
+    return value
+}
+
+/**
+ * Add child rule. Required for plugins like "nested".
+ * StyleSheet will render them as a separate rule.
+ *
+ * @param {String} selector
+ * @param {Object} style
+ * @param {Object} [options] rule options
+ * @return {Rule}
+ * @api private
+ */
+Rule.prototype.addChild = function (selector, style, options) {
+    if (!this.children) this.children = {}
+    this.children[selector] = {
+        style: style,
+        options: options
+    }
+
+    return this
+}
+
+/**
+ * Add child rule. Required for plugins like "nested".
+ * StyleSheet will render them as a separate rule.
+ *
+ * @param {String} selector
+ * @param {Object} style
+ * @return {Rule}
+ * @api public
+ */
+Rule.prototype.extractAtRules = function () {
+    if (!this.rules) this.rules = {}
+
+    for (var name in this.style) {
+        var style = this.style[name]
+        // Not a nested rule.
+        if (typeof style == 'string') break
+        var selector = this.options.named ? undefined : name
+        var rule = this.rules[name] = new Rule(selector, style, this.options)
+        plugins.run(rule)
+        delete this.style[name]
+    }
+
+    return this
+}
+
+/**
+ * Apply rule to an element inline.
+ *
+ * @param {Element} element
+ * @return {Rule}
+ * @api public
+ */
+Rule.prototype.applyTo = function (element) {
+    for (var prop in this.style) {
+        var value = this.style[prop]
+        if (toString.call(value) == '[object Array]') {
+            for (var i = 0; i < value.length; i++) {
+                element.style[prop] = value[i]
+            }
+        } else {
+            element.style[prop] = value
+        }
+    }
+
+    return this
+}
+
+/**
+ * Converts the rule to css string.
+ *
+ * @return {String}
+ * @api public
+ */
+Rule.prototype.toString = function (options) {
+    var style = this.style
+
+    // At rules like @charset
+    if (this.isAtRule && !this.style && !this.rules) return this.selector + ';'
+
+    if (!options) options = {}
+    if (options.indentationLevel == null) options.indentationLevel = 0
+
+    var str = indent(options.indentationLevel, this.selector + ' {')
+
+    for (var prop in style) {
+        var value = style[prop]
+        // We want to generate multiple style with identical property names.
+        if (toString.call(value) == '[object Array]') {
+            for (var i = 0; i < value.length; i++) {
+                str += '\n' + indent(options.indentationLevel + 1, prop + ': ' + value[i] + ';')
+            }
+        } else {
+            str += '\n' + indent(options.indentationLevel + 1, prop + ': ' + value + ';')
+        }
+    }
+
+    // We are have an at-rule with nested statements.
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
+    for (var name in this.rules) {
+        var ruleStr = this.rules[name].toString({
+            indentationLevel: options.indentationLevel + 1
+        })
+        str += '\n' + indent(options.indentationLevel, ruleStr)
+    }
+
+    str += '\n' + indent(options.indentationLevel, '}')
+
+    return str
+}
+
+/**
+ * Indent a string.
+ *
+ * @param {Number} level
+ * @param {String} str
+ * @return {String}
+ */
+function indent(level, str) {
+    var indentStr = ''
+    for (var i = 0; i < level; i++) indentStr += Rule.INDENTATION
+    return indentStr + str
+}
+
+},{"./plugins":68}],66:[function(require,module,exports){
+'use strict'
+
+var Rule = require('./Rule')
+var plugins = require('./plugins')
+
+/**
+ * StyleSheet abstraction, contains rules, injects stylesheet into dom.
+ *
+ * Options:
+ *
+ *  - `media` style element attribute
+ *  - `title` style element attribute
+ *  - `type` style element attribute
+ *  - `named` true by default - keys are names, selectors will be generated,
+ *    if false - keys are global selectors.
+ *  - `link` link jss Rule instances with DOM CSSRule instances so that styles,
+ *  can be modified dynamically, false by default because it has some performance cost.
+ *
+ * @param {Object} [rules] object with selectors and declarations
+ * @param {Object} [options]
+ * @api public
+ */
+function StyleSheet(rules, options) {
+    this.options = options || {}
+    if (this.options.named == null) this.options.named = true
+    this.element = null
+    this.attached = false
+    this.media = this.options.media
+    this.type = this.options.type
+    this.title = this.options.title
+    this.rules = {}
+    // Only when options.named: true.
+    this.classes = {}
+    this.deployed = false
+    this.linked = false
+
+    // Don't create element if we are not in a browser environment.
+    if (typeof document != 'undefined') {
+        this.element = this.createElement()
+    }
+
+    for (var key in rules) {
+        this.createRules(key, rules[key])
+    }
+}
+
+StyleSheet.ATTRIBUTES = ['title', 'type', 'media']
+
+module.exports = StyleSheet
+
+/**
+ * Insert stylesheet element to render tree.
+ *
+ * @api public
+ * @return {StyleSheet}
+ */
+StyleSheet.prototype.attach = function () {
+    if (this.attached) return this
+
+    if (!this.deployed) {
+        this.deploy()
+        this.deployed = true
+    }
+
+    document.head.appendChild(this.element)
+
+    // Before element is attached to the dom rules are not created.
+    if (!this.linked && this.options.link) {
+        this.link()
+        this.linked = true
+    }
+
+    this.attached = true
+
+    return this
+}
+
+/**
+ * Remove stylesheet element from render tree.
+ *
+ * @return {StyleSheet}
+ * @api public
+ */
+StyleSheet.prototype.detach = function () {
+    if (!this.attached) return this
+
+    this.element.parentNode.removeChild(this.element)
+    this.attached = false
+
+    return this
+}
+
+/**
+ * Deploy styles to the element.
+ *
+ * @return {StyleSheet}
+ * @api private
+ */
+StyleSheet.prototype.deploy = function () {
+    this.element.innerHTML = '\n' + this.toString() + '\n'
+
+    return this
+}
+
+/**
+ * Find CSSRule objects in the DOM and link them in the corresponding Rule instance.
+ *
+ * @return {StyleSheet}
+ * @api private
+ */
+StyleSheet.prototype.link = function () {
+    var CSSRuleList = this.element.sheet.cssRules
+    var rules = this.rules
+
+    for (var i = 0; i < CSSRuleList.length; i++) {
+        var CSSRule = CSSRuleList[i]
+        var rule = rules[CSSRule.selectorText]
+        if (rule) rule.CSSRule = CSSRule
+    }
+
+    return this
+}
+
+/**
+ * Add a rule to the current stylesheet. Will insert a rule also after the stylesheet
+ * has been rendered first time.
+ *
+ * @param {Object} [key] can be selector or name if `options.named` is true
+ * @param {Object} style property/value hash
+ * @return {Rule}
+ * @api public
+ */
+StyleSheet.prototype.addRule = function (key, style) {
+    var rules = this.createRules(key, style)
+
+    // Don't insert rule directly if there is no stringified version yet.
+    // It will be inserted all together when .attach is called.
+    if (this.deployed) {
+        var sheet = this.element.sheet
+        for (var i = 0; i < rules.length; i++) {
+            var nextIndex = sheet.cssRules.length
+            var rule = rules[i]
+            sheet.insertRule(rule.toString(), nextIndex)
+            if (this.options.link) rule.CSSRule = sheet.cssRules[nextIndex]
+        }
+    } else {
+        this.deploy()
+    }
+
+    return rules
+}
+
+/**
+ * Create rules, will render also after stylesheet was rendered the first time.
+ *
+ * @param {Object} rules key:style hash.
+ * @return {StyleSheet} this
+ * @api public
+ */
+StyleSheet.prototype.addRules = function (rules) {
+    for (var key in rules) {
+        this.addRule(key, rules[key])
+    }
+
+    return this
+}
+
+/**
+ * Get a rule.
+ *
+ * @param {String} key can be selector or name if `named` is true.
+ * @return {Rule}
+ * @api public
+ */
+StyleSheet.prototype.getRule = function (key) {
+    return this.rules[key]
+}
+
+/**
+ * Convert rules to a css string.
+ *
+ * @return {String}
+ * @api public
+ */
+StyleSheet.prototype.toString = function () {
+    var str = ''
+    var rules = this.rules
+    var stringified = {}
+    for (var key in rules) {
+        var rule = rules[key]
+        // We have the same rule referenced twice if using named urles.
+        // By name and by selector.
+        if (stringified[rule.id]) continue
+        if (str) str += '\n'
+        str += rules[key].toString()
+        stringified[rule.id] = true
+    }
+
+    return str
+}
+
+/**
+ * Create a rule, will not render after stylesheet was rendered the first time.
+ *
+ * @param {Object} [selector] if you don't pass selector - it will be generated
+ * @param {Object} [style] declarations block
+ * @param {Object} [options] rule options
+ * @return {Array} rule can contain child rules
+ * @api private
+ */
+StyleSheet.prototype.createRules = function (key, style, options) {
+    var rules = []
+    var selector, name
+
+    if (!options) options = {}
+    var named = this.options.named
+    // Scope options overwrite instance options.
+    if (options.named != null) named = options.named
+
+    if (named) name = key
+    else selector = key
+
+    var rule = new Rule(selector, style, {
+        sheet: this,
+        named: named,
+        name: name
+    })
+    rules.push(rule)
+
+    this.rules[rule.selector] = rule
+    if (name) {
+        this.rules[name] = rule
+        this.classes[name] = rule.className
+    }
+
+    plugins.run(rule)
+
+    for (key in rule.children) {
+        rules.push(this.createRules(
+            key,
+            rule.children[key].style,
+            rule.children[key].options
+        ))
+    }
+
+    return rules
+}
+
+/**
+ * Create style sheet element.
+ *
+ * @api private
+ * @return {Element}
+ */
+StyleSheet.prototype.createElement = function () {
+    var element = document.createElement('style')
+
+    StyleSheet.ATTRIBUTES.forEach(function (name) {
+        if (this[name]) element.setAttribute(name, this[name])
+    }, this)
+
+    return element
+}
+
+},{"./Rule":65,"./plugins":68}],67:[function(require,module,exports){
+'use strict'
+
+var StyleSheet = require('./StyleSheet')
+var Rule = require('./Rule')
+
+exports.StyleSheet = StyleSheet
+
+exports.Rule = Rule
+
+exports.plugins = require('./plugins')
+
+/**
+ * Create a stylesheet.
+ *
+ * @param {Object} rules is selector:style hash.
+ * @param {Object} [named] rules have names if true, class names will be generated.
+ * @param {Object} [attributes] stylesheet element attributes.
+ * @return {StyleSheet}
+ * @api public
+ */
+exports.createStyleSheet = function (rules, named, attributes) {
+    return new StyleSheet(rules, named, attributes)
+}
+
+/**
+ * Create a rule.
+ *
+ * @param {String} [selector]
+ * @param {Object} style is property:value hash.
+ * @return {Rule}
+ * @api public
+ */
+exports.createRule = function (selector, style) {
+    var rule = new Rule(selector, style)
+    exports.plugins.run(rule)
+    return rule
+}
+
+/**
+ * Register plugin. Passed function will be invoked with a rule instance.
+ *
+ * @param {Function} fn
+ * @api public
+ */
+exports.use = exports.plugins.use
+
+},{"./Rule":65,"./StyleSheet":66,"./plugins":68}],68:[function(require,module,exports){
+'use strict'
+
+/**
+ * Registered plugins.
+ *
+ * @type {Array}
+ * @api public
+ */
+exports.registry = []
+
+/**
+ * Register plugin. Passed function will be invoked with a rule instance.
+ *
+ * @param {Function} fn
+ * @api public
+ */
+exports.use = function (fn) {
+    exports.registry.push(fn)
+}
+
+/**
+ * Execute all registered plugins.
+ *
+ * @param {Rule} rule
+ * @api private
+ */
+exports.run = function (rule) {
+    for (var i = 0; i < exports.registry.length; i++) {
+        exports.registry[i](rule)
+    }
+}
+
+},{}],"accounting":[function(require,module,exports){
 /*!
  * accounting.js v0.3.2
  * Copyright 2011, Joss Crowcroft
@@ -2526,4670 +7196,6 @@ require('./bundle');
 
 }(jQuery);
 
-
-},{}],2:[function(require,module,exports){
-window._ = require('lodash');
-
-window.Dispatcher = require('flux').Dispatcher;
-
-window.EventEmitter = require('eventEmitter');
-
-window.accounting = require('accounting');
-
-require('jquery.role');
-
-require('jquery.mmenu');
-
-require('bootstrapSass');
-
-require('owlCarousel');
-
-require('fancybox');
-
-require('fancybox.wannabe');
-
-require('nouislider');
-
-window.accounting.settings = {
-  currency: {
-    symbol: 'руб.',
-    format: '%v %s',
-    decimal: ',',
-    thousand: ' ',
-    precision: 0
-  },
-  number: {
-    precision: 0,
-    thousand: '',
-    decimal: ','
-  }
-};
-
-
-
-},{"accounting":"accounting","bootstrapSass":"bootstrapSass","eventEmitter":"eventEmitter","fancybox":"fancybox","fancybox.wannabe":"fancybox.wannabe","flux":61,"jquery.mmenu":"jquery.mmenu","jquery.role":"jquery.role","lodash":"lodash","nouislider":"nouislider","owlCarousel":"owlCarousel"}],3:[function(require,module,exports){
-(function (global){
-var TooltipController;
-
-require('./shared/app');
-
-require('./shared/cart');
-
-require('./shared/load_more');
-
-require('./shared/lightbox');
-
-require('./shared/jump');
-
-require('./shared/product_images_slider');
-
-require('./shared/application_slider');
-
-require('./shared/theme_switcher');
-
-require('./shared/mobile_navigation');
-
-require('./shared/checkout');
-
-window.Routes = require('./routes/routes');
-
-window.ApiRoutes = require('./routes/api');
-
-require('./react/components/basket/button');
-
-require('./react/components/basket/popup');
-
-require('./react/components/product/add_to_basket_button');
-
-require('./react/components/instagram/instagram_feed_mixin');
-
-require('./react/components/instagram/instagram');
-
-require('./react/components/instagram/instagram_v2');
-
-require('./react/components/design/designer');
-
-require('./react/components/design/colorlist');
-
-require('./react/components/design/bglist');
-
-require('./react/components/design/fontlist');
-
-require('./react/components/design/toggle');
-
-require('./react/components/design/valueslider');
-
-require('./react/components/design/layoutlist');
-
-global.CatalogFilter = require('./react/components/catalogFilter/catalogFilter');
-
-global.DesignSettings = require('./react/components/designSettings/designSettings');
-
-require('./react/dispatchers/basket');
-
-require('./react/actions/view/basket');
-
-require('./react/stores/basket');
-
-window.Api = require('./react/api/api');
-
-window.KioskEvents = require('./react/controllers/events');
-
-TooltipController = require('./react/controllers/tooltip');
-
-new TooltipController();
-
-
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./react/actions/view/basket":4,"./react/api/api":5,"./react/components/basket/button":6,"./react/components/basket/popup":7,"./react/components/catalogFilter/catalogFilter":9,"./react/components/design/bglist":32,"./react/components/design/colorlist":33,"./react/components/design/designer":34,"./react/components/design/fontlist":35,"./react/components/design/layoutlist":36,"./react/components/design/toggle":37,"./react/components/design/valueslider":38,"./react/components/designSettings/designSettings":24,"./react/components/instagram/instagram":39,"./react/components/instagram/instagram_feed_mixin":40,"./react/components/instagram/instagram_v2":41,"./react/components/product/add_to_basket_button":42,"./react/controllers/events":43,"./react/controllers/tooltip":44,"./react/dispatchers/basket":46,"./react/stores/basket":48,"./routes/api":49,"./routes/routes":50,"./shared/app":51,"./shared/application_slider":52,"./shared/cart":53,"./shared/checkout":54,"./shared/jump":55,"./shared/lightbox":56,"./shared/load_more":57,"./shared/mobile_navigation":58,"./shared/product_images_slider":59,"./shared/theme_switcher":60}],4:[function(require,module,exports){
-window.BasketActions = {
-  addGood: function(good) {
-    return this._addItemToServer(good);
-  },
-  _addItemToServer: function(good, count) {
-    if (count == null) {
-      count = 1;
-    }
-    return $.ajax({
-      dataType: 'json',
-      method: 'post',
-      data: {
-        good_id: good.good_id,
-        count: count
-      },
-      url: Routes.vendor_cart_items_path(),
-      error: function(xhr, status, err) {
-        return typeof console.error === "function" ? console.error(err) : void 0;
-      },
-      success: function(response) {
-        return BasketDispatcher.handleServerAction({
-          actionType: 'productAddedToBasket',
-          cartItem: cartItem
-        });
-      }
-    });
-  },
-  receiveBasket: function(cartItems) {
-    return BasketDispatcher.handleViewAction({
-      actionType: 'receiveBasket',
-      cartItems: cartItems
-    });
-  }
-};
-
-
-
-},{}],5:[function(require,module,exports){
-var Api, TIMEOUT, abortPendingRequests, deleteRequest, getRequest, postRequest, putRequest, request, vendorKey, _pendingRequests;
-
-TIMEOUT = 10000;
-
-_pendingRequests = {};
-
-abortPendingRequests = function(key) {
-  if (_pendingRequests[key]) {
-    _pendingRequests[key].abort();
-    return _pendingRequests[key] = null;
-  }
-};
-
-vendorKey = function() {
-  return 'c3d753f03d73251bb4aa707e077ec8e7';
-};
-
-request = function(_method, url, data) {
-  var headers, method;
-  if (data == null) {
-    data = {};
-  }
-  headers = {
-    'X-Requested-With': 'XMLHttpRequest',
-    'X-Vendor-Key': vendorKey()
-  };
-  method = (function() {
-    switch (_method) {
-      case 'GET':
-        return 'GET';
-      case 'POST':
-      case 'PUT':
-      case 'DELETE':
-        return 'POST';
-      default:
-        return 'GET';
-    }
-  })();
-  _.extend(data, {
-    _method: _method
-  });
-  return $.ajax({
-    url: url,
-    method: method,
-    data: data,
-    headers: headers,
-    timeout: TIMEOUT,
-    xhrFields: {
-      withCredentials: true,
-      crossDomain: true
-    }
-  });
-};
-
-getRequest = function(url, data) {
-  return request('GET', url, data);
-};
-
-postRequest = function(url, data) {
-  return request('POST', url, data);
-};
-
-putRequest = function(url, data) {
-  return request('PUT', url, data);
-};
-
-deleteRequest = function(url, data) {
-  return request('DELETE', url, data);
-};
-
-Api = {
-  products: {
-    filteredCount: function(filter) {
-      var key, url;
-      url = ApiRoutes.productsFilteredCount(filter);
-      key = 'productsFilteredCount';
-      abortPendingRequests(key);
-      return _pendingRequests[key] = getRequest(url);
-    }
-  }
-};
-
-module.exports = Api;
-
-
-
-},{}],6:[function(require,module,exports){
-window.BasketButton = React.createClass({
-  propTypes: {
-    itemsCount: React.PropTypes.number,
-    cartUrl: React.PropTypes.string.isRequired
-  },
-  getDefaultProps: function() {
-    return {
-      cartUrl: "/cart.html"
-    };
-  },
-  getInitialState: function() {
-    return {
-      itemsCount: this.props.itemsCount || BasketStore.getBasketCount()
-    };
-  },
-  componentDidMount: function() {
-    this.getDOMNode().parentElement.removeAttribute('data-react-class');
-    return BasketStore.addChangeListener(this._onChange);
-  },
-  componentDidUnmount: function() {
-    return BasketStore.removeChangeListener(this._onChange);
-  },
-  _onChange: function() {
-    return this.setState({
-      itemsCount: BasketStore.getBasketCount()
-    });
-  },
-  render: function() {
-    if (this.state.itemsCount > 0) {
-      return React.createElement(BasketButton_Full, {
-        "cartUrl": this.props.cartUrl,
-        "itemsCount": this.state.itemsCount
-      });
-    } else {
-      return React.createElement(BasketButton_Empty, {
-        "cartUrl": this.props.cartUrl
-      });
-    }
-  }
-});
-
-window.BasketButton_Full = React.createClass({
-  propTypes: {
-    itemsCount: React.PropTypes.number.isRequired,
-    cartUrl: React.PropTypes.string.isRequired
-  },
-  render: function() {
-    return React.createElement("a", {
-      "className": 'b-cart-trigger b-cart-trigger_full',
-      "href": this.props.cartUrl
-    }, React.createElement("span", {
-      "className": 'b-cart-trigger__count'
-    }, this.props.itemsCount));
-  }
-});
-
-window.BasketButton_Empty = React.createClass({
-  propTypes: {
-    cartUrl: React.PropTypes.string.isRequired
-  },
-  render: function() {
-    return React.createElement("a", {
-      "className": 'b-cart-trigger',
-      "href": this.props.cartUrl
-    });
-  }
-});
-
-
-
-},{}],7:[function(require,module,exports){
-window.BasketPopup = React.createClass({
-  propTypes: {
-    cartUrl: React.PropTypes.string.isRequired,
-    cartClearUrl: React.PropTypes.string.isRequired,
-    cartItems: React.PropTypes.array.isRequired
-  },
-  getDefaultProps: function() {
-    return {
-      cartUrl: "/cart.html",
-      cartClearUrl: "/cart.html?clear",
-      items: null
-    };
-  },
-  getInitialState: function() {
-    return {
-      isVisible: false,
-      items: null
-    };
-  },
-  componentDidMount: function() {
-    $(document).on("click", this.handleBodyClick);
-    $(document).on("cart:clicked", this.handleCartClicked);
-    $(document).on("keyup", this.handleBodyKey);
-    return BasketStore.addChangeListener(this._onChange);
-  },
-  componentWillUnmount: function() {
-    $(document).off("click", this.handleBodyClick);
-    $(document).off("cart:clicked", this.handleCartClicked);
-    return $(document).off("keyup", this.handleBodyKey);
-  },
-  render: function() {
-    var classNameValue;
-    classNameValue = "b-float-cart";
-    if (this.state.isVisible === false) {
-      classNameValue += " b-float-cart_invisible";
-    }
-    return React.createElement("div", {
-      "className": classNameValue
-    }, React.createElement("div", {
-      "className": 'b-float-cart__content',
-      "onClick": this.handleClick
-    }, React.createElement(BasketPopupList, {
-      "items": this.props.items
-    }), React.createElement(BasketPopupControl, {
-      "cartUrl": this.props.cartUrl,
-      "cartClearUrl": this.props.cartClearUrl
-    })));
-  },
-  _onChange: function() {
-    this.setState({
-      items: BasketStore.getBasketItems()
-    });
-    return this.handleCartClicked();
-  },
-  handleCartClicked: function(e) {
-    return this.setState({
-      isVisible: true
-    });
-  },
-  handleClick: function(e) {
-    return $(document).trigger("cart:clicked");
-  },
-  handleBodyClick: function() {
-    if (this.state.isVisible) {
-      return this.setState({
-        isVisible: false
-      });
-    }
-  },
-  handleBodyKey: function(e) {
-    if (e.keyCode === 27) {
-      return this.setState({
-        isVisible: false
-      });
-    }
-  }
-});
-
-window.BasketPopupList = React.createClass({
-  propTypes: {
-    items: React.PropTypes.array
-  },
-  render: function() {
-    var itemsList;
-    if (!this.props.items) {
-      return null;
-    }
-    itemsList = this.props.items.map(function(item) {
-      return React.createElement(BasketPopupItem, {
-        "key": item.id,
-        "item": item
-      });
-    });
-    return React.createElement("div", {
-      "className": "b-float-cart__item-wrap"
-    }, itemsList);
-  }
-});
-
-window.BasketPopupItem = React.createClass({
-  propTypes: {
-    product_url: React.PropTypes.string,
-    good_id: React.PropTypes.number,
-    price: React.PropTypes.number,
-    count: React.PropTypes.number,
-    image_url: React.PropTypes.string,
-    title: React.PropTypes.string,
-    description: React.PropTypes.string,
-    article: React.PropTypes.string,
-    count: React.PropTypes.number
-  },
-  render: function() {
-    return React.createElement("div", {
-      "className": "b-float-cart__item"
-    }, React.createElement("div", {
-      "className": "b-float-cart__item__inner"
-    }, React.createElement("div", {
-      "className": "b-float-cart__item__img"
-    }, React.createElement("a", {
-      "href": this.props.product_url
-    }, React.createElement("img", {
-      "src": this.props.image_url,
-      "alt": this.props.title
-    }))), React.createElement("div", {
-      "className": "b-float-cart__item__info"
-    }, React.createElement("a", {
-      "className": "b-float-cart__item__name",
-      "href": this.props.product_url
-    }, this.props.title), React.createElement("div", {
-      "className": "b-float-cart__item__param"
-    }, this.props.description), React.createElement("div", {
-      "className": "b-float-cart__item__param"
-    }, this.props.article)), React.createElement("div", {
-      "className": "b-float-cart__item__q"
-    }, this.props.count), React.createElement("div", {
-      "className": "b-float-cart__item__price"
-    }, React.createElement("div", {
-      "className": "b-float-cart__item__price-val"
-    }, accounting.formatMoney((this.props.price.cents / 100).toFixed(2) * this.props.count)))));
-  }
-});
-
-window.BasketPopupControl = React.createClass({
-  propTypes: {
-    cartUrl: React.PropTypes.string.isRequired,
-    cartClearUrl: React.PropTypes.string.isRequired
-  },
-  render: function() {
-    return React.createElement("div", {
-      "className": "b-float-cart__control"
-    }, React.createElement("a", {
-      "className": "b-float-cart__url b-btn",
-      "href": this.props.cartUrl
-    }, "\u041f\u0435\u0440\u0435\u0439\u0442\u0438 \u0432 \u043a\u043e\u0440\u0437\u0438\u043d\u0443"), React.createElement("a", {
-      "className": "b-float-cart__clear",
-      "href": this.props.cartClearUrl
-    }, "\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c \u043a\u043e\u0440\u0437\u0438\u043d\u0443"));
-  }
-});
-
-
-
-},{}],8:[function(require,module,exports){
-var CatalogFilter_ShowResultsButton, PropTypes;
-
-PropTypes = React.PropTypes;
-
-CatalogFilter_ShowResultsButton = React.createClass({
-  render: function() {
-    return React.createElement("button", {
-      "className": "b-btn b-full-filter__submit",
-      "onClick": this.props.onClick
-    }, "\u041f\u043e\u043a\u0430\u0437\u0430\u0442\u044c");
-  }
-});
-
-module.exports = CatalogFilter_ShowResultsButton;
-
-
-
-},{}],9:[function(require,module,exports){
-var CatalogFilter, CatalogFilterList, CatalogFilterMixin, CatalogFilter_ShowResultsButton, PropTypes;
-
-CatalogFilterMixin = require('./mixins/catalogFilter');
-
-CatalogFilterList = require('./list');
-
-CatalogFilter_ShowResultsButton = require('./buttons/showResults');
-
-PropTypes = React.PropTypes;
-
-CatalogFilter = React.createClass({
-  mixins: [CatalogFilterMixin],
-  propTypes: {
-    options: PropTypes.array.isRequired,
-    selectedOptions: PropTypes.array,
-    filterName: PropTypes.string,
-    categoryId: PropTypes.number
-  },
-  getDefaultProps: function() {
-    return {
-      filterName: 'f'
-    };
-  },
-  render: function() {
-    return React.createElement("div", {
-      "className": "b-full-filter"
-    }, React.createElement("input", {
-      "className": "b-full-filter__toggle",
-      "id": "filter-toggle",
-      "type": "checkbox"
-    }), React.createElement("label", {
-      "className": "b-full-filter__trigger",
-      "htmlFor": "filter-toggle"
-    }, React.createElement("span", {
-      "className": "b-btn b-full-filter__trigger__action b-full-filter__trigger__action_open"
-    }, "\u041f\u043e\u043a\u0430\u0437\u0430\u0442\u044c \u0444\u0438\u043b\u044c\u0442\u0440"), React.createElement("span", {
-      "className": "b-btn b-full-filter__trigger__action b-full-filter__trigger__action_close"
-    }, "\u0421\u043a\u0440\u044b\u0442\u044c \u0444\u0438\u043b\u044c\u0442\u0440")), React.createElement(CatalogFilterList, {
-      "options": this.props.options,
-      "selectedOptions": this.props.selectedOptions,
-      "categoryId": this.props.categoryId,
-      "filterName": this.props.filterName
-    }), React.createElement(CatalogFilter_ShowResultsButton, null));
-  }
-});
-
-module.exports = CatalogFilter;
-
-
-
-},{"./buttons/showResults":8,"./list":10,"./mixins/catalogFilter":16}],10:[function(require,module,exports){
-var CatalogFilterList, CatalogFilterList_Checkbox, CatalogFilterList_Color, CatalogFilterList_Radio, CatalogFilterList_Range, CatalogFilterList_SelectedOptions, PropTypes;
-
-CatalogFilterList_SelectedOptions = require('./list/selectedOptions');
-
-CatalogFilterList_Checkbox = require('./list/checkbox');
-
-CatalogFilterList_Radio = require('./list/radio');
-
-CatalogFilterList_Range = require('./list/range');
-
-CatalogFilterList_Color = require('./list/color');
-
-PropTypes = React.PropTypes;
-
-CatalogFilterList = React.createClass({
-  propTypes: {
-    options: PropTypes.array.isRequired,
-    selectedOptions: PropTypes.array.isRequired,
-    filterName: PropTypes.string.isRequired,
-    categoryId: PropTypes.number
-  },
-  getDefaultProps: function() {
-    return {
-      categoryId: null
-    };
-  },
-  render: function() {
-    return React.createElement("ul", {
-      "className": "b-full-filter__list-wrap"
-    }, React.createElement(CatalogFilterList_SelectedOptions, {
-      "selectedOptions": this.props.selectedOptions
-    }), this.renderListItems());
-  },
-  renderListItems: function() {
-    var listItems, that;
-    that = this;
-    return listItems = this.props.options.map(function(item, i) {
-      var from, items, paramName, title, to, units, value, valueFrom, valueTo;
-      switch (item.type) {
-        case 'checkbox':
-          title = item.title, paramName = item.paramName, items = item.items;
-          return React.createElement(CatalogFilterList_Checkbox, {
-            "title": title,
-            "paramName": paramName,
-            "filterName": that.props.filterName,
-            "items": items,
-            "categoryId": that.props.categoryId,
-            "key": i
-          });
-        case 'radio':
-          title = item.title, value = item.value, paramName = item.paramName, items = item.items;
-          return React.createElement(CatalogFilterList_Radio, {
-            "title": title,
-            "value": value,
-            "paramName": paramName,
-            "filterName": that.props.filterName,
-            "items": items,
-            "categoryId": that.props.categoryId,
-            "key": i
-          });
-        case 'range':
-          title = item.title, paramName = item.paramName, units = item.units, valueFrom = item.valueFrom, valueTo = item.valueTo, from = item.from, to = item.to;
-          return React.createElement(CatalogFilterList_Range, {
-            "title": title,
-            "paramName": paramName,
-            "filterName": that.props.filterName,
-            "units": units,
-            "valueFrom": valueFrom,
-            "valueTo": valueTo,
-            "from": from,
-            "to": to,
-            "categoryId": that.props.categoryId,
-            "key": i
-          });
-        case 'color':
-          title = item.title, paramName = item.paramName, items = item.items;
-          return React.createElement(CatalogFilterList_Color, {
-            "title": title,
-            "paramName": paramName,
-            "filterName": that.props.filterName,
-            "items": items,
-            "categoryId": that.props.categoryId,
-            "key": i
-          });
-        default:
-          return typeof console.warn === "function" ? console.warn('Unknown item type of CatalogFilterList component', item) : void 0;
-      }
-    });
-  }
-});
-
-module.exports = CatalogFilterList;
-
-
-
-},{"./list/checkbox":11,"./list/color":12,"./list/radio":13,"./list/range":14,"./list/selectedOptions":15}],11:[function(require,module,exports){
-var CatalogFilterList_Checkbox, PropTypes;
-
-PropTypes = React.PropTypes;
-
-CatalogFilterList_Checkbox = React.createClass({
-  propTypes: {
-    title: PropTypes.string.isRequired,
-    paramName: PropTypes.string.isRequired,
-    filterName: PropTypes.string.isRequired,
-    items: PropTypes.array.isRequired,
-    categoryId: PropTypes.number.isRequired
-  },
-  render: function() {
-    return React.createElement("li", {
-      "className": "b-full-filter__item"
-    }, React.createElement("div", {
-      "className": "b-full-filter__item__title"
-    }, this.props.title), this.renderListItems());
-  },
-  renderListItems: function() {
-    var listItems, that;
-    that = this;
-    listItems = this.props.items.map(function(item, i) {
-      return React.createElement("label", {
-        "className": "b-cbox",
-        "key": i
-      }, React.createElement("input", {
-        "type": "checkbox",
-        "name": that.getFieldName(item),
-        "defaultChecked": item.checked,
-        "className": "b-cbox__native",
-        "onChange": that.handleChange
-      }), React.createElement("div", {
-        "className": "b-cbox__val"
-      }, item.name));
-    });
-    return React.createElement("div", {
-      "className": "b-full-filter__widget"
-    }, listItems);
-  },
-  getFieldName: function(item) {
-    return "" + this.props.filterName + "[" + this.props.paramName + "][" + item.paramValue + "]";
-  },
-  handleChange: function(e) {
-    var elRect, filter, offsetLeft, position;
-    elRect = e.target.getBoundingClientRect();
-    offsetLeft = 15;
-    filter = $(this.getDOMNode()).closest('form').serialize() + ("&category_id=" + this.props.categoryId);
-    position = {
-      left: elRect.right + offsetLeft,
-      top: elRect.top + document.body.scrollTop - elRect.height / 2
-    };
-    return KioskEvents.emit(KioskEvents.keys.commandTooltipShow(), position, filter);
-  }
-});
-
-module.exports = CatalogFilterList_Checkbox;
-
-
-
-},{}],12:[function(require,module,exports){
-var CatalogFilterList_Color, PropTypes;
-
-PropTypes = React.PropTypes;
-
-CatalogFilterList_Color = React.createClass({
-  propTypes: {
-    title: PropTypes.string.isRequired,
-    paramName: PropTypes.string.isRequired,
-    filterName: PropTypes.string.isRequired,
-    items: PropTypes.array.isRequired,
-    categoryId: PropTypes.number.isRequired
-  },
-  render: function() {
-    return React.createElement("li", {
-      "className": "b-full-filter__item"
-    }, React.createElement("div", {
-      "className": "b-full-filter__item__title"
-    }, this.props.title), this.renderListItems());
-  },
-  renderListItems: function() {
-    var listItems, that;
-    that = this;
-    listItems = this.props.items.map(function(item, i) {
-      return React.createElement("label", {
-        "className": "b-cbox b-cbox_color",
-        "key": i
-      }, React.createElement("input", {
-        "type": "checkbox",
-        "name": that.getFieldName(item),
-        "defaultChecked": item.checked,
-        "title": item.name,
-        "className": "b-cbox__native",
-        "onChange": that.handleChange
-      }), React.createElement("div", {
-        "style": {
-          backgroundColor: item.hexCode
-        },
-        "className": "b-cbox__val"
-      }));
-    });
-    return React.createElement("div", {
-      "ref": "list",
-      "className": "b-full-filter__widget"
-    }, listItems);
-  },
-  getFieldName: function(item) {
-    return "" + this.props.filterName + "[" + this.props.paramName + "][" + item.paramValue + "]";
-  },
-  handleChange: function(e) {
-    var elRect, filter, listRect, offsetLeft, position;
-    elRect = e.target.getBoundingClientRect();
-    listRect = this.refs.list.getDOMNode().getBoundingClientRect();
-    offsetLeft = 15;
-    filter = $(this.getDOMNode()).closest('form').serialize() + ("&category_id=" + this.props.categoryId);
-    position = {
-      left: listRect.right + offsetLeft,
-      top: elRect.top + document.body.scrollTop - elRect.height / 2
-    };
-    return KioskEvents.emit(KioskEvents.keys.commandTooltipShow(), position, filter);
-  }
-});
-
-module.exports = CatalogFilterList_Color;
-
-
-
-},{}],13:[function(require,module,exports){
-var CatalogFilterList_Radio, PropTypes;
-
-PropTypes = React.PropTypes;
-
-CatalogFilterList_Radio = React.createClass({
-  propTypes: {
-    title: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
-    paramName: PropTypes.string.isRequired,
-    filterName: PropTypes.string.isRequired,
-    items: PropTypes.array.isRequired,
-    categoryId: PropTypes.number.isRequired
-  },
-  render: function() {
-    return React.createElement("li", {
-      "className": "b-full-filter__item"
-    }, React.createElement("div", {
-      "className": "b-full-filter__item__title"
-    }, this.props.title), this.renderListItems());
-  },
-  renderListItems: function() {
-    var listItems, that;
-    that = this;
-    listItems = this.props.items.map(function(item, i) {
-      return React.createElement("label", {
-        "className": "b-radio",
-        "key": i
-      }, React.createElement("input", {
-        "type": "radio",
-        "name": that.getFieldName(item),
-        "defaultChecked": item.paramValue === that.props.value,
-        "value": item.paramValue,
-        "className": "b-radio__native",
-        "onChange": that.handleChange
-      }), React.createElement("div", {
-        "className": "b-radio__val"
-      }, item.name));
-    });
-    return React.createElement("div", {
-      "className": "b-full-filter__widget"
-    }, listItems);
-  },
-  getFieldName: function(item) {
-    return "" + this.props.filterName + "[" + this.props.paramName + "]";
-  },
-  handleChange: function(e) {
-    var elRect, filter, offsetLeft, position;
-    elRect = e.target.getBoundingClientRect();
-    offsetLeft = 15;
-    filter = $(this.getDOMNode()).closest('form').serialize() + ("&category_id=" + this.props.categoryId);
-    position = {
-      left: elRect.right + offsetLeft,
-      top: elRect.top + document.body.scrollTop - elRect.height / 2
-    };
-    return KioskEvents.emit(KioskEvents.keys.commandTooltipShow(), position, filter);
-  }
-});
-
-module.exports = CatalogFilterList_Radio;
-
-
-
-},{}],14:[function(require,module,exports){
-var CatalogFilterList_Range, PropTypes;
-
-PropTypes = React.PropTypes;
-
-CatalogFilterList_Range = React.createClass({
-  propTypes: {
-    title: PropTypes.string.isRequired,
-    paramName: PropTypes.string.isRequired,
-    filterName: PropTypes.string.isRequired,
-    units: PropTypes.string,
-    valueFrom: PropTypes.number,
-    valueTo: PropTypes.number,
-    from: PropTypes.number.isRequired,
-    to: PropTypes.number.isRequired,
-    categoryId: PropTypes.number.isRequired
-  },
-  getInitialState: function() {
-    return {
-      from: this.props.valueFrom || this.props.from,
-      to: this.props.valueTo || this.props.to
-    };
-  },
-  componentDidMount: function() {
-    var slider;
-    slider = this.refs.slider.getDOMNode();
-    $(slider).noUiSlider({
-      start: [this.state.from, this.state.to],
-      range: {
-        min: this.props.from,
-        max: this.props.to
-      },
-      connect: true
-    });
-    $(slider).on('slide', this.handleSlide);
-    return $(slider).on('change', this.handleChange);
-  },
-  componentWillUnmount: function() {
-    var slider;
-    slider = this.refs.slider.getDOMNode();
-    $(slider).off('slide', this.handleSlide);
-    $(slider).off('change', this.handleChange);
-    return $(slider).destroy();
-  },
-  render: function() {
-    return React.createElement("li", {
-      "className": "b-full-filter__item b-full-filter__item_price"
-    }, React.createElement("div", {
-      "className": "b-full-filter__item__title"
-    }, this.props.title), React.createElement("div", {
-      "className": "b-full-filter__widget",
-      "onClick": this.handleClick
-    }, React.createElement("div", {
-      "className": "b-full-filter__slider"
-    }, React.createElement("div", {
-      "ref": "rangeValue",
-      "className": "b-full-filter__slider__value"
-    }, this.state.from, React.createElement("span", {
-      "className": "slider-divider"
-    }, " \u2013 "), this.state.to, " ", React.createElement("span", {
-      "dangerouslySetInnerHTML": {
-        __html: this.props.units
-      }
-    })), React.createElement("div", {
-      "ref": "slider",
-      "className": "b-full-filter__slider__embed"
-    }))), React.createElement("input", {
-      "type": "hidden",
-      "name": this.props.filterName + '[' + this.props.paramName + '][from]',
-      "value": this.state.from
-    }), React.createElement("input", {
-      "type": "hidden",
-      "name": this.props.filterName + '[' + this.props.paramName + '][to]',
-      "value": this.state.to
-    }));
-  },
-  handleSlide: function(e, range) {
-    return this.setState({
-      from: parseInt(range[0]),
-      to: parseInt(range[1])
-    });
-  },
-  handleChange: function() {
-    var elRect, filter, offsetLeft, position;
-    elRect = this.refs.rangeValue.getDOMNode().getBoundingClientRect();
-    offsetLeft = 15;
-    filter = $(this.getDOMNode()).closest('form').serialize() + ("&category_id=" + this.props.categoryId);
-    position = {
-      left: elRect.right + offsetLeft,
-      top: elRect.top + document.body.scrollTop - elRect.height / 2
-    };
-    return KioskEvents.emit(KioskEvents.keys.commandTooltipShow(), position, filter);
-  }
-});
-
-module.exports = CatalogFilterList_Range;
-
-
-
-},{}],15:[function(require,module,exports){
-var CatalogFilterList_SelectedOptions, PropTypes;
-
-PropTypes = React.PropTypes;
-
-CatalogFilterList_SelectedOptions = React.createClass({
-  propTypes: {
-    selectedOptions: PropTypes.array.isRequired
-  },
-  render: function() {
-    if (this.hasOptions()) {
-      return React.createElement("li", {
-        "className": "b-full-filter__item"
-      }, React.createElement("div", {
-        "className": "b-full-filter__item__title"
-      }, "\u0422\u0435\u043a\u0443\u0449\u0438\u0439 \u0432\u044b\u0431\u043e\u0440"), this.renderListItems());
-    } else {
-      return null;
-    }
-  },
-  renderListItems: function() {
-    var listItems, selectedOptions;
-    selectedOptions = this;
-    listItems = this.props.selectedOptions.map(function(item, i) {
-      return React.createElement("span", {
-        "className": "b-full-filter__value",
-        "onClick": selectedOptions.removeOption.bind(null, item.url),
-        "key": i
-      }, item.name);
-    });
-    return React.createElement("div", {
-      "className": "b-full-filter__widget"
-    }, listItems);
-  },
-  hasOptions: function() {
-    return this.props.selectedOptions.length;
-  },
-  removeOption: function(url) {
-    return window.location = url;
-  }
-});
-
-module.exports = CatalogFilterList_SelectedOptions;
-
-
-
-},{}],16:[function(require,module,exports){
-var CatalogFilterMixin;
-
-CatalogFilterMixin = {
-  getDefaultProps: function() {
-    return {
-      selectedOptions: [
-        {
-          name: 'Цена от 20 000 до 5000 Р',
-          url: '?filter_without_price'
-        }, {
-          name: 'Категория: гибридные',
-          url: '?filter_without_category'
-        }, {
-          name: 'Материал: карбон',
-          url: '?filter_without_material'
-        }
-      ],
-      options: [
-        {
-          title: 'Показывать',
-          type: 'radio',
-          paramName: 'availability',
-          value: 'all',
-          items: [
-            {
-              name: 'Все',
-              paramValue: 'all'
-            }, {
-              name: 'В наличии',
-              paramValue: 'in-stock'
-            }, {
-              name: 'Под заказ',
-              paramValue: 'on-request'
-            }, {
-              name: 'Распродажа',
-              paramValue: 'sale'
-            }
-          ]
-        }, {
-          title: 'Ценовой диапазон',
-          type: 'range',
-          paramName: 'price',
-          units: '&#x20BD;',
-          valueFrom: 20322,
-          valueTo: 35023,
-          from: 10000,
-          to: 50000
-        }, {
-          title: 'Показывать',
-          type: 'checkbox',
-          paramName: 'type',
-          items: [
-            {
-              name: 'Все',
-              paramValue: 'all',
-              checked: true
-            }, {
-              name: 'Гибридные',
-              paramValue: 'hybrid',
-              checked: false
-            }, {
-              name: 'Складные',
-              paramValue: 'foldable',
-              checked: true
-            }, {
-              name: 'Электро',
-              paramValue: 'electro',
-              checked: false
-            }
-          ]
-        }, {
-          title: 'Цвет',
-          type: 'color',
-          paramName: 'color',
-          items: [
-            {
-              name: 'Красный',
-              paramValue: 'red',
-              hexCode: '#fe2a2a',
-              checked: false
-            }, {
-              name: 'Оранжевый',
-              paramValue: 'orange',
-              hexCode: '#feac2a',
-              checked: true
-            }, {
-              name: 'Голубой',
-              paramValue: 'cyan',
-              hexCode: '#2fe1ec',
-              checked: false
-            }, {
-              name: 'Серый',
-              paramValue: 'grey',
-              hexCode: '#aeaeae',
-              checked: true
-            }
-          ]
-        }, {
-          title: 'Материал рамы',
-          type: 'checkbox',
-          paramName: 'frame-material',
-          items: [
-            {
-              name: 'Сталь',
-              paramValue: 'steal',
-              checked: false
-            }, {
-              name: 'Карбон',
-              paramValue: 'carbon',
-              checked: true
-            }, {
-              name: 'Алюминий',
-              paramValue: 'aluminum',
-              checked: false
-            }
-          ]
-        }, {
-          title: 'Модельный ряд',
-          type: 'checkbox',
-          paramName: 'series',
-          items: [
-            {
-              name: '2014',
-              paramValue: '2014',
-              checked: false
-            }, {
-              name: '2013',
-              paramValue: '2013',
-              checked: false
-            }, {
-              name: '2012',
-              paramValue: '2012',
-              checked: true
-            }
-          ]
-        }
-      ]
-    };
-  }
-};
-
-module.exports = CatalogFilterMixin;
-
-
-
-},{}],17:[function(require,module,exports){
-var Api, ERROR_STATE, FilteredCountTooltip, LOADED_STATE, LOADING_STATE, PropTypes, TIMEOUT;
-
-Api = require('../../../api/api');
-
-PropTypes = React.PropTypes;
-
-TIMEOUT = 3000;
-
-LOADING_STATE = 'loading';
-
-LOADED_STATE = 'loaded';
-
-ERROR_STATE = 'error';
-
-FilteredCountTooltip = React.createClass({
-  propTypes: {
-    title: PropTypes.string,
-    filter: PropTypes.string.isRequired,
-    timeout: PropTypes.number,
-    position: PropTypes.shape({
-      left: PropTypes.number.isRequired,
-      top: PropTypes.number.isRequired
-    }).isRequired
-  },
-  getDefaultProps: function() {
-    return {
-      title: 'Показать',
-      timeout: TIMEOUT,
-      position: {
-        left: 0,
-        top: 0
-      }
-    };
-  },
-  getInitialState: function() {
-    return {
-      currentState: LOADING_STATE,
-      count: null
-    };
-  },
-  componentDidMount: function() {
-    this.timeout = setTimeout(this.props.onClose, this.props.timeout);
-    return Api.products.filteredCount(this.props.filter).then((function(_this) {
-      return function(count) {
-        return _this.setState({
-          currentState: LOADED_STATE,
-          count: count
-        });
-      };
-    })(this)).fail(this.activateErrorState);
-  },
-  componentWillUnmount: function() {
-    if (this.timeout != null) {
-      return clearTimeout(this.timeout);
-    }
-  },
-  render: function() {
-    return React.createElement("div", {
-      "style": this.getStyles(),
-      "className": "b-tooltip"
-    }, this.renderContent());
-  },
-  renderContent: function() {
-    switch (this.state.currentState) {
-      case LOADING_STATE:
-        return 'Загрузка..';
-      case ERROR_STATE:
-        return 'Ошибка загрузки:(';
-      case LOADED_STATE:
-        return React.createElement("span", null, "\u0412\u044b\u0431\u0440\u0430\u043d\u043e \u0432\u0430\u0440\u0438\u0430\u043d\u0442\u043e\u0432: ", this.state.count, " ", React.createElement("a", {
-          "href": '?' + this.props.filter
-        }, this.props.title));
-    }
-  },
-  activateErrorState: function() {
-    return this.setState({
-      currentState: ERROR_STATE
-    });
-  },
-  getStyles: function() {
-    var left, top, _ref;
-    _ref = this.props.position, left = _ref.left, top = _ref.top;
-    return {
-      left: left,
-      top: top
-    };
-  }
-});
-
-module.exports = FilteredCountTooltip;
-
-
-
-},{"../../../api/api":5}],18:[function(require,module,exports){
-var BUTTON_TEXT, DesignSettings_SaveButton, PropTypes;
-
-PropTypes = React.PropTypes;
-
-BUTTON_TEXT = 'Сохранить';
-
-DesignSettings_SaveButton = React.createClass({
-  propTypes: {
-    onClick: PropTypes.func.isRequired
-  },
-  render: function() {
-    return React.createElement("button", {
-      "className": "b-design-option__save",
-      "onClick": this.props.onClick
-    }, BUTTON_TEXT);
-  }
-});
-
-module.exports = DesignSettings_SaveButton;
-
-
-
-},{}],19:[function(require,module,exports){
-var DesignSettings_Checkbox, PropTypes;
-
-PropTypes = React.PropTypes;
-
-DesignSettings_Checkbox = React.createClass({
-  propTypes: {
-    title: PropTypes.string.isRequired,
-    value: PropTypes.array.isRequired,
-    items: PropTypes.object.isRequired,
-    onChange: PropTypes.func.isRequired
-  },
-  render: function() {
-    return React.createElement("div", {
-      "className": "b-design-option__item"
-    }, React.createElement("span", {
-      "className": "b-design-option__item__name"
-    }, this.props.title), this.renderParamList());
-  },
-  renderParamList: function() {
-    var listItems, that;
-    that = this;
-    listItems = _.map(this.props.items, function(value, key) {
-      return React.createElement("label", {
-        "className": "b-design-option__cbox",
-        "key": key
-      }, React.createElement("input", {
-        "type": "checkbox",
-        "name": value,
-        "defaultChecked": that.isItemChecked(key),
-        "onChange": that.handleChange.bind(null, key)
-      }), value);
-    });
-    return React.createElement("div", {
-      "className": "b-design-option__item__val"
-    }, listItems);
-  },
-  isItemChecked: function(key) {
-    var result;
-    result = this.props.value.filter(function(item) {
-      return item === key;
-    });
-    return !!result.length;
-  },
-  handleChange: function(key, e) {
-    var index, newValue;
-    newValue = this.props.value.slice(0);
-    index = newValue.indexOf(key);
-    if (e.target.checked) {
-      if (index === -1) {
-        newValue.push(key);
-      }
-    } else {
-      if (index !== -1) {
-        newValue.splice(index, 1);
-      }
-    }
-    return this.props.onChange(newValue);
-  }
-});
-
-module.exports = DesignSettings_Checkbox;
-
-
-
-},{}],20:[function(require,module,exports){
-var DesignSettings_Color, DesignSettings_ColorCustomItem, DesignSettings_ColorItem, PropTypes;
-
-DesignSettings_ColorItem = require('./color/item');
-
-DesignSettings_ColorCustomItem = require('./color/customItem');
-
-PropTypes = React.PropTypes;
-
-DesignSettings_Color = React.createClass({
-  propTypes: {
-    value: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    items: PropTypes.array.isRequired,
-    onChange: PropTypes.func.isRequired
-  },
-  render: function() {
-    var selectedItemStyles;
-    selectedItemStyles = {
-      backgroundColor: this.props.value
-    };
-    return React.createElement("div", {
-      "className": "b-design-option__item"
-    }, React.createElement("div", {
-      "className": "b-design-option__item__current-params"
-    }, React.createElement("span", {
-      "className": "b-design-option__item__name"
-    }, this.props.title), React.createElement("div", {
-      "className": "b-design-option__item__val"
-    }, React.createElement("div", {
-      "className": "b-design-option__color__ind",
-      "style": selectedItemStyles
-    }))), this.renderParamList());
-  },
-  renderParamList: function() {
-    var listItems, that;
-    that = this;
-    listItems = _.map(this.props.items, function(hexCode) {
-      return React.createElement(DesignSettings_ColorItem, {
-        "hexCode": hexCode,
-        "checked": hexCode === that.props.value,
-        "onChange": that.handleChange,
-        "key": hexCode
-      });
-    });
-    return React.createElement("div", {
-      "className": "b-design-option__item__available-params"
-    }, listItems);
-  },
-  handleChange: function(hexCode) {
-    return this.props.onChange(hexCode);
-  }
-});
-
-module.exports = DesignSettings_Color;
-
-
-
-},{"./color/customItem":21,"./color/item":22}],21:[function(require,module,exports){
-var DesignSettings_ColorCustomItem, PropTypes;
-
-PropTypes = React.PropTypes;
-
-DesignSettings_ColorCustomItem = React.createClass({
-  propTypes: {
-    hexCode: PropTypes.string.isRequired,
-    checked: PropTypes.bool.isRequired,
-    onChange: PropTypes.func.isRequired
-  },
-  render: function() {
-    var itemStyles;
-    itemStyles = {
-      backgroundColor: this.props.hexCode
-    };
-    return React.createElement("label", {
-      "className": "b-design-option__color"
-    }, React.createElement("input", {
-      "type": "radio",
-      "checked": this.props.checked,
-      "onChange": this.handleChange
-    }), React.createElement("span", {
-      "className": "b-design-option__color__ind",
-      "style": itemStyles
-    }));
-  },
-  handleChange: function() {
-    return this.props.onChange(this.props.hexCode);
-  }
-});
-
-module.exports = DesignSettings_ColorCustomItem;
-
-
-
-},{}],22:[function(require,module,exports){
-var DesignSettings_ColorItem, PropTypes;
-
-PropTypes = React.PropTypes;
-
-DesignSettings_ColorItem = React.createClass({
-  propTypes: {
-    hexCode: PropTypes.string.isRequired,
-    checked: PropTypes.bool.isRequired,
-    onChange: PropTypes.func.isRequired
-  },
-  render: function() {
-    var itemStyles;
-    itemStyles = {
-      backgroundColor: this.props.hexCode
-    };
-    return React.createElement("label", {
-      "className": "b-design-option__color"
-    }, React.createElement("input", {
-      "type": "radio",
-      "checked": this.props.checked,
-      "onChange": this.handleChange
-    }), React.createElement("span", {
-      "className": "b-design-option__color__ind",
-      "style": itemStyles
-    }));
-  },
-  handleChange: function() {
-    return this.props.onChange(this.props.hexCode);
-  }
-});
-
-module.exports = DesignSettings_ColorItem;
-
-
-
-},{}],23:[function(require,module,exports){
-var DesignSettings_Range, PropTypes;
-
-PropTypes = React.PropTypes;
-
-DesignSettings_Range = React.createClass({
-  propTypes: {
-    value: PropTypes.number.isRequired,
-    from: PropTypes.number,
-    to: PropTypes.number,
-    step: PropTypes.number,
-    onChange: PropTypes.func.isRequired
-  },
-  getDefaultProps: function() {
-    return {
-      from: 0,
-      to: 1,
-      step: .1
-    };
-  },
-  componentDidMount: function() {
-    var slider;
-    slider = this.getDOMNode();
-    $(slider).noUiSlider({
-      start: this.props.value,
-      step: this.props.step,
-      range: {
-        min: this.props.from,
-        max: this.props.to
-      }
-    });
-    return $(slider).on('change', this.handleChange);
-  },
-  componentWillUnmount: function() {
-    var slider;
-    slider = this.getDOMNode();
-    $(slider).off('change', this.handleChange);
-    return $(slider).destroy();
-  },
-  render: function() {
-    return React.createElement("div", null);
-  },
-  handleChange: function(e, value) {
-    return this.props.onChange(parseFloat(value));
-  }
-});
-
-module.exports = DesignSettings_Range;
-
-
-
-},{}],24:[function(require,module,exports){
-var DESIGN_SETTINGS_TITLE, DesignSettings, DesignSettingsMixin, DesignSettings_Checkbox, DesignSettings_Color, DesignSettings_FeedOpacity, DesignSettings_Font, DesignSettings_FontSize, DesignSettings_PageBackground, DesignSettings_ProductLayout, DesignSettings_ProductsInRow, DesignSettings_SaveButton, PropTypes, changeAlpha, changeBackgroundColor, hexToRgb, jss, setDesignClass;
-
-jss = require('jss');
-
-DesignSettingsMixin = require('./mixins/designSettings');
-
-DesignSettings_Color = require('./common/color');
-
-DesignSettings_Checkbox = require('./common/checkbox');
-
-DesignSettings_SaveButton = require('./buttons/save');
-
-DesignSettings_PageBackground = require('./pageBackground');
-
-DesignSettings_FeedOpacity = require('./feedOpacity');
-
-DesignSettings_Font = require('./font');
-
-DesignSettings_FontSize = require('./fontSize');
-
-DesignSettings_ProductLayout = require('./productLayout');
-
-DesignSettings_ProductsInRow = require('./productsInRow');
-
-PropTypes = React.PropTypes;
-
-DESIGN_SETTINGS_TITLE = 'Управление дизайном';
-
-DesignSettings = React.createClass({
-  mixins: [DesignSettingsMixin],
-  propTypes: {
-    pageColor: PropTypes.object.isRequired,
-    pageBackground: PropTypes.object.isRequired,
-    feedColor: PropTypes.object.isRequired,
-    feedOpacity: PropTypes.object.isRequired,
-    font: PropTypes.object.isRequired,
-    fontColor: PropTypes.object.isRequired,
-    fontSize: PropTypes.object.isRequired,
-    activeElementsColor: PropTypes.object.isRequired,
-    productLayout: PropTypes.object.isRequired,
-    catalog: PropTypes.object.isRequired,
-    productsInRow: PropTypes.object.isRequired,
-    mainPage: PropTypes.object.isRequired
-  },
-  getInitialState: function() {
-    var initialSettings;
-    initialSettings = _.reduce(this.props, (function(_this) {
-      return function(result, n, key) {
-        result[key] = _this.props[key].value;
-        return result;
-      };
-    })(this), {});
-    return {
-      settings: initialSettings
-    };
-  },
-  componentDidMount: function() {
-    this.sheet = jss.createStyleSheet({}, {
-      named: false,
-      link: true
-    }).attach();
-    window.sheet = this.sheet;
-    return this.sheet.element.setAttribute('design-settings-sheet', '');
-  },
-  componentWillUnmount: function() {
-    this.sheet.detach();
-    return this.sheet = null;
-  },
-  render: function() {
-    return React.createElement("div", {
-      "className": "b-design-option"
-    }, React.createElement("div", {
-      "className": "b-design-option__title"
-    }, DESIGN_SETTINGS_TITLE), React.createElement("div", {
-      "className": "b-design-option__close"
-    }), React.createElement("div", {
-      "className": "b-design-option__body"
-    }, React.createElement(DesignSettings_Color, {
-      "value": this.state.settings.pageColor,
-      "title": this.props.pageColor.title,
-      "items": this.props.pageColor.items,
-      "onChange": this.updateSettings.bind(null, this.props.pageColor.optionName)
-    }), React.createElement(DesignSettings_PageBackground, {
-      "value": this.state.settings.pageBackground,
-      "title": this.props.pageBackground.title,
-      "items": this.props.pageBackground.items,
-      "onChange": this.updateSettings.bind(null, this.props.pageBackground.optionName)
-    }), React.createElement(DesignSettings_Color, {
-      "value": this.state.settings.feedColor,
-      "title": this.props.feedColor.title,
-      "items": this.props.feedColor.items,
-      "onChange": this.updateSettings.bind(null, this.props.feedColor.optionName)
-    }), React.createElement(DesignSettings_FeedOpacity, {
-      "value": this.state.settings.feedOpacity,
-      "title": this.props.feedOpacity.title,
-      "onChange": this.updateSettings.bind(null, this.props.feedOpacity.optionName)
-    }), React.createElement(DesignSettings_Color, {
-      "value": this.state.settings.fontColor,
-      "title": this.props.fontColor.title,
-      "items": this.props.fontColor.items,
-      "onChange": this.updateSettings.bind(null, this.props.fontColor.optionName)
-    }), React.createElement(DesignSettings_Color, {
-      "value": this.state.settings.activeElementsColor,
-      "title": this.props.activeElementsColor.title,
-      "items": this.props.activeElementsColor.items,
-      "onChange": this.updateSettings.bind(null, this.props.activeElementsColor.optionName)
-    }), React.createElement(DesignSettings_Font, {
-      "value": this.state.settings.font,
-      "title": this.props.font.title,
-      "items": this.props.font.items,
-      "onChange": this.updateSettings.bind(null, this.props.font.optionName)
-    }), React.createElement(DesignSettings_FontSize, {
-      "value": this.state.settings.fontSize,
-      "title": this.props.fontSize.title,
-      "from": this.props.fontSize.from,
-      "to": this.props.fontSize.to,
-      "onChange": this.updateSettings.bind(null, this.props.fontSize.optionName)
-    }), React.createElement(DesignSettings_ProductLayout, {
-      "value": this.state.settings.productLayout,
-      "title": this.props.productLayout.title,
-      "items": this.props.productLayout.items,
-      "onChange": this.updateSettings.bind(null, this.props.productLayout.optionName)
-    }), React.createElement(DesignSettings_Checkbox, {
-      "value": this.state.settings.catalog,
-      "title": this.props.catalog.title,
-      "items": this.props.catalog.items,
-      "onChange": this.updateSettings.bind(null, this.props.catalog.optionName)
-    }), React.createElement(DesignSettings_ProductsInRow, {
-      "value": this.state.settings.productsInRow,
-      "title": this.props.productsInRow.title,
-      "from": this.props.productsInRow.from,
-      "to": this.props.productsInRow.to,
-      "onChange": this.updateSettings.bind(null, this.props.productsInRow.optionName)
-    }), React.createElement(DesignSettings_Checkbox, {
-      "value": this.state.settings.mainPage,
-      "title": this.props.mainPage.title,
-      "items": this.props.mainPage.items,
-      "onChange": this.updateSettings.bind(null, this.props.mainPage.optionName)
-    })), React.createElement(DesignSettings_SaveButton, {
-      "onClick": this.saveSettings
-    }));
-  },
-  updateSettings: function(optionName, value) {
-    var activeElSelectors, newSettings, pageEl;
-    newSettings = this.state.settings;
-    newSettings[optionName] = value;
-    pageEl = document.querySelector('.b-page');
-    activeElSelectors = ['.b-btn', '.b-paginator__item', '.pagination .next a', '.pagination .prev a', '.pagination .first a', '.pagination .last a', '.pagination .page a'];
-    switch (optionName) {
-      case 'pageColor':
-        this.setStyles('.b-page', {
-          'background-color': value
-        });
-        break;
-      case 'pageBackground':
-        this.setStyles('.b-page', {
-          'background-image': "url('" + value + "')"
-        });
-        break;
-      case 'feedColor':
-        this.setStyles('.b-page__content__inner', {
-          'background-color__color': value
-        });
-        break;
-      case 'feedOpacity':
-        this.setStyles('.b-page__content__inner', {
-          'background-color__opacity': value
-        });
-        break;
-      case 'fontColor':
-        this.setStyles('.b-page', {
-          'color': value
-        });
-        break;
-      case 'activeElementsColor':
-        this.setStyles(activeElSelectors.join(', '), {
-          'color': value
-        });
-        break;
-      case 'font':
-        if (pageEl != null) {
-          setDesignClass(pageEl, 'b-page_ff-', value);
-        }
-        break;
-      case 'fontSize':
-        this.setStyles('.b-page', {
-          'font-size': "" + value + "px"
-        });
-        break;
-      case 'productsInRow':
-        if (pageEl != null) {
-          pageEl.setAttribute('data-in-row', value);
-        }
-        break;
-      case 'productLayout':
-        if (pageEl != null) {
-          setDesignClass(pageEl, 'b-page_layout-', value);
-        }
-        $(window).trigger('resize');
-        break;
-      default:
-        if (typeof console.warn === "function") {
-          console.warn('Unknown type of design option', optionName);
-        }
-    }
-    return this.setState({
-      settings: newSettings
-    });
-  },
-  saveSettings: function() {
-    return console.log('saveSettings', this.state.settings);
-  },
-  setStyles: function(selector, styles) {
-    var newStyles, rule;
-    if (styles == null) {
-      styles = {};
-    }
-    rule = this.sheet.getRule(selector);
-    newStyles = {};
-    _.map(styles, function(value, key) {
-      var match, rgba, updatedRgba;
-      match = /(.*)__(\w+)/g.exec(key);
-      if (match != null) {
-        rgba = (rule != null ? rule.prop('background-color') : void 0) || 'rgba(0,0,0,1)';
-        switch (match[2]) {
-          case 'color':
-            updatedRgba = changeBackgroundColor(rgba, value);
-            return newStyles['background-color'] = updatedRgba;
-          case 'opacity':
-            updatedRgba = changeAlpha(rgba, value);
-            return newStyles['background-color'] = updatedRgba;
-        }
-      } else {
-        return newStyles[key] = value;
-      }
-    });
-    if (rule != null) {
-      return _.map(newStyles, function(value, key) {
-        return rule.prop(key, value);
-      });
-    } else {
-      return this.sheet.addRule(selector, newStyles);
-    }
-  }
-});
-
-module.exports = DesignSettings;
-
-hexToRgb = function(hex) {
-  var result, shorthandRegex;
-  shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-  hex = hex.replace(shorthandRegex, function(m, r, g, b) {
-    return r + r + g + g + b + b;
-  });
-  result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  if (result) {
-    return [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)];
-  } else {
-    return null;
-  }
-};
-
-changeBackgroundColor = function(rgba, hex) {
-  var a, match, rgb;
-  match = /rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,)?(\s*\d+[\.\d+]*)*\)/g.exec(rgba);
-  rgb = hexToRgb(hex);
-  a = parseFloat(match[4]) || 1;
-  return 'rgba(' + [rgb[0], rgb[1], rgb[2], a].join(',') + ')';
-};
-
-changeAlpha = function(rgba, a) {
-  a = a > 1 ? a / 100 : a;
-  return 'rgba(' + [match[1], match[2], match[3], a].join(',') + ')';
-};
-
-setDesignClass = function(el, name, value) {
-  var classes;
-  classes = el.className.split(' ').filter(function(c) {
-    return c.lastIndexOf(name, 0) !== 0;
-  });
-  classes.push(name + value);
-  return document.body.className = _.trim(classes.join(' '));
-};
-
-
-
-},{"./buttons/save":18,"./common/checkbox":19,"./common/color":20,"./feedOpacity":25,"./font":26,"./fontSize":27,"./mixins/designSettings":28,"./pageBackground":29,"./productLayout":30,"./productsInRow":31,"jss":64}],25:[function(require,module,exports){
-var DesignSettings_FeedOpacity, DesignSettings_Range, PropTypes;
-
-DesignSettings_Range = require('./common/range');
-
-PropTypes = React.PropTypes;
-
-DesignSettings_FeedOpacity = React.createClass({
-  propTypes: {
-    title: PropTypes.string.isRequired,
-    value: PropTypes.number.isRequired,
-    onChange: PropTypes.func.isRequired
-  },
-  render: function() {
-    return React.createElement("div", {
-      "className": "b-design-option__item"
-    }, React.createElement("span", {
-      "className": "b-design-option__item__name"
-    }, this.props.title), React.createElement("div", {
-      "className": "b-design-option__item__val"
-    }, React.createElement(DesignSettings_Range, {
-      "value": this.props.value,
-      "onChange": this.handleChange
-    })));
-  },
-  handleChange: function(opacity) {
-    return this.props.onChange(opacity);
-  }
-});
-
-module.exports = DesignSettings_FeedOpacity;
-
-
-
-},{"./common/range":23}],26:[function(require,module,exports){
-var DesignSettings_Font, PropTypes;
-
-PropTypes = React.PropTypes;
-
-DesignSettings_Font = React.createClass({
-  propTypes: {
-    title: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
-    items: PropTypes.array.isRequired,
-    onChange: PropTypes.func.isRequired
-  },
-  render: function() {
-    return React.createElement("div", {
-      "className": "b-design-option__item"
-    }, React.createElement("span", {
-      "className": "b-design-option__item__name"
-    }, this.props.title), this.renderParamList());
-  },
-  renderParamList: function() {
-    var listItems, that;
-    that = this;
-    listItems = _.map(this.props.items, function(fontName) {
-      var itemClasses;
-      itemClasses = 'b-design-option__type b-design-option__type_' + fontName;
-      return React.createElement("label", {
-        "className": itemClasses,
-        "key": fontName
-      }, React.createElement("input", {
-        "type": "radio",
-        "checked": fontName === that.props.value,
-        "onChange": that.handleChange.bind(null, fontName)
-      }), React.createElement("span", {
-        "className": "b-design-option__type__ind"
-      }, "Aa"));
-    });
-    return React.createElement("div", {
-      "className": "b-design-option__item__val"
-    }, listItems);
-  },
-  handleChange: function(fontName) {
-    return this.props.onChange(fontName);
-  }
-});
-
-module.exports = DesignSettings_Font;
-
-
-
-},{}],27:[function(require,module,exports){
-var DesignSettings_FontSize, DesignSettings_Range, PropTypes;
-
-DesignSettings_Range = require('./common/range');
-
-PropTypes = React.PropTypes;
-
-DesignSettings_FontSize = React.createClass({
-  propTypes: {
-    title: PropTypes.string.isRequired,
-    value: PropTypes.number.isRequired,
-    from: PropTypes.number.isRequired,
-    to: PropTypes.number.isRequired,
-    onChange: PropTypes.func.isRequired
-  },
-  render: function() {
-    return React.createElement("div", {
-      "className": "b-design-option__item"
-    }, React.createElement("span", {
-      "className": "b-design-option__item__name"
-    }, this.props.title), React.createElement("div", {
-      "className": "b-design-option__item__val"
-    }, React.createElement(DesignSettings_Range, {
-      "value": this.props.value,
-      "from": this.props.from,
-      "to": this.props.to,
-      "step": 1.,
-      "onChange": this.handleChange
-    })));
-  },
-  handleChange: function(fontSize) {
-    return this.props.onChange(fontSize);
-  }
-});
-
-module.exports = DesignSettings_FontSize;
-
-
-
-},{"./common/range":23}],28:[function(require,module,exports){
-var DesignSettingsMixin;
-
-DesignSettingsMixin = {
-  getDefaultProps: function() {
-    return {
-      pageColor: {
-        title: 'цвет страницы',
-        optionName: 'pageColor',
-        value: '#ff0000',
-        items: ['#bf443f', '#569a9f', '#4f617d', '#f4d3c4', '#d4c3c9']
-      },
-      pageBackground: {
-        title: 'фон страницы',
-        optionName: 'pageBackground',
-        value: 'http://img.faceyourmanga.com/mangatars/0/0/39/large_511.png',
-        items: ['https://s-media-cache-ak0.pinimg.com/originals/56/b8/bd/56b8bdb28de8e41c9acbaa993e16a1eb.jpg', 'http://img.faceyourmanga.com/mangatars/0/0/39/large_511.png']
-      },
-      feedColor: {
-        title: 'цвет ленты',
-        optionName: 'feedColor',
-        value: '#ffd46c',
-        items: ['#894c00', '#fff2a6', '#720000', '#513100', '#ffd46c']
-      },
-      feedOpacity: {
-        title: 'прозрачность ленты',
-        optionName: 'feedOpacity',
-        value: 1
-      },
-      font: {
-        title: 'шрифт',
-        optionName: 'font',
-        value: 'helvetica',
-        items: ['helvetica', 'ptserif', 'ptsans', 'verdana', 'courier']
-      },
-      fontColor: {
-        title: 'цвет текста',
-        optionName: 'fontColor',
-        value: '#c3a96c',
-        items: ['#264c35', '#c3a96c', '#fa3c58', '#772d3c', '#1a0f17']
-      },
-      fontSize: {
-        title: 'размер шрифта',
-        optionName: 'fontSize',
-        value: 14,
-        from: 13,
-        to: 15
-      },
-      activeElementsColor: {
-        title: 'цвет активных элементов',
-        optionName: 'activeElementsColor',
-        value: '#264c35',
-        items: ['#264c35', '#c3a96c', '#fa3c58', '#772d3c', '#1a0f17']
-      },
-      productLayout: {
-        title: 'лейаут товара',
-        optionName: 'productLayout',
-        value: 'bigpic',
-        items: {
-          bigpic: 'http://cs9514.vk.me/v9514976/2b7d/dV_vHdU34H8.jpg',
-          layoutTwo: 'http://cs9514.vk.me/v9514976/2b7d/dV_vHdU34H8.jpg'
-        }
-      },
-      catalog: {
-        title: 'каталог',
-        optionName: 'catalog',
-        value: ['filter', 'menu'],
-        items: {
-          menu: 'Меню',
-          filter: 'Фильтр',
-          search: 'Поиск'
-        }
-      },
-      productsInRow: {
-        title: 'товаров в ряд',
-        optionName: 'productsInRow',
-        value: 3,
-        from: 2,
-        to: 4
-      },
-      mainPage: {
-        title: 'главная страница',
-        optionName: 'mainPage',
-        value: ['bigBanner'],
-        items: {
-          bigBanner: 'Большой баннер',
-          callback: 'Форма обратного звонка'
-        }
-      }
-    };
-  }
-};
-
-module.exports = DesignSettingsMixin;
-
-
-
-},{}],29:[function(require,module,exports){
-var DesignSettings_PageBackground, PropTypes;
-
-PropTypes = React.PropTypes;
-
-DesignSettings_PageBackground = React.createClass({
-  propTypes: {
-    title: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
-    items: PropTypes.array.isRequired,
-    onChange: PropTypes.func.isRequired
-  },
-  render: function() {
-    return React.createElement("div", {
-      "className": "b-design-option__item"
-    }, React.createElement("div", {
-      "className": "b-design-option__item__current-params"
-    }, React.createElement("span", {
-      "className": "b-design-option__item__name"
-    }, this.props.title), React.createElement("div", {
-      "className": "b-design-option__item__val"
-    }, React.createElement("div", {
-      "className": "b-design-option__color b-design-option__color_img"
-    }, React.createElement("div", {
-      "className": "b-design-option__color__ind"
-    }, React.createElement("img", {
-      "src": this.props.value
-    }))))), this.renderParamList());
-  },
-  renderParamList: function() {
-    var listItems, that;
-    that = this;
-    listItems = _.map(this.props.items, function(backgroundUrl) {
-      return React.createElement("label", {
-        "className": "b-design-option__color b-design-option__color_img",
-        "key": backgroundUrl
-      }, React.createElement("input", {
-        "type": "radio",
-        "checked": backgroundUrl === that.props.value,
-        "onChange": that.handleChange.bind(null, backgroundUrl)
-      }), React.createElement("span", {
-        "className": "b-design-option__color__ind"
-      }, React.createElement("img", {
-        "src": backgroundUrl
-      })));
-    });
-    return React.createElement("div", {
-      "className": "b-design-option__item__available-params"
-    }, listItems);
-  },
-  handleChange: function(backgroundUrl) {
-    return this.props.onChange(backgroundUrl);
-  }
-});
-
-module.exports = DesignSettings_PageBackground;
-
-
-
-},{}],30:[function(require,module,exports){
-var DesignSettings_ProductLayout, PropTypes;
-
-PropTypes = React.PropTypes;
-
-DesignSettings_ProductLayout = React.createClass({
-  propTypes: {
-    title: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
-    items: PropTypes.object.isRequired,
-    onChange: PropTypes.func.isRequired
-  },
-  render: function() {
-    return React.createElement("div", {
-      "className": "b-design-option__item"
-    }, React.createElement("span", {
-      "className": "b-design-option__item__name"
-    }, this.props.title), this.renderParamList());
-  },
-  renderParamList: function() {
-    var listItems, that;
-    that = this;
-    listItems = _.map(this.props.items, function(url, name) {
-      return React.createElement("label", {
-        "className": "b-design-option__layout",
-        "key": name
-      }, React.createElement("input", {
-        "type": "radio",
-        "checked": name === that.props.value,
-        "onChange": that.handleChange.bind(null, name)
-      }), React.createElement("span", {
-        "className": "b-design-option__layout__ind"
-      }, name));
-    });
-    return React.createElement("div", {
-      "className": "b-design-option__item__val"
-    }, listItems);
-  },
-  handleChange: function(layout) {
-    return this.props.onChange(layout);
-  }
-});
-
-module.exports = DesignSettings_ProductLayout;
-
-
-
-},{}],31:[function(require,module,exports){
-var DesignSettings_ProductsInRow, DesignSettings_Range, PropTypes;
-
-DesignSettings_Range = require('./common/range');
-
-PropTypes = React.PropTypes;
-
-DesignSettings_ProductsInRow = React.createClass({
-  propTypes: {
-    title: PropTypes.string.isRequired,
-    value: PropTypes.number.isRequired,
-    from: PropTypes.number.isRequired,
-    to: PropTypes.number.isRequired,
-    onChange: PropTypes.func.isRequired
-  },
-  render: function() {
-    return React.createElement("div", {
-      "className": "b-design-option__item"
-    }, React.createElement("span", {
-      "className": "b-design-option__item__name"
-    }, this.props.title), React.createElement("div", {
-      "className": "b-design-option__item__val"
-    }, React.createElement(DesignSettings_Range, {
-      "value": this.props.value,
-      "from": this.props.from,
-      "to": this.props.to,
-      "step": 1.,
-      "onChange": this.handleChange
-    })));
-  },
-  handleChange: function(productsInRow) {
-    return this.props.onChange(productsInRow);
-  }
-});
-
-module.exports = DesignSettings_ProductsInRow;
-
-
-
-},{"./common/range":23}],32:[function(require,module,exports){
-window.BackgroundList = React.createClass({
-  propTypes: {
-    name: React.PropTypes.string.isRequired,
-    bgSet: React.PropTypes.object.isRequired,
-    value: React.PropTypes.string
-  },
-  getDefaultProps: function() {
-    return {
-      bgSet: {
-        'bg-pikachu': 'http://cs9514.vk.me/v9514976/2b7d/dV_vHdU34H8.jpg',
-        'bg-slowpoke': 'http://cs9514.vk.me/v9514976/2b7d/dV_vHdU34H8.jpg'
-      }
-    };
-  },
-  handleChange: function(background) {
-    var _base;
-    return typeof (_base = this.props).onChange === "function" ? _base.onChange(background) : void 0;
-  },
-  render: function() {
-    var bgSetList;
-    bgSetList = _.map(this.props.bgSet, (function(_this) {
-      return function(background, key) {
-        var checked;
-        checked = false;
-        checked = _this.props.value && _this.props.value === key;
-        return React.createElement(BackgroundListElement, {
-          "name": _this.props.name,
-          "checked": checked,
-          "background": background,
-          "key": key,
-          "onChange": _this.handleChange.bind(background, key)
-        });
-      };
-    })(this));
-    return React.createElement("div", null, bgSetList);
-  }
-});
-
-window.BackgroundListElement = React.createClass({
-  propTypes: {
-    background: React.PropTypes.string.isRequired,
-    name: React.PropTypes.string.isRequired,
-    checked: React.PropTypes.bool.isRequired
-  },
-  render: function() {
-    return React.createElement("label", {
-      "className": "b-design-option__color b-design-option__color_img"
-    }, React.createElement("input", {
-      "type": "radio",
-      "name": this.props.name,
-      "defaultChecked": this.props.checked,
-      "value": this.props.background,
-      "onChange": this.props.onChange
-    }), React.createElement("span", {
-      "className": "b-design-option__color__ind"
-    }, React.createElement("img", {
-      "src": this.props.background,
-      "alt": ""
-    })));
-  }
-});
-
-
-
-},{}],33:[function(require,module,exports){
-window.ColorList = React.createClass({
-  propTypes: {
-    name: React.PropTypes.string.isRequired,
-    colorSet: React.PropTypes.object.isRequired,
-    value: React.PropTypes.string
-  },
-  getDefaultProps: function() {
-    return {
-      colorSet: {
-        'bg-dark': '#000',
-        'bg-white': '#fff',
-        'layer-dark': '#000',
-        'layer-light': '#fff'
-      }
-    };
-  },
-  handleChange: function(color) {
-    var _base;
-    return typeof (_base = this.props).onChange === "function" ? _base.onChange(color) : void 0;
-  },
-  render: function() {
-    var colorSetList;
-    colorSetList = _.map(this.props.colorSet, (function(_this) {
-      return function(color, key) {
-        var checked;
-        checked = false;
-        checked = _this.props.value && _this.props.value === key;
-        return React.createElement(ColorSelect, {
-          "name": _this.props.name,
-          "checked": checked,
-          "color": color,
-          "colorName": key,
-          "key": key,
-          "onChange": _this.handleChange.bind(color, key)
-        });
-      };
-    })(this));
-    return React.createElement("div", null, colorSetList);
-  }
-});
-
-window.ColorSelect = React.createClass({
-  propTypes: {
-    color: React.PropTypes.string.isRequired,
-    colorName: React.PropTypes.string.isRequired,
-    name: React.PropTypes.string.isRequired,
-    checked: React.PropTypes.bool.isRequired
-  },
-  render: function() {
-    var divStyle;
-    divStyle = {
-      backgroundColor: this.props.color
-    };
-    return React.createElement("label", {
-      "className": "b-design-option__color"
-    }, React.createElement("input", {
-      "type": "radio",
-      "name": this.props.name,
-      "defaultChecked": this.props.checked,
-      "value": this.props.colorName,
-      "onChange": this.props.onChange
-    }), React.createElement("span", {
-      "className": "b-design-option__color__ind",
-      "style": divStyle
-    }));
-  }
-});
-
-
-
-},{}],34:[function(require,module,exports){
-window.Designer = React.createClass({
-  propTypes: {
-    options: React.PropTypes.array.isRequired
-  },
-  getDefaultProps: function() {
-    return {
-      options: [
-        {
-          "type": "ColorList",
-          "name": "цвет страницы",
-          "props": {
-            "name": "background_color",
-            "colorSet": {
-              'dark': '#000',
-              'white': '#fff',
-              'gray': '#eee'
-            },
-            "value": "white"
-          }
-        }, {
-          "type": "BgList",
-          "name": "фон страницы",
-          "props": {
-            "name": "background_image",
-            "bgSet": {
-              'pokeball': 'https://s-media-cache-ak0.pinimg.com/originals/56/b8/bd/56b8bdb28de8e41c9acbaa993e16a1eb.jpg',
-              'bg2': 'https://s-media-cache-ak0.pinimg.com/originals/56/b8/bd/56b8bdb28de8e41c9acbaa993e16a1eb.jpg'
-            },
-            "value": "pokeball"
-          }
-        }, {
-          "type": "FontList",
-          "name": "шрифт",
-          "props": {
-            "name": "font_family",
-            "value": "gotham"
-          }
-        }, {
-          "type": "ValueSlider",
-          "name": "размер шрифта",
-          "props": {
-            "name": "font_size",
-            "step": 1,
-            "range": {
-              "min": 13,
-              "max": 15
-            },
-            "value": 14
-          }
-        }, {
-          "type": "Toggle",
-          "name": "главная страница",
-          "props": {
-            "name": "banner",
-            "label": "большой баннер",
-            "value": true
-          }
-        }, {
-          "type": "LayoutList",
-          "name": "лейаут страницы",
-          "props": {
-            "name": "layout",
-            "layoutSet": {
-              'one': 'http://cs9514.vk.me/v9514976/2b7d/dV_vHdU34H8.jpg',
-              'two': 'http://cs9514.vk.me/v9514976/2b7d/dV_vHdU34H8.jpg'
-            },
-            "value": "one"
-          }
-        }
-      ]
-    };
-  },
-  handleChange: function(option, newValue) {
-    var newState;
-    newState = {};
-    newState[option.props.name] = newValue;
-    return this.setState(newState);
-  },
-  _createDesignComponent: function(options) {
-    switch (options.type) {
-      case 'ColorList':
-        return React.createElement(DesignerElementLayout, {
-          "name": options.name,
-          "type": "color",
-          "set": options.props.colorSet,
-          "value": options.props.value
-        }, React.createElement(ColorList, {
-          "name": options.props.name,
-          "colorSet": options.props.colorSet,
-          "value": options.props.value,
-          "onChange": this.handleChange.bind(this, options)
-        }));
-      case 'BgList':
-        return React.createElement(DesignerElementLayout, {
-          "name": options.name,
-          "type": "image",
-          "set": options.props.bgSet,
-          "value": options.props.value
-        }, React.createElement(BackgroundList, {
-          "name": options.props.name,
-          "bgSet": options.props.bgSet,
-          "value": options.props.value,
-          "onChange": this.handleChange.bind(this, options)
-        }));
-      case 'LayoutList':
-        return React.createElement(DesignerElementLayout, {
-          "name": options.name,
-          "type": "simplified"
-        }, React.createElement(LayoutList, {
-          "name": options.props.name,
-          "layoutSet": options.props.layoutSet,
-          "value": options.props.value,
-          "onChange": this.handleChange.bind(this, options)
-        }));
-      case 'FontList':
-        return React.createElement(DesignerElementLayout, {
-          "name": options.name,
-          "type": "simplified"
-        }, React.createElement(FontList, {
-          "name": options.props.name,
-          "fontSet": options.props.fontSet,
-          "value": options.props.value,
-          "onChange": this.handleChange.bind(this, options)
-        }));
-      case 'ValueSlider':
-        return React.createElement(DesignerElementLayout, {
-          "name": options.name,
-          "type": "simplified"
-        }, React.createElement(ValueSlider, {
-          "name": options.props.name,
-          "step": options.props.step,
-          "range": options.props.range,
-          "value": options.props.value,
-          "onChange": this.handleChange.bind(this, options)
-        }));
-      case 'Toggle':
-        return React.createElement(DesignerElementLayout, {
-          "name": options.name,
-          "type": "simplified"
-        }, React.createElement(Toggle, {
-          "name": options.props.name,
-          "value": options.props.value,
-          "onChange": this.handleChange.bind(this, options)
-        }));
-    }
-  },
-  render: function() {
-    var designItems;
-    designItems = _.map(this.props.options, (function(_this) {
-      return function(option) {
-        return _this._createDesignComponent(option);
-      };
-    })(this));
-    return React.createElement("div", {
-      "className": "b-design-option"
-    }, React.createElement("div", {
-      "className": "b-design-option__title"
-    }, "\u0423\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435 \u0434\u0438\u0437\u0430\u0439\u043d\u043e\u043c"), React.createElement("span", {
-      "className": "b-design-option__close"
-    }, "\u0417\u0430\u043a\u0440\u044b\u0442\u044c"), React.createElement("div", {
-      "className": "b-design-option__body"
-    }, designItems), React.createElement("button", {
-      "type": "button",
-      "className": "b-design-option__save"
-    }, "\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c"));
-  }
-});
-
-window.DesignerElementLayout = React.createClass({
-  render: function() {
-    if ((this.props.type != null) && this.props.type === 'simplified') {
-      return React.createElement("div", {
-        "className": "b-design-option__item"
-      }, React.createElement("span", {
-        "className": "b-design-option__item__name"
-      }, this.props.name), React.createElement("div", {
-        "className": "b-design-option__item__val"
-      }, this.props.children));
-    } else {
-      return React.createElement("div", {
-        "className": "b-design-option__item"
-      }, React.createElement("div", {
-        "className": "b-design-option__item__current-params"
-      }, React.createElement("span", {
-        "className": "b-design-option__item__name"
-      }, this.props.name), React.createElement(DesignerElementValueLayout, {
-        "value": this.props.value,
-        "type": this.props.type,
-        "set": this.props.set
-      })), React.createElement("div", {
-        "className": "b-design-option__item__available-params"
-      }, this.props.children));
-    }
-  }
-});
-
-window.DesignerElementValueLayout = React.createClass({
-  propTypes: {
-    type: React.PropTypes.string.isRequired,
-    set: React.PropTypes.array,
-    value: React.PropTypes.string
-  },
-  render: function() {
-    var divStyle, value;
-    value = this.props.set[this.props.value];
-    if (this.props.type === 'color') {
-      divStyle = {
-        backgroundColor: value
-      };
-      return React.createElement("div", {
-        "className": "b-design-option__item__val"
-      }, React.createElement("div", {
-        "className": "b-design-option__color__ind",
-        "style": divStyle
-      }));
-    }
-    if (this.props.type === 'image') {
-      return React.createElement("div", {
-        "className": "b-design-option__item__val"
-      }, React.createElement("div", {
-        "className": "b-design-option__color b-design-option__color_img"
-      }, React.createElement("div", {
-        "className": "b-design-option__color__ind"
-      }, React.createElement("img", {
-        "src": value,
-        "alt": ""
-      }))));
-    }
-    return null;
-  }
-});
-
-
-
-},{}],35:[function(require,module,exports){
-window.FontList = React.createClass({
-  propTypes: {
-    name: React.PropTypes.string.isRequired,
-    fontSet: React.PropTypes.object.isRequired,
-    value: React.PropTypes.string
-  },
-  getDefaultProps: function() {
-    return {
-      fontSet: {
-        'default': 'default',
-        'verdana': 'verdana',
-        'gotham': 'gotham',
-        'apercu': 'apercu'
-      }
-    };
-  },
-  handleChange: function(font) {
-    var _base;
-    return typeof (_base = this.props).onChange === "function" ? _base.onChange(font) : void 0;
-  },
-  render: function() {
-    var fontSetList;
-    fontSetList = _.map(this.props.fontSet, (function(_this) {
-      return function(font, key) {
-        var checked;
-        checked = false;
-        checked = _this.props.value && _this.props.value === key;
-        return React.createElement(FontSelect, {
-          "font": font,
-          "key": font,
-          "name": _this.props.name,
-          "checked": checked,
-          "onChange": _this.handleChange.bind(key, font)
-        });
-      };
-    })(this));
-    return React.createElement("div", null, fontSetList);
-  }
-});
-
-window.FontSelect = React.createClass({
-  propTypes: {
-    font: React.PropTypes.string.isRequired,
-    name: React.PropTypes.string.isRequired,
-    checked: React.PropTypes.bool.isRequired
-  },
-  render: function() {
-    var className;
-    className = "b-design-option__type b-design-option__type_" + this.props.font;
-    return React.createElement("label", {
-      "className": className
-    }, React.createElement("input", {
-      "type": "radio",
-      "onChange": this.props.onChange,
-      "defaultChecked": this.props.checked,
-      "name": this.props.name,
-      "value": this.props.font
-    }), React.createElement("span", {
-      "className": "b-design-option__type__ind"
-    }, "Aa"));
-  }
-});
-
-
-
-},{}],36:[function(require,module,exports){
-window.LayoutList = React.createClass({
-  propTypes: {
-    name: React.PropTypes.string.isRequired,
-    layoutSet: React.PropTypes.object.isRequired,
-    value: React.PropTypes.string
-  },
-  getDefaultProps: function() {
-    return {
-      layoutSet: {
-        'layout-one': 'http://cs9514.vk.me/v9514976/2b7d/dV_vHdU34H8.jpg',
-        'layout-two': 'http://cs9514.vk.me/v9514976/2b7d/dV_vHdU34H8.jpg'
-      }
-    };
-  },
-  handleChange: function(layout) {
-    var _base;
-    return typeof (_base = this.props).onChange === "function" ? _base.onChange(layout) : void 0;
-  },
-  render: function() {
-    var layoutSetList;
-    layoutSetList = _.map(this.props.layoutSet, (function(_this) {
-      return function(layout, key) {
-        var checked;
-        checked = false;
-        checked = _this.props.value && _this.props.value === key;
-        return React.createElement(LayoutSelect, {
-          "name": _this.props.name,
-          "layoutName": key,
-          "layout": layout,
-          "key": key,
-          "checked": checked,
-          "onChange": _this.handleChange.bind(layout, key)
-        });
-      };
-    })(this));
-    return React.createElement("div", null, layoutSetList);
-  }
-});
-
-window.LayoutSelect = React.createClass({
-  propTypes: {
-    layout: React.PropTypes.string.isRequired,
-    name: React.PropTypes.string.isRequired,
-    checked: React.PropTypes.bool.isRequired
-  },
-  render: function() {
-    return React.createElement("label", {
-      "className": "b-design-option__layout"
-    }, React.createElement("input", {
-      "onChange": this.props.onChange,
-      "type": "radio",
-      "defaultChecked": this.props.checked,
-      "value": this.props.layout,
-      "name": this.props.name
-    }), React.createElement("span", {
-      "className": "b-design-option__layout__ind"
-    }, this.props.layoutName));
-  }
-});
-
-
-
-},{}],37:[function(require,module,exports){
-window.Toggle = React.createClass({
-  propTypes: {
-    name: React.PropTypes.string.isRequired,
-    value: React.PropTypes.bool
-  },
-  getDefaultProps: function() {
-    return {
-      value: false
-    };
-  },
-  handleChange: function(e) {
-    var toggleState, _base;
-    toggleState = $(e.target).prop('checked');
-    return typeof (_base = this.props).onChange === "function" ? _base.onChange(toggleState) : void 0;
-  },
-  render: function() {
-    return React.createElement("label", {
-      "className": "b-design-option__cbox"
-    }, React.createElement("input", {
-      "type": "checkbox",
-      "defaultChecked": this.props.value,
-      "onChange": this.handleChange
-    }), this.props.name);
-  }
-});
-
-
-
-},{}],38:[function(require,module,exports){
-window.ValueSlider = React.createClass({
-  propTypes: {
-    name: React.PropTypes.string.isRequired,
-    range: React.PropTypes.object.isRequired,
-    step: React.PropTypes.number.isRequired,
-    start: React.PropTypes.string
-  },
-  getDefaultProps: function() {
-    return {
-      range: {
-        min: 0,
-        max: 1
-      },
-      value: 0,
-      step: .1
-    };
-  },
-  componentDidMount: function() {
-    var domNode;
-    domNode = $(this.getDOMNode());
-    domNode.noUiSlider({
-      start: this.props.value,
-      step: this.props.step,
-      range: this.props.range
-    });
-    return domNode.on({
-      slide: (function(_this) {
-        return function() {
-          var currentValue, _base;
-          currentValue = domNode.val();
-          _this.setState({
-            value: currentValue
-          });
-          return typeof (_base = _this.props).onChange === "function" ? _base.onChange(currentValue) : void 0;
-        };
-      })(this)
-    });
-  },
-  render: function() {
-    return React.createElement("div", null);
-  }
-});
-
-
-
-},{}],39:[function(require,module,exports){
-window.InstagramFeed_Controllable = React.createClass({
-  propTypes: {
-    isVisible: React.PropTypes.bool.isRequired,
-    clientId: React.PropTypes.string.isRequired,
-    userId: React.PropTypes.number.isRequired,
-    limit: React.PropTypes.number
-  },
-  getInitialState: function() {
-    return {
-      isVisible: this.props.isVisible
-    };
-  },
-  componentDidMount: function() {
-    return $(document).on("instagram:clicked", this.toggleVisibleState);
-  },
-  componentWillUnmount: function() {
-    return $(document).off("instagram:clicked", this.toggleVisibleState);
-  },
-  render: function() {
-    if (this.state.isVisible) {
-      return React.createElement(InstagramFeed, {
-        "clientId": this.props.clientId,
-        "userId": this.props.userId,
-        "limit": this.props.limit
-      });
-    } else {
-      return React.createElement("span", null);
-    }
-  },
-  toggleVisibleState: function() {
-    if (InstagramFeed_Mixin.STATE_LOADED) {
-      return this.setState({
-        isVisible: !this.state.isVisible
-      });
-    }
-  }
-});
-
-window.InstagramFeed = React.createClass({
-  mixins: [InstagramFeed_Mixin],
-  propTypes: {
-    clientId: React.PropTypes.string.isRequired,
-    userId: React.PropTypes.number.isRequired,
-    limit: React.PropTypes.number
-  },
-  getInitialState: function() {
-    return {
-      currentState: this.STATE_LOADING,
-      isVisible: false,
-      photos: null,
-      username: '',
-      hashtag: ''
-    };
-  },
-  componentDidMount: function() {
-    return this._loadPhotos();
-  },
-  render: function() {
-    switch (this.state.currentState) {
-      case this.STATE_LOADED:
-        return React.createElement(InstagramFeed_Carousel, {
-          "photos": this.state.photos
-        });
-      case this.STATE_LOADING:
-        return React.createElement(InstagramFeed_Spinner, null);
-      case this.STATE_ERROR:
-        return React.createElement(InstagramFeed_Error, null);
-      default:
-        return console.warn('Неизвестное состояние #{@state.currentState}');
-    }
-  }
-});
-
-window.InstagramFeed_Error = React.createClass({
-  render: function() {
-    return React.createElement("div", {
-      "className": 'b-instafeed b-insafeed_error'
-    }, "\u041e\u0448\u0438\u0431\u043a\u0430 \u043f\u0440\u0438 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0435 \u0444\u043e\u0442\u043e\u0433\u0440\u0430\u0444\u0438\u0439");
-  }
-});
-
-window.InstagramFeed_Spinner = React.createClass({
-  render: function() {
-    return React.createElement("div", {
-      "className": 'b-instafeed b-instafeed_loading'
-    }, React.createElement("span", {
-      "className": 'b-instafeed__loader'
-    }));
-  }
-});
-
-window.InstagramFeed_Photo = React.createClass({
-  propTypes: {
-    photo: React.PropTypes.object.isRequired
-  },
-  render: function() {
-    return React.createElement("a", {
-      "className": 'b-instafeed__photo',
-      "href": this.props.photo.standard_resolution.url
-    }, React.createElement("img", {
-      "className": 'lazyOwl',
-      "data-src": this.props.photo.low_resolution.url
-    }));
-  }
-});
-
-window.InstagramFeed_Carousel = React.createClass({
-  propTypes: {
-    photos: React.PropTypes.array.isRequired
-  },
-  componentDidMount: function() {
-    return this._initCarousel();
-  },
-  componentWillUnmount: function() {
-    return this._destroyCarousel();
-  },
-  render: function() {
-    var photos;
-    photos = _.map(this.props.photos, function(photo) {
-      return React.createElement(InstagramFeed_Photo, {
-        "photo": photo.images,
-        "key": photo.id
-      });
-    });
-    return React.createElement("div", {
-      "className": "b-instafeed"
-    }, photos);
-  },
-  _initCarousel: function() {
-    return $(this.getDOMNode()).owlCarousel({
-      items: 6,
-      itemsDesktop: 6,
-      pagination: false,
-      autoPlay: 5000,
-      navigation: true,
-      lazyLoad: true
-    });
-  },
-  _destroyCarousel: function() {
-    return $(this.getDOMNode()).data('owlCarousel').destroy();
-  }
-});
-
-
-
-},{}],40:[function(require,module,exports){
-window.InstagramFeed_Mixin = {
-  STATE_LOADING: 'loading',
-  STATE_LOADED: 'loaded',
-  STATE_ERROR: 'error',
-  INSTAGRAM_API_URL: 'https://api.instagram.com/v1/',
-  _getRequestUrl: function() {
-    var url;
-    url = this.INSTAGRAM_API_URL + 'users/' + this.props.userId + '/media/recent/?client_id=' + this.props.clientId;
-    if (this.props.limit != null) {
-      url += '&count=' + this.props.limit;
-    }
-    return url;
-  },
-  _loadPhotos: function() {
-    return $.ajax({
-      dataType: "jsonp",
-      url: this._getRequestUrl(),
-      success: (function(_this) {
-        return function(photos) {
-          if (_this.isMounted() && (photos != null)) {
-            return _this.setState({
-              currentState: _this.STATE_LOADED,
-              photos: photos.data,
-              profileUrl: 'http://instagram.com/' + photos.data[0].user.username,
-              hashtag: '@' + photos.data[0].user.username
-            });
-          }
-        };
-      })(this),
-      error: (function(_this) {
-        return function(data) {
-          return _this._activateErrorState();
-        };
-      })(this)
-    });
-  },
-  _activateErrorState: function() {
-    if (this.isMounted()) {
-      return this.setState({
-        currentState: this.STATE_ERROR
-      });
-    }
-  }
-};
-
-
-
-},{}],41:[function(require,module,exports){
-window.InstagramFeed_Controllable_v2 = React.createClass({
-  propTypes: {
-    isVisible: React.PropTypes.bool.isRequired,
-    clientId: React.PropTypes.string.isRequired,
-    userId: React.PropTypes.number.isRequired,
-    limit: React.PropTypes.number
-  },
-  getDefaultProps: function() {
-    return {
-      limit: 10
-    };
-  },
-  getInitialState: function() {
-    return {
-      isVisible: this.props.isVisible
-    };
-  },
-  componentDidMount: function() {
-    return $(document).on("instagram:clicked", this.toggleVisibleState);
-  },
-  componentWillUnmount: function() {
-    return $(document).off("instagram:clicked", this.toggleVisibleState);
-  },
-  render: function() {
-    if (this.state.isVisible) {
-      return React.createElement(InstagramFeed_v2, {
-        "clientId": this.props.clientId,
-        "userId": this.props.userId,
-        "limit": this.props.limit
-      });
-    } else {
-      return React.createElement("span", null);
-    }
-  },
-  toggleVisibleState: function() {
-    if (InstagramFeed_Mixin.STATE_LOADED) {
-      return this.setState({
-        isVisible: !this.state.isVisible
-      });
-    }
-  }
-});
-
-window.InstagramFeed_v2 = React.createClass({
-  mixins: [InstagramFeed_Mixin],
-  propTypes: {
-    clientId: React.PropTypes.string.isRequired,
-    userId: React.PropTypes.number.isRequired,
-    limit: React.PropTypes.number
-  },
-  getInitialState: function() {
-    return {
-      currentState: this.STATE_LOADING,
-      isVisible: false,
-      photos: null,
-      profileUrl: '',
-      hashtag: ''
-    };
-  },
-  componentDidMount: function() {
-    return this._loadPhotos();
-  },
-  render: function() {
-    var result;
-    result = (function() {
-      switch (this.state.currentState) {
-        case this.STATE_LOADED:
-          return React.createElement(InstagramFeed_v2_Feed, {
-            "photos": this.state.photos,
-            "profileUrl": this.state.profileUrl
-          });
-        case this.STATE_LOADING:
-          return React.createElement(InstagramFeed_v2_Spinner, null);
-        case this.STATE_ERROR:
-          return React.createElement(InstagramFeed_v2_Error, null);
-        default:
-          return console.warn('Неизвестное состояние #{@state.currentState}');
-      }
-    }).call(this);
-    return React.createElement("div", null, React.createElement("h2", {
-      "className": "b-item-list__title b-instafeed-v2__title"
-    }, React.createElement("a", {
-      "href": this.state.profileUrl,
-      "rel": 'nofollow',
-      "target": '_blank'
-    }, this.state.hashtag)), result);
-  }
-});
-
-window.InstagramFeed_v2_Error = React.createClass({
-  render: function() {
-    return React.createElement("div", {
-      "className": 'b-instafeed-v2 b-insafeed_error'
-    }, "\u041e\u0448\u0438\u0431\u043a\u0430 \u043f\u0440\u0438 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0435 \u0444\u043e\u0442\u043e\u0433\u0440\u0430\u0444\u0438\u0439");
-  }
-});
-
-window.InstagramFeed_v2_Spinner = React.createClass({
-  render: function() {
-    return React.createElement("div", {
-      "className": 'b-instafeed-v2 b-instafeed-v2_loading'
-    }, React.createElement("span", {
-      "className": 'b-instafeed-v2__loader'
-    }));
-  }
-});
-
-window.InstagramFeed_v2_Feed = React.createClass({
-  propTypes: {
-    photos: React.PropTypes.array.isRequired,
-    profileUrl: React.PropTypes.string.isRequired
-  },
-  render: function() {
-    var photos, that;
-    that = this;
-    photos = _.map(this.props.photos, function(photo) {
-      return React.createElement(InstagramFeed_v2_Photo, {
-        "photo": photo.images,
-        "profileUrl": that.props.profileUrl,
-        "key": photo.id
-      });
-    });
-    return React.createElement("div", {
-      "className": "b-instafeed-v2"
-    }, photos);
-  }
-});
-
-window.InstagramFeed_v2_Photo = React.createClass({
-  propTypes: {
-    photo: React.PropTypes.object.isRequired,
-    profileUrl: React.PropTypes.string.isRequired
-  },
-  render: function() {
-    return React.createElement("a", {
-      "className": 'b-instafeed-v2__photo',
-      "rel": 'nofollow',
-      "target": '_blank',
-      "href": this.props.profileUrl
-    }, React.createElement("img", {
-      "src": this.props.photo.low_resolution.url
-    }));
-  }
-});
-
-
-
-},{}],42:[function(require,module,exports){
-window.AddToBasketButton = React.createClass({
-  propTypes: {
-    elementQuery: React.PropTypes.string,
-    dataAttr: React.PropTypes.string
-  },
-  getDefaultProps: function() {
-    return {
-      elementQuery: '[good-select] option:selected',
-      dataAttr: 'good'
-    };
-  },
-  addToBasket: function() {
-    var good;
-    good = $(this.props.elementQuery).data(this.props.dataAttr);
-    if (good != null) {
-      return BasketActions.addGood(good);
-    } else {
-      return alert("Ошибка при добавлении товара в корзину. Нет атрибута good в выбранном пункте");
-    }
-  },
-  render: function() {
-    return React.createElement("button", {
-      "className": "b-btn",
-      "onClick": this.addToBasket
-    }, "\u0412 \u043a\u043e\u0440\u0437\u0438\u043d\u0443");
-  }
-});
-
-
-
-},{}],43:[function(require,module,exports){
-var KioskEvents;
-
-KioskEvents = new EventEmitter();
-
-KioskEvents.keys = {
-  commandTooltipShow: function() {
-    return 'command:tooltip:show';
-  }
-};
-
-module.exports = KioskEvents;
-
-
-
-},{}],44:[function(require,module,exports){
-var FilteredCountTooltip, TooltipController,
-  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-
-FilteredCountTooltip = require('../components/common/tooltip/filteredCount');
-
-TooltipController = (function() {
-  TooltipController.prototype._pendingTooltip = null;
-
-  function TooltipController() {
-    this._getContainer = __bind(this._getContainer, this);
-    this.close = __bind(this.close, this);
-    this.show = __bind(this.show, this);
-    KioskEvents.on(KioskEvents.keys.commandTooltipShow(), this.show);
-  }
-
-  TooltipController.prototype.show = function(position, filter, timeout) {
-    var container, tooltip;
-    if (timeout == null) {
-      timeout = 3000;
-    }
-    container = this._getContainer();
-    this.close();
-    tooltip = React.render(React.createElement(FilteredCountTooltip, {
-      "filter": filter,
-      "position": position,
-      "onClose": this.close
-    }), container);
-    return this._pendingTooltip = tooltip;
-  };
-
-  TooltipController.prototype.close = function() {
-    var container;
-    container = this._getContainer();
-    React.unmountComponentAtNode(container);
-    return this._pendingTooltip = null;
-  };
-
-  TooltipController.prototype._getContainer = function() {
-    var container;
-    container = document.querySelector('[tooltip-container]');
-    if (container == null) {
-      container = document.createElement('div');
-      container.setAttribute('tooltip-container', '');
-      document.body.appendChild(container);
-    }
-    return container;
-  };
-
-  return TooltipController;
-
-})();
-
-module.exports = TooltipController;
-
-
-
-},{"../components/common/tooltip/filteredCount":17}],45:[function(require,module,exports){
-var BaseDispatcher,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-BaseDispatcher = (function(_super) {
-  __extends(BaseDispatcher, _super);
-
-  function BaseDispatcher() {
-    return BaseDispatcher.__super__.constructor.apply(this, arguments);
-  }
-
-  BaseDispatcher.prototype.handleViewAction = function(action) {
-    return this.dispatch({
-      source: 'VIEW_ACTION',
-      action: action
-    });
-  };
-
-  BaseDispatcher.prototype.handleServerAction = function(action) {
-    return this.dispatch({
-      source: 'SERVER_ACTION',
-      action: action
-    });
-  };
-
-  return BaseDispatcher;
-
-})(Dispatcher);
-
-module.exports = BaseDispatcher;
-
-
-
-},{}],46:[function(require,module,exports){
-var BaseDispatcher;
-
-BaseDispatcher = require('./_base');
-
-window.BasketDispatcher = new BaseDispatcher();
-
-
-
-},{"./_base":45}],47:[function(require,module,exports){
-var BaseStore, CHANGE_EVENT,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-CHANGE_EVENT = 'change';
-
-BaseStore = (function(_super) {
-  __extends(BaseStore, _super);
-
-  function BaseStore() {
-    return BaseStore.__super__.constructor.apply(this, arguments);
-  }
-
-  BaseStore.prototype.emitChange = function() {
-    return this.emit(CHANGE_EVENT);
-  };
-
-  BaseStore.prototype.addChangeListener = function(cb) {
-    return this.on(CHANGE_EVENT, cb);
-  };
-
-  BaseStore.prototype.removeChangeListener = function(cb) {
-    return this.off(CHANGE_EVENT, cb);
-  };
-
-  return BaseStore;
-
-})(EventEmitter);
-
-module.exports = BaseStore;
-
-
-
-},{}],48:[function(require,module,exports){
-var BaseStore, _cartItems;
-
-BaseStore = require('./_base');
-
-_cartItems = [];
-
-window.BasketDispatcher.register(function(payload) {
-  var action;
-  action = payload.action;
-  switch (action.actionType) {
-    case 'productAddedToBasket':
-      BasketStore._addItem(action.productItem);
-      BasketStore.emitChange();
-      break;
-    case 'receiveBasket':
-      BasketStore._receiveBasket(action.cartItems);
-      BasketStore.emitChange();
-      break;
-  }
-});
-
-window.BasketStore = _.extend(new BaseStore(), {
-  getBasketItems: function() {
-    return _cartItems;
-  },
-  getBasketCount: function() {
-    var total;
-    total = 0;
-    _.forEach(_cartItems, function(item) {
-      return total += item.count;
-    });
-    return total;
-  },
-  _findItem: function(productItem) {
-    var thisItem;
-    thisItem = _.findIndex(_cartItems, function(item) {
-      return item.product_item_id === productItem.product_item_id;
-    });
-    return _cartItems[thisItem];
-  },
-  _addItem: function(productItem) {
-    var cartItem;
-    cartItem = BasketStore._findItem(productItem);
-    if (cartItem != null) {
-      return cartItem.count += 1;
-    } else {
-      productItem.count = 1;
-      return _cartItems.push(productItem);
-    }
-  },
-  _receiveBasket: function(cartItems) {
-    if (cartItems != null) {
-      return _.forEach(cartItems.items, function(cartItem) {
-        return _cartItems.push(cartItem.product_item);
-      });
-    }
-  }
-});
-
-
-
-},{"./_base":47}],49:[function(require,module,exports){
-var ApiRoutes;
-
-ApiRoutes = {
-  productsFilteredCount: function(filter) {
-    return gon.public_api_url + '/v1/products/filtered/count?' + filter;
-  }
-};
-
-module.exports = ApiRoutes;
-
-
-
-},{}],50:[function(require,module,exports){
-window.Routes = {
-  vendor_cart_items_path: function() {
-    return '/cart/cart_items/';
-  }
-};
-
-
-
-},{}],51:[function(require,module,exports){
-$(function() {
-  var bPage, lenta, page, thisPage;
-  if ('ontouchstart' in document) {
-    $("html").addClass("feature_touch");
-  } else {
-    $("html").addClass("feature_no-touch");
-  }
-  $('[tooltip]').tooltip();
-  if ($("[range_slider]").length) {
-    $("[range_slider]").noUiSlider({
-      start: [20, 80],
-      connect: true,
-      range: {
-        'min': 0,
-        'max': 100
-      }
-    });
-  }
-  bPage = $('.b-page');
-  $('[ks-design]').on('click', function() {
-    var className;
-    className = $(this).data('classname');
-    bPage.addClass(className);
-    return false;
-  });
-  if ($("[ks-opacity_slider]").length) {
-    $("[ks-opacity_slider]").noUiSlider({
-      start: 0,
-      step: .1,
-      range: {
-        'min': 0,
-        'max': 1
-      }
-    });
-    lenta = $('.b-page__content__inner');
-    $("[ks-opacity_slider]").on({
-      slide: function() {
-        var opacity;
-        opacity = $("[ks-opacity_slider]").val();
-        return lenta.css('background-color', 'rgba(236, 208, 120,' + opacity + ')');
-      }
-    });
-  }
-  if ($("[ks-fontsize_slider]").length) {
-    $("[ks-fontsize_slider]").noUiSlider({
-      start: 14,
-      step: 2,
-      range: {
-        'min': 12,
-        'max': 16
-      }
-    });
-    page = $('html');
-    $("[ks-fontsize_slider]").on({
-      slide: function() {
-        var fontSize;
-        fontSize = $("[ks-fontsize_slider]").val();
-        fontSize = fontSize.substring(0, fontSize.length - 2);
-        return page.css('font-size', fontSize + 'px');
-      }
-    });
-  }
-  thisPage = $('.b-page');
-  if ($("[ks-row_slider]").length) {
-    $("[ks-row_slider]").noUiSlider({
-      start: 3,
-      step: 1,
-      range: {
-        'min': 2,
-        'max': 4
-      }
-    });
-    $("[ks-row_slider]").on({
-      slide: function() {
-        var inRow;
-        inRow = $("[ks-row_slider]").val();
-        inRow = inRow.substring(0, inRow.length - 3);
-        return thisPage.attr('data-in-row', inRow);
-      }
-    });
-  }
-  $('[ks-show-slider]').on('click', function() {
-    return thisPage.toggleClass('b-page_hide-slider');
-  });
-  $('[ks-show-filter]').on('click', function() {
-    return thisPage.toggleClass('b-page_hide-catalog');
-  });
-  return $('[ks-layout-change]').on('click', function() {
-    return thisPage.addClass('b-page_layout-l1');
-  });
-});
-
-
-
-},{}],52:[function(require,module,exports){
-$(function() {
-  var defaultCarouselOptions, slider, sliderThumbs, sliderThumbsContainer;
-  defaultCarouselOptions = {
-    pagination: false,
-    autoPlay: 5000,
-    navigation: true
-  };
-  slider = $('[application-slider]');
-  slider.each(function() {
-    var options;
-    options = _.clone(defaultCarouselOptions);
-    if ($(this).hasClass('b-slider_promo')) {
-      options['singleItem'] = true;
-      options['autoHeight'] = true;
-      options['lazyLoad'] = true;
-      options['afterInit'] = function() {
-        return this.$elem.addClass('loaded');
-      };
-    }
-    if ($(this).hasClass('application-slider_photos')) {
-      options['singleItem'] = false;
-      options['items'] = 3;
-      options['itemsDesktop'] = 3;
-    }
-    if ($(this).hasClass('application-slider_instagram')) {
-      options['singleItem'] = false;
-      options['items'] = 6;
-      options['itemsDesktop'] = 6;
-      options['lazyLoad'] = true;
-    }
-    return $(this).owlCarousel(options);
-  });
-  sliderThumbsContainer = $('[slider-thumbs]');
-  sliderThumbs = sliderThumbsContainer.find('.b-slider-thumbs__item');
-  return sliderThumbsContainer.on('click', '.b-slider-thumbs__item', function(e) {
-    var number;
-    e.preventDefault();
-    sliderThumbs.removeClass('active');
-    $(this).addClass('active');
-    number = $(this).index();
-    return slider.trigger('owl.goTo', number);
-  });
-});
-
-
-
-},{}],53:[function(require,module,exports){
-$(function() {
-  var $cartTotal, packagePrice, setCartItemCount, updateCartTotal, updatePackageTotal;
-  $cartTotal = $('[cart-total]');
-  setCartItemCount = function($el, count) {
-    var $price_el, $selector, price, total;
-    price = +$el.data('item-price');
-    total = price * count;
-    $el.data('item-total-price', total);
-    $price_el = $el.find('[cart-item-total-price]');
-    $price_el.html(accounting.formatMoney(total));
-    $selector = $el.find('[cart-item-selector]');
-    $selector.val(count);
-    return updateCartTotal();
-  };
-  packagePrice = function() {
-    var $p;
-    $p = $('[data-package]:checked');
-    if ($p) {
-      return $p.data('price');
-    } else {
-      return 0;
-    }
-  };
-  updateCartTotal = function() {
-    var totalPrice;
-    totalPrice = packagePrice();
-    $('[cart-item]').each(function(idx, block) {
-      return totalPrice += +$(block).data('item-total-price');
-    });
-    return $cartTotal.html(accounting.formatMoney(totalPrice));
-  };
-  updatePackageTotal = function() {
-    var price;
-    price = packagePrice();
-    price = price > 0 ? accounting.formatMoney(price) : '';
-    return $('[data-total-package-price]').html(price);
-  };
-  $('[data-package]').on('change', function() {
-    updatePackageTotal();
-    return updateCartTotal();
-  });
-  return $('[cart-item-selector]').on('change', function() {
-    var $e, $el;
-    $e = $(this);
-    $el = $e.closest('[cart-item]');
-    return setCartItemCount($el, parseInt($e.val()));
-  });
-});
-
-
-
-},{}],54:[function(require,module,exports){
-$(function() {
-  var $checkoutTotal, findSelectedDeliveryType, selectDeliveryType, setCheckoutDeliveryPrice, toggleDeliveryOnlyElementsVisibility, updateCheckoutTotal;
-  $checkoutTotal = $('[checkout-total]');
-  setCheckoutDeliveryPrice = function(price) {
-    $checkoutTotal.data('delivery-price', price);
-    return updateCheckoutTotal();
-  };
-  updateCheckoutTotal = function() {
-    var totalPrice;
-    totalPrice = $checkoutTotal.data('delivery-price') + $checkoutTotal.data('products-price');
-    return $checkoutTotal.html(accounting.formatMoney(totalPrice));
-  };
-  toggleDeliveryOnlyElementsVisibility = function(showFieldsQuery) {
-    var $el;
-    $('[hideable]').slideUp();
-    if (showFieldsQuery) {
-      $el = $(showFieldsQuery);
-      return $el.stop().slideDown();
-    }
-  };
-  selectDeliveryType = function($e) {
-    if ($e != null) {
-      setCheckoutDeliveryPrice(parseInt($e.data('delivery-price')));
-      return toggleDeliveryOnlyElementsVisibility($e.data('show-fields-query'));
-    } else {
-      return typeof console.error === "function" ? console.error('Ни один способ доставки по умолчанию не выбран') : void 0;
-    }
-  };
-  $('[delivery-type]').on('change', function() {
-    return selectDeliveryType($(this));
-  });
-  findSelectedDeliveryType = function() {
-    var $el;
-    $el = $('[delivery-type]').filter(':checked');
-    if ($el.length === 0) {
-      return null;
-    } else {
-      return $el;
-    }
-  };
-  return window.InitializeCheckout = function() {
-    console.log('Initialize Checkout');
-    return selectDeliveryType(findSelectedDeliveryType());
-  };
-});
-
-
-
-},{}],55:[function(require,module,exports){
-$(function() {
-  $('[ks-jump]').on('click', function(e) {
-    var href;
-    href = $(this).attr('ks-jump');
-    if (href !== '') {
-      if (event.shiftKey || event.ctrlKey || event.metaKey) {
-        return window.open(target, '_blank');
-      } else {
-        return window.location = href;
-      }
-    }
-  });
-  return $('[ks-jump] .dropdown, [ks-jump] input').on('click', function(e) {
-    return e.stopPropagation();
-  });
-});
-
-
-
-},{}],56:[function(require,module,exports){
-$(function() {
-  return $('[lightbox]').fancybox({
-    padding: 0,
-    margin: 0,
-    helpers: {
-      thumbs: {
-        width: 8,
-        height: 8
-      }
-    },
-    tpl: {
-      closeBtn: '<a title="Close" class="fancybox-item fancybox-close" href="javascript:;"><i></i></a>',
-      next: '<a title="Next" class="fancybox-nav fancybox-next" href="javascript:;"><i></i></a>',
-      prev: '<a title="Previous" class="fancybox-nav fancybox-prev" href="javascript:;"><i></i></a>'
-    }
-  });
-});
-
-
-
-},{}],57:[function(require,module,exports){
-$(function() {
-  var LOADING_TITLE, isRequest;
-  isRequest = false;
-  LOADING_TITLE = 'Загружаю';
-  return $('[ks-load-more]').on('click', function(e) {
-    var $root, $target, current_page, next_page, saved_title, total_pages, url;
-    if (isRequest) {
-      return;
-    }
-    $target = $(e.target);
-    saved_title = $target.text();
-    $target.text($target.data('loading-title') || LOADING_TITLE);
-    $root = $target.parents('[ks-products-container]');
-    current_page = $root.data("current-page") || 1;
-    total_pages = $root.data("total-pages");
-    url = $root.data('url') || '';
-    next_page = current_page + 1;
-    if (next_page > total_pages) {
-      return;
-    }
-    return $.ajax({
-      url: url,
-      data: {
-        page: next_page
-      },
-      beforeSend: function(xhr) {
-        return isRequest = true;
-      }
-    }).done(function(resp) {
-      $('[ks-product-item]').last().after(resp);
-      $target.text(saved_title);
-      $root.data('current-page', next_page);
-      if (next_page >= total_pages) {
-        return $target.hide();
-      }
-    }).always(function(resp) {
-      return isRequest = false;
-    });
-  });
-});
-
-
-
-},{}],58:[function(require,module,exports){
-$(function() {
-  var menuCopy, navOpen, searchBlock;
-  menuCopy = $('[ks-mob-nav]');
-  searchBlock = $('[ks-search]');
-  menuCopy.mmenu({
-    classes: false,
-    counters: false
-  });
-  if (searchBlock.length) {
-    searchBlock.clone().prependTo(menuCopy.find('#mm-0')).wrap('<li/>');
-  }
-  navOpen = $('[ks-open-nav]');
-  menuCopy.on('opened.mm', function() {
-    return navOpen.addClass('mmenu-open_active');
-  });
-  return menuCopy.on('closed.mm', function() {
-    return navOpen.removeClass('mmenu-open_active');
-  });
-});
-
-
-
-},{}],59:[function(require,module,exports){
-$(function() {
-  var center, productSlider, productThumbs, syncPosition;
-  productSlider = $('#product-slider');
-  productThumbs = $('#product-thumbs');
-  syncPosition = function(el) {
-    var current;
-    current = this.currentItem;
-    productThumbs.find(".owl-item").removeClass("synced").eq(current).addClass("synced");
-    if (productThumbs.data("owlCarousel") !== undefined) {
-      center(current);
-    }
-  };
-  center = function(number) {
-    var found, i, num, sync2visible;
-    sync2visible = productThumbs.data("owlCarousel").owl.visibleItems;
-    num = number;
-    found = false;
-    for (i in sync2visible) {
-      if (num === sync2visible[i]) {
-        found = true;
-      }
-    }
-    if (found === false) {
-      if (num > sync2visible[sync2visible.length - 1]) {
-        return productThumbs.trigger("owl.goTo", num - sync2visible.length + 2);
-      } else {
-        if (num - 1 === -1) {
-          num = 0;
-        }
-        return productThumbs.trigger("owl.goTo", num);
-      }
-    } else if (num === sync2visible[sync2visible.length - 1]) {
-      return productThumbs.trigger("owl.goTo", sync2visible[1]);
-    } else {
-      if (num === sync2visible[0]) {
-        return productThumbs.trigger("owl.goTo", num - 1);
-      }
-    }
-  };
-  productSlider.owlCarousel({
-    singleItem: true,
-    afterAction: syncPosition
-  });
-  productThumbs.owlCarousel({
-    items: 4,
-    pagination: false,
-    afterInit: function(el) {
-      el.find(".owl-item").eq(0).addClass("synced");
-    }
-  });
-  return productThumbs.on("click", ".owl-item", function(e) {
-    var number;
-    e.preventDefault();
-    number = $(this).data("owlItem");
-    productSlider.trigger("owl.goTo", number);
-  });
-});
-
-
-
-},{}],60:[function(require,module,exports){
-$(function() {
-  var logo;
-  logo = $('.b-logo__img');
-  return $('[ks-theme-switcher]').on('click', function() {
-    var classlistVal, logoUrl;
-    classlistVal = $(this).data("classlist");
-    logoUrl = $(this).data("logourl");
-    $('body').attr('class', classlistVal);
-    return logo.attr('src', logoUrl);
-  });
-});
-
-
-
-},{}],61:[function(require,module,exports){
-/**
- * Copyright (c) 2014, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- */
-
-module.exports.Dispatcher = require('./lib/Dispatcher')
-
-},{"./lib/Dispatcher":62}],62:[function(require,module,exports){
-/*
- * Copyright (c) 2014, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @providesModule Dispatcher
- * @typechecks
- */
-
-"use strict";
-
-var invariant = require('./invariant');
-
-var _lastID = 1;
-var _prefix = 'ID_';
-
-/**
- * Dispatcher is used to broadcast payloads to registered callbacks. This is
- * different from generic pub-sub systems in two ways:
- *
- *   1) Callbacks are not subscribed to particular events. Every payload is
- *      dispatched to every registered callback.
- *   2) Callbacks can be deferred in whole or part until other callbacks have
- *      been executed.
- *
- * For example, consider this hypothetical flight destination form, which
- * selects a default city when a country is selected:
- *
- *   var flightDispatcher = new Dispatcher();
- *
- *   // Keeps track of which country is selected
- *   var CountryStore = {country: null};
- *
- *   // Keeps track of which city is selected
- *   var CityStore = {city: null};
- *
- *   // Keeps track of the base flight price of the selected city
- *   var FlightPriceStore = {price: null}
- *
- * When a user changes the selected city, we dispatch the payload:
- *
- *   flightDispatcher.dispatch({
- *     actionType: 'city-update',
- *     selectedCity: 'paris'
- *   });
- *
- * This payload is digested by `CityStore`:
- *
- *   flightDispatcher.register(function(payload) {
- *     if (payload.actionType === 'city-update') {
- *       CityStore.city = payload.selectedCity;
- *     }
- *   });
- *
- * When the user selects a country, we dispatch the payload:
- *
- *   flightDispatcher.dispatch({
- *     actionType: 'country-update',
- *     selectedCountry: 'australia'
- *   });
- *
- * This payload is digested by both stores:
- *
- *    CountryStore.dispatchToken = flightDispatcher.register(function(payload) {
- *     if (payload.actionType === 'country-update') {
- *       CountryStore.country = payload.selectedCountry;
- *     }
- *   });
- *
- * When the callback to update `CountryStore` is registered, we save a reference
- * to the returned token. Using this token with `waitFor()`, we can guarantee
- * that `CountryStore` is updated before the callback that updates `CityStore`
- * needs to query its data.
- *
- *   CityStore.dispatchToken = flightDispatcher.register(function(payload) {
- *     if (payload.actionType === 'country-update') {
- *       // `CountryStore.country` may not be updated.
- *       flightDispatcher.waitFor([CountryStore.dispatchToken]);
- *       // `CountryStore.country` is now guaranteed to be updated.
- *
- *       // Select the default city for the new country
- *       CityStore.city = getDefaultCityForCountry(CountryStore.country);
- *     }
- *   });
- *
- * The usage of `waitFor()` can be chained, for example:
- *
- *   FlightPriceStore.dispatchToken =
- *     flightDispatcher.register(function(payload) {
- *       switch (payload.actionType) {
- *         case 'country-update':
- *           flightDispatcher.waitFor([CityStore.dispatchToken]);
- *           FlightPriceStore.price =
- *             getFlightPriceStore(CountryStore.country, CityStore.city);
- *           break;
- *
- *         case 'city-update':
- *           FlightPriceStore.price =
- *             FlightPriceStore(CountryStore.country, CityStore.city);
- *           break;
- *     }
- *   });
- *
- * The `country-update` payload will be guaranteed to invoke the stores'
- * registered callbacks in order: `CountryStore`, `CityStore`, then
- * `FlightPriceStore`.
- */
-
-  function Dispatcher() {
-    this.$Dispatcher_callbacks = {};
-    this.$Dispatcher_isPending = {};
-    this.$Dispatcher_isHandled = {};
-    this.$Dispatcher_isDispatching = false;
-    this.$Dispatcher_pendingPayload = null;
-  }
-
-  /**
-   * Registers a callback to be invoked with every dispatched payload. Returns
-   * a token that can be used with `waitFor()`.
-   *
-   * @param {function} callback
-   * @return {string}
-   */
-  Dispatcher.prototype.register=function(callback) {
-    var id = _prefix + _lastID++;
-    this.$Dispatcher_callbacks[id] = callback;
-    return id;
-  };
-
-  /**
-   * Removes a callback based on its token.
-   *
-   * @param {string} id
-   */
-  Dispatcher.prototype.unregister=function(id) {
-    invariant(
-      this.$Dispatcher_callbacks[id],
-      'Dispatcher.unregister(...): `%s` does not map to a registered callback.',
-      id
-    );
-    delete this.$Dispatcher_callbacks[id];
-  };
-
-  /**
-   * Waits for the callbacks specified to be invoked before continuing execution
-   * of the current callback. This method should only be used by a callback in
-   * response to a dispatched payload.
-   *
-   * @param {array<string>} ids
-   */
-  Dispatcher.prototype.waitFor=function(ids) {
-    invariant(
-      this.$Dispatcher_isDispatching,
-      'Dispatcher.waitFor(...): Must be invoked while dispatching.'
-    );
-    for (var ii = 0; ii < ids.length; ii++) {
-      var id = ids[ii];
-      if (this.$Dispatcher_isPending[id]) {
-        invariant(
-          this.$Dispatcher_isHandled[id],
-          'Dispatcher.waitFor(...): Circular dependency detected while ' +
-          'waiting for `%s`.',
-          id
-        );
-        continue;
-      }
-      invariant(
-        this.$Dispatcher_callbacks[id],
-        'Dispatcher.waitFor(...): `%s` does not map to a registered callback.',
-        id
-      );
-      this.$Dispatcher_invokeCallback(id);
-    }
-  };
-
-  /**
-   * Dispatches a payload to all registered callbacks.
-   *
-   * @param {object} payload
-   */
-  Dispatcher.prototype.dispatch=function(payload) {
-    invariant(
-      !this.$Dispatcher_isDispatching,
-      'Dispatch.dispatch(...): Cannot dispatch in the middle of a dispatch.'
-    );
-    this.$Dispatcher_startDispatching(payload);
-    try {
-      for (var id in this.$Dispatcher_callbacks) {
-        if (this.$Dispatcher_isPending[id]) {
-          continue;
-        }
-        this.$Dispatcher_invokeCallback(id);
-      }
-    } finally {
-      this.$Dispatcher_stopDispatching();
-    }
-  };
-
-  /**
-   * Is this Dispatcher currently dispatching.
-   *
-   * @return {boolean}
-   */
-  Dispatcher.prototype.isDispatching=function() {
-    return this.$Dispatcher_isDispatching;
-  };
-
-  /**
-   * Call the callback stored with the given id. Also do some internal
-   * bookkeeping.
-   *
-   * @param {string} id
-   * @internal
-   */
-  Dispatcher.prototype.$Dispatcher_invokeCallback=function(id) {
-    this.$Dispatcher_isPending[id] = true;
-    this.$Dispatcher_callbacks[id](this.$Dispatcher_pendingPayload);
-    this.$Dispatcher_isHandled[id] = true;
-  };
-
-  /**
-   * Set up bookkeeping needed when dispatching.
-   *
-   * @param {object} payload
-   * @internal
-   */
-  Dispatcher.prototype.$Dispatcher_startDispatching=function(payload) {
-    for (var id in this.$Dispatcher_callbacks) {
-      this.$Dispatcher_isPending[id] = false;
-      this.$Dispatcher_isHandled[id] = false;
-    }
-    this.$Dispatcher_pendingPayload = payload;
-    this.$Dispatcher_isDispatching = true;
-  };
-
-  /**
-   * Clear bookkeeping used for dispatching.
-   *
-   * @internal
-   */
-  Dispatcher.prototype.$Dispatcher_stopDispatching=function() {
-    this.$Dispatcher_pendingPayload = null;
-    this.$Dispatcher_isDispatching = false;
-  };
-
-
-module.exports = Dispatcher;
-
-},{"./invariant":63}],63:[function(require,module,exports){
-/**
- * Copyright (c) 2014, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @providesModule invariant
- */
-
-"use strict";
-
-/**
- * Use invariant() to assert state which your program assumes to be true.
- *
- * Provide sprintf-style format (only %s is supported) and arguments
- * to provide information about what broke and what you were
- * expecting.
- *
- * The invariant message will be stripped in production, but the invariant
- * will remain to ensure logic does not differ in production.
- */
-
-var invariant = function(condition, format, a, b, c, d, e, f) {
-  if (false) {
-    if (format === undefined) {
-      throw new Error('invariant requires an error message argument');
-    }
-  }
-
-  if (!condition) {
-    var error;
-    if (format === undefined) {
-      error = new Error(
-        'Minified exception occurred; use the non-minified dev environment ' +
-        'for the full error message and additional helpful warnings.'
-      );
-    } else {
-      var args = [a, b, c, d, e, f];
-      var argIndex = 0;
-      error = new Error(
-        'Invariant Violation: ' +
-        format.replace(/%s/g, function() { return args[argIndex++]; })
-      );
-    }
-
-    error.framesToPop = 1; // we don't care about invariant's own frame
-    throw error;
-  }
-};
-
-module.exports = invariant;
-
-},{}],64:[function(require,module,exports){
-/**
- * StyleSheets written in javascript.
- *
- * @copyright Oleg Slobodskoi 2014
- * @website https://github.com/jsstyles/jss
- * @license MIT
- */
-
-module.exports = require('./lib/index')
-
-},{"./lib/index":67}],65:[function(require,module,exports){
-'use strict'
-
-var plugins = require('./plugins')
-
-var uid = 0
-
-var toString = Object.prototype.toString
-
-/**
- * Rule is selector + style hash.
- *
- * @param {String} [selector]
- * @param {Object} [style] declarations block
- * @param {Object} [options]
- * @api public
- */
-function Rule(selector, style, options) {
-    if (typeof selector == 'object') {
-        options = style
-        style = selector
-        selector = null
-    }
-
-    this.id = Rule.uid++
-    this.options = options || {}
-    if (this.options.named == null) this.options.named = true
-
-    if (selector) {
-        this.selector = selector
-        this.isAtRule = selector[0] == '@'
-    } else {
-        this.isAtRule = false
-        this.className = Rule.NAMESPACE_PREFIX + '-' + this.id
-        this.selector = '.' + this.className
-    }
-
-    this.style = style
-    // Will be set by StyleSheet#link if link option is true.
-    this.CSSRule = null
-    // When at-rule has sub rules.
-    this.rules = null
-    if (this.isAtRule && this.style) this.extractAtRules()
-}
-
-module.exports = Rule
-
-/**
- * Class name prefix when generated.
- *
- * @type {String}
- * @api private
- */
-Rule.NAMESPACE_PREFIX = 'jss'
-
-/**
- * Indentation string for formatting toString output.
- *
- * @type {String}
- * @api private
- */
-Rule.INDENTATION = '  '
-
-/**
- * Unique id, right now just a counter, because there is no need for better uid.
- *
- * @type {Number}
- * @api private
- */
-Rule.uid = 0
-
-/**
- * Get or set a style property.
- *
- * @param {String} name
- * @param {String|Number} [value]
- * @return {Rule|String|Number}
- * @api public
- */
-Rule.prototype.prop = function (name, value) {
-    // Its a setter.
-    if (value) {
-        if (!this.style) this.style = {}
-        this.style[name] = value
-        // If linked option in StyleSheet is not passed, CSSRule is not defined.
-        if (this.CSSRule) this.CSSRule.style[name] = value
-        return this
-    }
-
-    // Its a getter.
-    if (this.style) value = this.style[name]
-
-    // Read the value from the DOM if its not cached.
-    if (value == null && this.CSSRule) {
-        value = this.CSSRule.style[name]
-        // Cache the value after we have got it from the DOM once.
-        this.style[name] = value
-    }
-
-    return value
-}
-
-/**
- * Add child rule. Required for plugins like "nested".
- * StyleSheet will render them as a separate rule.
- *
- * @param {String} selector
- * @param {Object} style
- * @param {Object} [options] rule options
- * @return {Rule}
- * @api private
- */
-Rule.prototype.addChild = function (selector, style, options) {
-    if (!this.children) this.children = {}
-    this.children[selector] = {
-        style: style,
-        options: options
-    }
-
-    return this
-}
-
-/**
- * Add child rule. Required for plugins like "nested".
- * StyleSheet will render them as a separate rule.
- *
- * @param {String} selector
- * @param {Object} style
- * @return {Rule}
- * @api public
- */
-Rule.prototype.extractAtRules = function () {
-    if (!this.rules) this.rules = {}
-
-    for (var name in this.style) {
-        var style = this.style[name]
-        // Not a nested rule.
-        if (typeof style == 'string') break
-        var selector = this.options.named ? undefined : name
-        var rule = this.rules[name] = new Rule(selector, style, this.options)
-        plugins.run(rule)
-        delete this.style[name]
-    }
-
-    return this
-}
-
-/**
- * Apply rule to an element inline.
- *
- * @param {Element} element
- * @return {Rule}
- * @api public
- */
-Rule.prototype.applyTo = function (element) {
-    for (var prop in this.style) {
-        var value = this.style[prop]
-        if (toString.call(value) == '[object Array]') {
-            for (var i = 0; i < value.length; i++) {
-                element.style[prop] = value[i]
-            }
-        } else {
-            element.style[prop] = value
-        }
-    }
-
-    return this
-}
-
-/**
- * Converts the rule to css string.
- *
- * @return {String}
- * @api public
- */
-Rule.prototype.toString = function (options) {
-    var style = this.style
-
-    // At rules like @charset
-    if (this.isAtRule && !this.style && !this.rules) return this.selector + ';'
-
-    if (!options) options = {}
-    if (options.indentationLevel == null) options.indentationLevel = 0
-
-    var str = indent(options.indentationLevel, this.selector + ' {')
-
-    for (var prop in style) {
-        var value = style[prop]
-        // We want to generate multiple style with identical property names.
-        if (toString.call(value) == '[object Array]') {
-            for (var i = 0; i < value.length; i++) {
-                str += '\n' + indent(options.indentationLevel + 1, prop + ': ' + value[i] + ';')
-            }
-        } else {
-            str += '\n' + indent(options.indentationLevel + 1, prop + ': ' + value + ';')
-        }
-    }
-
-    // We are have an at-rule with nested statements.
-    // https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
-    for (var name in this.rules) {
-        var ruleStr = this.rules[name].toString({
-            indentationLevel: options.indentationLevel + 1
-        })
-        str += '\n' + indent(options.indentationLevel, ruleStr)
-    }
-
-    str += '\n' + indent(options.indentationLevel, '}')
-
-    return str
-}
-
-/**
- * Returns JSON representation of the rule.
- * Nested rules, at-rules and array values are not supported.
- *
- * @return {Object}
- * @api public
- */
-Rule.prototype.toJSON = function () {
-    var style = {}
-
-    for (var prop in this.style) {
-        var value = this.style[prop]
-        var type = typeof value
-        if (type == 'string' || type == 'number') {
-            style[prop] = value
-        }
-    }
-
-    return style
-}
-
-/**
- * Indent a string.
- *
- * @param {Number} level
- * @param {String} str
- * @return {String}
- */
-function indent(level, str) {
-    var indentStr = ''
-    for (var i = 0; i < level; i++) indentStr += Rule.INDENTATION
-    return indentStr + str
-}
-
-},{"./plugins":68}],66:[function(require,module,exports){
-'use strict'
-
-var Rule = require('./Rule')
-var plugins = require('./plugins')
-
-/**
- * StyleSheet abstraction, contains rules, injects stylesheet into dom.
- *
- * Options:
- *
- *  - `media` style element attribute
- *  - `title` style element attribute
- *  - `type` style element attribute
- *  - `named` true by default - keys are names, selectors will be generated,
- *    if false - keys are global selectors.
- *  - `link` link jss Rule instances with DOM CSSRule instances so that styles,
- *  can be modified dynamically, false by default because it has some performance cost.
- *
- * @param {Object} [rules] object with selectors and declarations
- * @param {Object} [options]
- * @api public
- */
-function StyleSheet(rules, options) {
-    this.options = options || {}
-    if (this.options.named == null) this.options.named = true
-    this.element = null
-    this.attached = false
-    this.media = this.options.media
-    this.type = this.options.type
-    this.title = this.options.title
-    this.rules = {}
-    // Only when options.named: true.
-    this.classes = {}
-    this.deployed = false
-    this.linked = false
-
-    // Don't create element if we are not in a browser environment.
-    if (typeof document != 'undefined') {
-        this.element = this.createElement()
-    }
-
-    for (var key in rules) {
-        this.createRules(key, rules[key])
-    }
-}
-
-StyleSheet.ATTRIBUTES = ['title', 'type', 'media']
-
-module.exports = StyleSheet
-
-/**
- * Insert stylesheet element to render tree.
- *
- * @api public
- * @return {StyleSheet}
- */
-StyleSheet.prototype.attach = function () {
-    if (this.attached) return this
-
-    if (!this.deployed) {
-        this.deploy()
-        this.deployed = true
-    }
-
-    document.head.appendChild(this.element)
-
-    // Before element is attached to the dom rules are not created.
-    if (!this.linked && this.options.link) {
-        this.link()
-        this.linked = true
-    }
-
-    this.attached = true
-
-    return this
-}
-
-/**
- * Remove stylesheet element from render tree.
- *
- * @return {StyleSheet}
- * @api public
- */
-StyleSheet.prototype.detach = function () {
-    if (!this.attached) return this
-
-    this.element.parentNode.removeChild(this.element)
-    this.attached = false
-
-    return this
-}
-
-/**
- * Deploy styles to the element.
- *
- * @return {StyleSheet}
- * @api private
- */
-StyleSheet.prototype.deploy = function () {
-    this.element.innerHTML = '\n' + this.toString() + '\n'
-
-    return this
-}
-
-/**
- * Find CSSRule objects in the DOM and link them in the corresponding Rule instance.
- *
- * @return {StyleSheet}
- * @api private
- */
-StyleSheet.prototype.link = function () {
-    var CSSRuleList = this.element.sheet.cssRules
-    var rules = this.rules
-
-    for (var i = 0; i < CSSRuleList.length; i++) {
-        var CSSRule = CSSRuleList[i]
-        var rule = rules[CSSRule.selectorText]
-        if (rule) rule.CSSRule = CSSRule
-    }
-
-    return this
-}
-
-/**
- * Add a rule to the current stylesheet. Will insert a rule also after the stylesheet
- * has been rendered first time.
- *
- * @param {Object} [key] can be selector or name if `options.named` is true
- * @param {Object} style property/value hash
- * @return {Rule}
- * @api public
- */
-StyleSheet.prototype.addRule = function (key, style) {
-    var rules = this.createRules(key, style)
-
-    // Don't insert rule directly if there is no stringified version yet.
-    // It will be inserted all together when .attach is called.
-    if (this.deployed) {
-        var sheet = this.element.sheet
-        for (var i = 0; i < rules.length; i++) {
-            var nextIndex = sheet.cssRules.length
-            var rule = rules[i]
-            sheet.insertRule(rule.toString(), nextIndex)
-            if (this.options.link) rule.CSSRule = sheet.cssRules[nextIndex]
-        }
-    } else {
-        this.deploy()
-    }
-
-    return rules
-}
-
-/**
- * Create rules, will render also after stylesheet was rendered the first time.
- *
- * @param {Object} rules key:style hash.
- * @return {StyleSheet} this
- * @api public
- */
-StyleSheet.prototype.addRules = function (rules) {
-    for (var key in rules) {
-        this.addRule(key, rules[key])
-    }
-
-    return this
-}
-
-/**
- * Get a rule.
- *
- * @param {String} key can be selector or name if `named` is true.
- * @return {Rule}
- * @api public
- */
-StyleSheet.prototype.getRule = function (key) {
-    return this.rules[key]
-}
-
-/**
- * Convert rules to a css string.
- *
- * @return {String}
- * @api public
- */
-StyleSheet.prototype.toString = function () {
-    var str = ''
-    var rules = this.rules
-    var stringified = {}
-    for (var key in rules) {
-        var rule = rules[key]
-        // We have the same rule referenced twice if using named urles.
-        // By name and by selector.
-        if (stringified[rule.id]) continue
-        if (str) str += '\n'
-        str += rules[key].toString()
-        stringified[rule.id] = true
-    }
-
-    return str
-}
-
-/**
- * Create a rule, will not render after stylesheet was rendered the first time.
- *
- * @param {Object} [selector] if you don't pass selector - it will be generated
- * @param {Object} [style] declarations block
- * @param {Object} [options] rule options
- * @return {Array} rule can contain child rules
- * @api private
- */
-StyleSheet.prototype.createRules = function (key, style, options) {
-    var rules = []
-    var selector, name
-
-    if (!options) options = {}
-    var named = this.options.named
-    // Scope options overwrite instance options.
-    if (options.named != null) named = options.named
-
-    if (named) name = key
-    else selector = key
-
-    var rule = new Rule(selector, style, {
-        sheet: this,
-        named: named,
-        name: name
-    })
-    rules.push(rule)
-
-    this.rules[rule.selector] = rule
-    if (name) {
-        this.rules[name] = rule
-        this.classes[name] = rule.className
-    }
-
-    plugins.run(rule)
-
-    for (key in rule.children) {
-        rules.push(this.createRules(
-            key,
-            rule.children[key].style,
-            rule.children[key].options
-        ))
-    }
-
-    return rules
-}
-
-/**
- * Create style sheet element.
- *
- * @api private
- * @return {Element}
- */
-StyleSheet.prototype.createElement = function () {
-    var element = document.createElement('style')
-
-    StyleSheet.ATTRIBUTES.forEach(function (name) {
-        if (this[name]) element.setAttribute(name, this[name])
-    }, this)
-
-    return element
-}
-
-},{"./Rule":65,"./plugins":68}],67:[function(require,module,exports){
-'use strict'
-
-var StyleSheet = require('./StyleSheet')
-var Rule = require('./Rule')
-
-exports.StyleSheet = StyleSheet
-
-exports.Rule = Rule
-
-exports.plugins = require('./plugins')
-
-/**
- * Create a stylesheet.
- *
- * @param {Object} rules is selector:style hash.
- * @param {Object} [named] rules have names if true, class names will be generated.
- * @param {Object} [attributes] stylesheet element attributes.
- * @return {StyleSheet}
- * @api public
- */
-exports.createStyleSheet = function (rules, named, attributes) {
-    return new StyleSheet(rules, named, attributes)
-}
-
-/**
- * Create a rule.
- *
- * @param {String} [selector]
- * @param {Object} style is property:value hash.
- * @return {Rule}
- * @api public
- */
-exports.createRule = function (selector, style) {
-    var rule = new Rule(selector, style)
-    exports.plugins.run(rule)
-    return rule
-}
-
-/**
- * Register plugin. Passed function will be invoked with a rule instance.
- *
- * @param {Function} fn
- * @api public
- */
-exports.use = exports.plugins.use
-
-},{"./Rule":65,"./StyleSheet":66,"./plugins":68}],68:[function(require,module,exports){
-'use strict'
-
-/**
- * Registered plugins.
- *
- * @type {Array}
- * @api public
- */
-exports.registry = []
-
-/**
- * Register plugin. Passed function will be invoked with a rule instance.
- *
- * @param {Function} fn
- * @api public
- */
-exports.use = function (fn) {
-    exports.registry.push(fn)
-}
-
-/**
- * Execute all registered plugins.
- *
- * @param {Rule} rule
- * @api private
- */
-exports.run = function (rule) {
-    for (var i = 0; i < exports.registry.length; i++) {
-        exports.registry[i](rule)
-    }
-}
 
 },{}],"eventEmitter":[function(require,module,exports){
 /*!
