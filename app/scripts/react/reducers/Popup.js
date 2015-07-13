@@ -14,7 +14,9 @@ export default createReducer(initialState, {
   },
   [actionTypes.POPUP_CLOSE](state, { style }) {
     return state.merge({
-      popups: state.getIn(['popups']).filter((popup) => popup.get('style') !== style)
+      popups: state.getIn(['popups']).filter((popup) => (
+        popup.get('style') !== style
+      ))
     });
   }
 });

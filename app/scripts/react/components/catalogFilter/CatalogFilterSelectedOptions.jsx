@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import URI from 'URIjs';
 
 export default class CatalogFilterSelectedOptions {
   static propTypes = {
@@ -17,7 +16,7 @@ export default class CatalogFilterSelectedOptions {
     const options = this.props.selectedOptions.map((item, i) => (
       <span
         className="b-full-filter__value"
-        onClick={() => this.removeOption(item)}
+        onClick={() => this.removeOption(item.url)}
         key={i}
       >
         {item.name}
@@ -30,7 +29,7 @@ export default class CatalogFilterSelectedOptions {
       </div>
     );
   }
-  removeOption(item) {
-    window.location = new URI().search(item.query).toString();
+  removeOption(url) {
+    window.location = url;
   }
 }

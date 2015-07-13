@@ -127,6 +127,9 @@ class DesignSettingsContainer {
     design: PropTypes.object.isRequired,
     dispatch: PropTypes.func.isRequired
   }
+  componentWillUpdate(nextProps, nextState) {
+    console.log(nextProps);
+  }
   render() {
     const { design, dispatch } = this.props;
 
