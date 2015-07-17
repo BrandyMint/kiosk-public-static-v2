@@ -7,6 +7,7 @@ window.accounting = require 'accounting'
 # jQuery plugins
 require 'jquery.role'
 require 'jquery.mmenu'
+require 'jquery.touchswipe'
 
 # Others
 require 'bootstrapSass'

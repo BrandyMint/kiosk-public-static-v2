@@ -26,6 +26,7 @@ const dependencies = {
   'jquery': './node_modules/jquery/dist/jquery',
   'jquery.mmenu': './app/bower_components/jQuery.mmenu/src/js/jquery.mmenu.min.all',
   'jquery.role': './app/bower_components/jquery.role/lib/jquery.role',
+  'jquery.touchswipe': './app/bower_components/jquery-touchswipe/jquery.touchSwipe',
   'bootstrapSass': './app/bower_components/bootstrap-sass-official/assets/javascripts/bootstrap',
   'eventEmitter': './app/bower_components/eventEmitter/EventEmitter',
   'owlCarousel': './app/bower_components/OwlCarousel/owl-carousel/owl.carousel',
