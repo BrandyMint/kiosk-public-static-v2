@@ -1,8 +1,10 @@
-window._ = require 'lodash'
-window.React = require 'react'
-window.Dispatcher = require('flux').Dispatcher
-window.EventEmitter = require 'eventEmitter'
-window.accounting = require 'accounting'
+window._                    = require 'lodash'
+window.React                = require 'react'
+window.Dispatcher           = require('flux').Dispatcher
+window.EventEmitter         = require 'eventEmitter'
+window.accounting           = require 'accounting'
+window.PhotoSwipe           = require 'photoswipe'
+window.PhotoSwipeUI_Default = require 'photoswipeUI'
 
 # jQuery plugins
 require 'jquery.role'
