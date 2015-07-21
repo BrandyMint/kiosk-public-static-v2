@@ -31,6 +31,8 @@ const dependencies = {
   'owlCarousel': './app/bower_components/OwlCarousel/owl-carousel/owl.carousel',
   'fancybox': './app/bower_components/fancybox/source/jquery.fancybox',
   'fancybox.wannabe': './app/bower_components/fancybox-wannabe-fix/index',
+  'photoswipe': './app/bower_components/photoswipe/dist/photoswipe',
+  'photoswipeUI': './app/bower_components/photoswipe/dist/photoswipe-ui-default',
   'accounting': './app/bower_components/accounting.js/accounting',
   'lodash': './node_modules/lodash'
 };
