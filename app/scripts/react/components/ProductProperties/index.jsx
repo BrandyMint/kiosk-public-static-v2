@@ -16,20 +16,27 @@ const defaultProps = {
       color: '#123212', 
       image_url: '../images/15927_src.jpg',
       value: 456
+    }, {
+      title: 'Синий в горошек22',
+      color: '#123212', 
+      value: 789
     }]
   }, {
     id: 345,
     type: 'PropertyDictionary',
     title: 'Размер',
     items: [{
-      title: 'Неизвестный',
-      value: null
-    }, {
       title: 'Размер 17',
       value: 12
     }, {
       title: 'Размер 18',
       value: 13
+    }, {
+      title: 'Неизвестный',
+      value: 1
+    }, {
+      title: 'Размер 20',
+      value: 20
     }]
   }],
   variants: [{
@@ -38,7 +45,7 @@ const defaultProps = {
     image_url: 'htttp://...product.png', 
     quantity: 12,
     attributes: {
-      345: 12,
+      345: 1,
       123: 456
     }
   }, {
@@ -46,8 +53,24 @@ const defaultProps = {
     good_global_id: 'qweqwewqeq123', 
     quantity: 1, 
     attributes: {
-      123: 123,
-      345: 13
+      345: 13,
+      123: 123
+    }
+  }, {
+    article: 'Артикул 19', 
+    good_global_id: 'qweddqwewqeq123', 
+    quantity: 5, 
+    attributes: {
+      345: 20,
+      123: 789
+    }
+  }, {
+    article: 'Артикул 19', 
+    good_global_id: 'qweddqwewqeq123', 
+    quantity: 5, 
+    attributes: {
+      345: 13,
+      123: 789
     }
   }]
 };
@@ -55,38 +78,28 @@ const defaultProps = {
 export default class ProductProperties extends Component {
   static defaultProps = defaultProps
   state = {
-    filter: {}
+    values: {}
   }
   render() {
-    return <span />;
-    // return (
-    //   <form>
-    //     <PropertyList
-    //       properties={this.getProperties(this.state.filter, this.props.properties, this.props.variants)}
-    //       onChange={this.updateFilter.bind(this)}
-    //     />
-    //   </form>
-    // );
+    return (
+      <form>
+        <PropertyList
+          values={this.state.values}
+          variants={this.props.variants}
+          properties={this.props.properties}
+          onChange={this.updateValues.bind(this)}
+        />
+      </form>
+    );
   }
-  getProperties(filter, srcProperties, variants) {
-    return srcProperties.map((srcProperty) => {
-      return {
-        ...srcProperty,
-        items: srcProperty.items.map((item) => {
-          const selected = filter[srcProperty.id] === item.value;
-          const active = variants.some((variant) => (
-            variant.attributes[srcProperty.id] === item.value
-          ));
-
-          return { ...item, active, selected };
-        })
-      };
-    });
-  }
-  updateFilter(propertyID, propertyValue) {
+  updateValues(propertyID, value) {
     this.setState({
-      filter: {...this.state.filter, [propertyID]: propertyValue}
+      values: {
+        ...this.state.values,
+        [propertyID]: value
+      }
     });
+    console.log('updateValues', propertyID, value);
   }
 }
 

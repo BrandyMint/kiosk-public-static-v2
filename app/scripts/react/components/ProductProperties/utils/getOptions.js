@@ -28,22 +28,31 @@
 //   ]
 // }
 
-export default function getOptions(properties, variants, values) {
-  let filter = {}, options = {};
-
-  properties.forEach((property) => {
-    filter[property.id] = values[property.id];
-    options[property.id] = getOptionsForProperty(property, variants, filter);
-  });
-
-  return options;
+export default function getOptions(properties, variants, filter) {
+  return properties.reduce((previous, property) => {
+    previous[property.id] = getOptionsForProperty(property, variants, filter);
+    return previous;
+  }, {});
 }
 
 function getOptionsForProperty(property, variants, filter) {
-  const enabledValues = getEnabledValues(property.id, variants, filter)
-  return property.items.map((item) => {
-    return {...item, disabled: enabledValues.indexOf(item.value) == -1};
+  const possibleVariants = variants.filter((variant) => {
+    let result = true;
+
+    for (let attribute in variant.attributes) {
+      if (variant.attributes[attribute] !== filter[attribute] && filter[attribute] != null) {
+        result = false;
+      }
+    }
+
+    return result;
   });
+  const enabledValues = getEnabledValues(property.id, possibleVariants, filter);
+
+  return property.items.map((item) => ({
+    ...item,
+    disabled: enabledValues.indexOf(item.value) == -1
+  }));
 }
 
 function getEnabledValues(propertyID, variants, filter) {
@@ -55,9 +64,6 @@ function getEnabledValues(propertyID, variants, filter) {
     return previous;
   }, []);
 }
-
-// Вариант удовлетпоряет фильтры?
-// filter: { 123: nil, 456: 111 }. nil не учитывается
 
 function isVariantFiltered(attributes, filter) {
   let result = true;
