@@ -11,7 +11,7 @@ export default class Select {
     return (
       <select
         name={this.props.name}
-        defaultValue={this.props.value}
+        value={this.props.value}
         onChange={this.handleChange.bind(this)}
       >
         {this.props.options.map((option) =>

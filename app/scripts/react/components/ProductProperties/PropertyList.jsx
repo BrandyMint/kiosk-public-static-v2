@@ -1,75 +1,25 @@
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import PropertyListItem from './PropertyListItem';
 import getOptions from './utils/getOptions';
 
-export default class PropertyList extends Component {
+export default class PropertyList {
   static propTypes = {
+    values: PropTypes.object.isRequired,
+    variants: PropTypes.array.isRequired,
     properties: PropTypes.array.isRequired,
     onChange: PropTypes.func.isRequired
   }
-  static defaultProps = {
-    properties: [{
-      id: 123,
-      type: 'PropertyColor',
-      title: 'Цвет',
-      items: [{
-        title: 'Розовый',
-        color: '#333333',
-        value: 123
-      }, {
-        title: 'Синий в горошек',
-        color: '#123212', 
-        image_url: '../images/15927_src.jpg',
-        value: 456
-      }]
-    }, {
-      id: 345,
-      type: 'PropertyDictionary',
-      title: 'Размер',
-      items: [{
-        title: 'Неизвестный',
-        value: null
-      }, {
-        title: 'Размер 17',
-        value: 12
-      }, {
-        title: 'Размер 18',
-        value: 13
-      }]
-    }],
-    variants: [{
-      article: 'Артикул 12', 
-      good_global_id: 'qweqwewqeq',
-      image_url: 'htttp://...product.png', 
-      quantity: 12,
-      attributes: {
-        345: 12,
-        123: 456
-      }
-    }, {
-      article: 'Артикул 13', 
-      good_global_id: 'qweqwewqeq123', 
-      quantity: 1, 
-      attributes: {
-        123: 123,
-        345: 13
-      }
-    }]
-  }
-  state = {
-    values: {}
-  }
   render() {
     if (this.props.properties.length) {
+      const { properties, variants, values } = this.props;
+      const options = this.getOptions(properties, variants, values);
       const propertyList = this.props.properties.map((property) => (
         <PropertyListItem
           key={property.id}
-          propertyID={property.id}
-          propertyType={property.type}
-          propertyTitle={property.title}
-          value={this.getPropertyValue.call(this, property)}
-          options={this.getPropertyOptions.call(this, property)}
-          onChange={this.handleChange.bind(this, property.id)}
+          value={this.getValue(property.id, values)}
+          options={options[property.id] || []}
+          property={property}
+          onChange={this.props.onChange.bind(this, property.id)}
         />
       ));
 
@@ -82,20 +32,10 @@ export default class PropertyList extends Component {
       );
     }
   }
-  getPropertyValue(property) {
-    return this.state.values[property.id];
+  getOptions(properties, variants, values) {
+    return getOptions(properties, variants, values);
   }
-  getPropertyOptions(property) {
-    return getOptions(this.props.properties, this.props.variants, this.state.values)[property.id];
-    // getOptions(this.props.properties, this.props.variants, this.state.values)[property.id];
-    // return this.state.options[property.id];
-  }
-  handleChange(propertyID, value) {
-    this.setState({
-      values: {
-        ...this.state.values,
-        [propertyID]: value
-      }
-    });
+  getValue(propertyID, values) {
+    return values[propertyID] || null;
   }
 }
