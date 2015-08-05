@@ -12,7 +12,7 @@ export default class PropertyList {
   render() {
     if (this.props.properties.length) {
       const { properties, variants, values } = this.props;
-      const options = this.getOptions(properties, variants, values);
+      const options = getOptions(properties, variants, values);
       const propertyList = this.props.properties.map((property) => (
         <PropertyListItem
           key={property.id}
@@ -31,9 +31,6 @@ export default class PropertyList {
         </div>
       );
     }
-  }
-  getOptions(properties, variants, values) {
-    return getOptions(properties, variants, values);
   }
   getValue(propertyID, values) {
     return values[propertyID] || null;
