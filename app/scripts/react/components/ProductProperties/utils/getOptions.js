@@ -39,7 +39,8 @@ export default function getOptions(properties, variants, filter) {
 function getPropertyFilter(properties, property, filter) {
   let result_filter = {};
   for (let prop in properties) {
-     break if prop == property
+     break if prop == property;
+     result_filter[property.id] = filter[property.id];
   }
   return result_filter;
 }
