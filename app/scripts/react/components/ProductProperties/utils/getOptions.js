@@ -30,9 +30,18 @@
 
 export default function getOptions(properties, variants, filter) {
   return properties.reduce((previous, property) => {
-    previous[property.id] = getOptionsForProperty(property, variants, filter);
+    property_filter = getPropertyFilter(properties, property, filter);
+    previous[property.id] = getOptionsForProperty(property, variants, property_filter);
     return previous;
   }, {});
+}
+
+function getPropertyFilter(properties, property, filter) {
+  let result_filter = {};
+  for (let prop in properties) {
+     break if prop == property
+  }
+  return result_filter;
 }
 
 function getOptionsForProperty(property, variants, filter) {
