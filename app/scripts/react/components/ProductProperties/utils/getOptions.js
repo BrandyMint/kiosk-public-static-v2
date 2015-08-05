@@ -36,6 +36,8 @@ export default function getOptions(properties, variants, filter) {
   }, {});
 }
 
+// Создаем набор фильтров для свойств, которые выбрани ниже текущего
+//
 function getPropertyFilter(properties, property, filter) {
   let result_filter = {};
   for (let prop in properties) {
