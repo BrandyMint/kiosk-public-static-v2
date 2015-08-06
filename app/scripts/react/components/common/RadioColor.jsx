@@ -5,7 +5,7 @@ import classNames from 'classnames';
 export default class RadioColor {
   static propTypes = {
     name: PropTypes.string,
-    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     options: PropTypes.array.isRequired,
     onChange: PropTypes.func
   }
@@ -39,6 +39,7 @@ export default class RadioColor {
         <input
           type="radio"
           name={this.props.name}
+          value={value}
           checked={value === this.props.value}
           disabled={disabled}
           className="radiobtn__input"

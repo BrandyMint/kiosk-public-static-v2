@@ -3,7 +3,8 @@ import RadioColor from '../common/RadioColor';
 
 export default class PropertyListItemColor {
   static propTypes = {
-    value: PropTypes.any.isRequired,
+    name: PropTypes.string.isRequired,
+    value: PropTypes.any,
     options: PropTypes.array.isRequired,
     propertyTitle: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired
@@ -16,6 +17,7 @@ export default class PropertyListItemColor {
             {this.props.propertyTitle}
           </h3>
           <RadioColor
+            name={this.props.name}
             value={this.props.value}
             options={this.props.options}
             onChange={this.props.onChange}
@@ -24,23 +26,4 @@ export default class PropertyListItemColor {
       </div>
     );
   }
-  // getOptions() {
-  //   return [{
-  //     value: 123,
-  //     title: 'Розовый',
-  //     color: '#333333',
-  //     disabled: false
-  //   }, {
-  //     value: 456,
-  //     title: 'Синий в горошек',
-  //     color: '#123212',
-  //     image_url: '../images/15927_src.jpg',
-  //     disabled: true
-  //   }, {
-  //     value: 789,
-  //     title: 'Серо-синий',
-  //     color: '#6c7a89',
-  //     disabled: false
-  //   }];
-  // }
 }

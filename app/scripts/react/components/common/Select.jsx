@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 export default class Select {
   static propTypes = {
     name: PropTypes.string,
-    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     options: PropTypes.array.isRequired,
     onChange: PropTypes.func
   }
@@ -11,13 +11,13 @@ export default class Select {
     return (
       <select
         name={this.props.name}
-        value={this.props.value}
+        value={this.props.value || ''}
         onChange={this.handleChange.bind(this)}
       >
         {this.props.options.map((option) =>
           <option
             key={option.value}
-            value={option.value}
+            value={option.value || ''}
             title={option.title}
             disabled={option.disabled}
           >
@@ -29,7 +29,10 @@ export default class Select {
   }
   handleChange(e) {
     if (this.props.onChange) {
-      this.props.onChange(e.target.value);
+      let value = e.target.value === '' ? null : e.target.value;
+      value = isNaN(parseInt(value)) ? value : parseInt(value);
+
+      this.props.onChange(value);
     }
   }
 }

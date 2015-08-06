@@ -5,7 +5,7 @@ import PropertyListItemDictionary from './PropertyListItemDictionary';
 
 export default class PropertyListItem {
   static propTypes = {
-    value: PropTypes.any.isRequired,
+    value: PropTypes.any,
     options: PropTypes.array.isRequired,
     property: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired
@@ -18,6 +18,7 @@ export default class PropertyListItem {
       return (
         <Component
           key={property.id}
+          name={this.getItemName(property.id)}
           value={value}
           options={options}
           propertyTitle={property.title}
@@ -35,5 +36,8 @@ export default class PropertyListItem {
     };
 
     return typeComponents[propertyType];
+  }
+  getItemName(propertyID) {
+    return `attribute[${propertyID}]`;
   }
 }

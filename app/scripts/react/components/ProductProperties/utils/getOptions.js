@@ -9,7 +9,7 @@
 //   ]
 // }]
 //
-// variants: [{
+// goods: [{
 //   article: 'Артикул 12', 
 //   good_global_id: 'qweqwewqeq',
 //   image_url: 'htttp://...product.png', 
@@ -28,63 +28,66 @@
 //   ]
 // }
 
-export default function getOptions(properties, variants, filter) {
+export function getOptions(properties, goods, filters) {
   return properties.reduce((previous, property) => {
-    property_filter = getPropertyFilter(properties, property, filter);
-    previous[property.id] = getOptionsForProperty(property, variants, property_filter);
+    const propertyFilters = getFiltersForProperty(property, properties, filters);
+    previous[property.id] = getOptionsForProperty(property, goods, propertyFilters);
+
     return previous;
   }, {});
 }
 
-// Создаем набор фильтров для свойств, которые выбрани ниже текущего
-//
-function getPropertyFilter(properties, property, filter) {
-  let result_filter = {};
-  for (let prop in properties) {
-     break if prop == property;
-     result_filter[property.id] = filter[property.id];
-  }
-  return result_filter;
+export function getCurrentGood(properties, goods, filters) {
+  let good = goods.filter((good) => isGoodFiltered(good, filters));
+  console.log(good);
 }
 
-function getOptionsForProperty(property, variants, filter) {
-  const possibleVariants = variants.filter((variant) => {
-    let result = true;
+function getFiltersForProperty(property, properties, filters) {
+  let propertyFilters = {};
 
-    for (let attribute in variant.attributes) {
-      if (variant.attributes[attribute] !== filter[attribute] && filter[attribute] != null) {
-        result = false;
-      }
+  for (let i = 0; i < properties.length; i++) {
+    const prop = properties[i];
+
+    if (prop === property) break;
+    if (typeof filters[prop.id] !== 'undefined') {
+      propertyFilters[prop.id] = filters[prop.id];
     }
+  };
 
-    return result;
-  });
-  const enabledValues = getEnabledValues(property.id, possibleVariants, filter);
+  return propertyFilters;
+}
+
+function getOptionsForProperty(property, goods, filters) {
+  const enabledValues = getEnabledValues(property.id, goods, filters);
 
   return property.items.map((item) => ({
     ...item,
-    disabled: enabledValues.indexOf(item.value) == -1
+    disabled: enabledValues.indexOf(item.value) === -1
   }));
 }
 
-function getEnabledValues(propertyID, variants, filter) {
-  return variants.reduce((previous, variant) => {
-    if (isVariantFiltered(variant.attributes, filter)) {
-      const value = variant.attributes[propertyID];
-      previous.push(value);
+function getEnabledValues(propertyID, goods, filters) {
+  return goods.reduce((previous, good) => {
+    if (isGoodFiltered(good, filters)) {
+      const attrValue = good.attributes[propertyID],
+            attrIndex = previous.indexOf(attrValue);
+
+      if (attrIndex === -1) previous.push(attrValue);
     }
+
     return previous;
   }, []);
 }
 
-function isVariantFiltered(attributes, filter) {
-  let result = true;
+function isGoodFiltered(good, filters) {
+  for (let key in good.attributes) {
+    const attrValue = good.attributes[key],
+          filterValue = filters[key];
 
-  Object.keys(filter).forEach((key) => {
-    if (filter[key] != null && filter[key] != attributes[key]) {
-      result = false;
+    if (attrValue !== filterValue && filterValue != null) {
+      return false;
     }
-  });
+  }
 
-  return result;
+  return true;
 }

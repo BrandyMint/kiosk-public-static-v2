@@ -5,7 +5,7 @@ import PropertyList from './PropertyList';
 const defaultProps = {
   properties: [{
     id: 123,
-    type: 'PropertyColor',
+    type: 'colors',
     title: 'Цвет',
     items: [{
       title: 'Розовый',
@@ -23,25 +23,39 @@ const defaultProps = {
     }]
   }, {
     id: 345,
-    type: 'PropertyDictionary',
+    type: 'items',
     title: 'Размер',
     items: [{
+      title: 'Неизвестный',
+      value: null
+    }, {
       title: 'Размер 17',
       value: 12
     }, {
       title: 'Размер 18',
       value: 13
     }, {
-      title: 'Неизвестный',
-      value: 1
-    }, {
       title: 'Размер 20',
       value: 20
     }]
+  }, {
+    id: 348,
+    type: 'items',
+    title: 'Вес',
+    items: [{
+      title: 'Шестой',
+      value: 12
+    }, {
+      title: 'Седьмой',
+      value: 13
+    }, {
+      title: 'Восьмой',
+      value: 1
+    }]
   }],
-  variants: [{
+  goods: [{
     article: 'Артикул 12', 
-    good_global_id: 'qweqwewqeq',
+    global_id: 'qweqwewqeq',
     image_url: 'htttp://...product.png', 
     quantity: 12,
     attributes: {
@@ -50,7 +64,7 @@ const defaultProps = {
     }
   }, {
     article: 'Артикул 13', 
-    good_global_id: 'qweqwewqeq123', 
+    global_id: 'qweqwewqeq123', 
     quantity: 1, 
     attributes: {
       345: 13,
@@ -58,15 +72,15 @@ const defaultProps = {
     }
   }, {
     article: 'Артикул 19', 
-    good_global_id: 'qweddqwewqeq123', 
+    global_id: 'qweddqwewqeq123', 
     quantity: 5, 
     attributes: {
-      345: 20,
+      345: null,
       123: 789
     }
   }, {
     article: 'Артикул 19', 
-    good_global_id: 'qweddqwewqeq123', 
+    global_id: 'qweddqwewqeq123', 
     quantity: 5, 
     attributes: {
       345: 13,
@@ -76,6 +90,10 @@ const defaultProps = {
 };
 
 export default class ProductProperties extends Component {
+  static propTypes = {
+    goods: PropTypes.array.isRequired,
+    properties: PropTypes.array.isRequired
+  }
   static defaultProps = defaultProps
   state = {
     values: {}
@@ -84,9 +102,8 @@ export default class ProductProperties extends Component {
     return (
       <form>
         <PropertyList
+          {...this.props}
           values={this.state.values}
-          variants={this.props.variants}
-          properties={this.props.properties}
           onChange={this.updateValues.bind(this)}
         />
       </form>
@@ -99,7 +116,6 @@ export default class ProductProperties extends Component {
         [propertyID]: value
       }
     });
-    console.log('updateValues', propertyID, value);
   }
 }
 
