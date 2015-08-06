@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import PropertyListItem from './PropertyListItem';
-import { getOptions, getCurrentGood } from './utils/getOptions';
+import { getOptions } from './utils/utils';
 
 export default class PropertyList {
   static propTypes = {
@@ -14,14 +14,13 @@ export default class PropertyList {
 
     if (properties.length) {
       const options = getOptions(properties, goods, values);
-      const currentGood = getCurrentGood(properties, goods, values);
       const propertyList = properties.map((property) => (
         <PropertyListItem
           key={property.id}
           value={values[property.id] || null}
           options={options[property.id] || []}
           property={property}
-          onChange={onChange.bind(this, property.id)}
+          onChange={onChange.bind(this, property)}
         />
       ));
 
