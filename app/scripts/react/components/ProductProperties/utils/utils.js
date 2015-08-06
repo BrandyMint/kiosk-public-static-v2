@@ -37,9 +37,21 @@ export function getOptions(properties, goods, filters) {
   }, {});
 }
 
-export function getCurrentGood(properties, goods, filters) {
-  let good = goods.filter((good) => isGoodFiltered(good, filters));
-  console.log(good);
+export function getUpdatedValues(property, properties, filters, data) {
+  const newValues = getFiltersForProperty(property, properties, filters);
+  return {...newValues, ...data};
+}
+
+export function getMatchedGood(properties, goods, filters) {
+  for (var i = 0; i < goods.length; i++) {
+    const good = goods[i];
+
+    if (isGoodStrictlyFiltered(good, filters)) {
+      return good;
+    }
+  };
+
+  return null;
 }
 
 function getFiltersForProperty(property, properties, filters) {
@@ -69,8 +81,8 @@ function getOptionsForProperty(property, goods, filters) {
 function getEnabledValues(propertyID, goods, filters) {
   return goods.reduce((previous, good) => {
     if (isGoodFiltered(good, filters)) {
-      const attrValue = good.attributes[propertyID],
-            attrIndex = previous.indexOf(attrValue);
+      const attrValue = good.attributes[propertyID];
+      const attrIndex = previous.indexOf(attrValue);
 
       if (attrIndex === -1) previous.push(attrValue);
     }
@@ -81,10 +93,23 @@ function getEnabledValues(propertyID, goods, filters) {
 
 function isGoodFiltered(good, filters) {
   for (let key in good.attributes) {
-    const attrValue = good.attributes[key],
-          filterValue = filters[key];
+    const attrValue = good.attributes[key];
+    const filterValue = filters[key];
 
     if (attrValue !== filterValue && filterValue != null) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function isGoodStrictlyFiltered(good, filters) {
+  for (let key in good.attributes) {
+    const attrValue = good.attributes[key];
+    const filterValue = filters[key];
+
+    if (attrValue !== filterValue) {
       return false;
     }
   }

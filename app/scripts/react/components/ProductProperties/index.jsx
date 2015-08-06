@@ -1,6 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import * as propertyTypes from '../../constants/propertyTypes';
+import { getMatchedGood, getUpdatedValues } from './utils/utils';
 import PropertyList from './PropertyList';
+import ProductAddToCartButton from './ProductAddToCartButton';
 
 const defaultProps = {
   properties: [{
@@ -68,7 +70,8 @@ const defaultProps = {
     quantity: 1, 
     attributes: {
       345: 13,
-      123: 123
+      123: 123,
+      348: 12
     }
   }, {
     article: 'Артикул 19', 
@@ -83,8 +86,9 @@ const defaultProps = {
     global_id: 'qweddqwewqeq123', 
     quantity: 5, 
     attributes: {
-      345: 13,
-      123: 789
+      345: 12,
+      123: 123,
+      348: 13
     }
   }]
 };
@@ -92,29 +96,55 @@ const defaultProps = {
 export default class ProductProperties extends Component {
   static propTypes = {
     goods: PropTypes.array.isRequired,
-    properties: PropTypes.array.isRequired
+    properties: PropTypes.array.isRequired,
+    formAction: PropTypes.string.isRequired
   }
   static defaultProps = defaultProps
   state = {
-    values: {}
+    values: {},
+    good: null
   }
   render() {
     return (
-      <form>
+      <form action={this.props.formAction} method="POST">
         <PropertyList
           {...this.props}
           values={this.state.values}
           onChange={this.updateValues.bind(this)}
         />
+        {this.renderGlobalGoodID(this.state.good)}
+        <div className="b-item-full__form__row b-item-full__form__submit">
+          <ProductAddToCartButton
+            hasGood={!!this.state.good}
+            disabled={!this.state.good}
+          />
+        </div>
       </form>
     );
   }
-  updateValues(propertyID, value) {
+  renderGlobalGoodID(good) {
+    if (good) {
+      return (
+        <input
+          type="hidden"
+          name="global_good_id"
+          value={good.global_id}
+        />
+      );
+    }
+  }
+  updateValues(property, value) {
+    const { properties, goods } = this.props;
+    const { values } = this.state;
+
+    const newValues = getUpdatedValues(property, properties, values, {
+      [property.id]: value
+    });
+    const newGood = getMatchedGood(properties, goods, newValues)
+
     this.setState({
-      values: {
-        ...this.state.values,
-        [propertyID]: value
-      }
+      good: newGood,
+      values: newValues
     });
   }
 }
