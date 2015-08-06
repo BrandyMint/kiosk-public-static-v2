@@ -1,25 +1,27 @@
 import React, { PropTypes } from 'react';
 import PropertyListItem from './PropertyListItem';
-import getOptions from './utils/getOptions';
+import { getOptions, getCurrentGood } from './utils/getOptions';
 
 export default class PropertyList {
   static propTypes = {
+    goods: PropTypes.array.isRequired,
     values: PropTypes.object.isRequired,
-    variants: PropTypes.array.isRequired,
     properties: PropTypes.array.isRequired,
     onChange: PropTypes.func.isRequired
   }
   render() {
-    if (this.props.properties.length) {
-      const { properties, variants, values } = this.props;
-      const options = getOptions(properties, variants, values);
-      const propertyList = this.props.properties.map((property) => (
+    const { goods, values, properties, onChange } = this.props;
+
+    if (properties.length) {
+      const options = getOptions(properties, goods, values);
+      const currentGood = getCurrentGood(properties, goods, values);
+      const propertyList = properties.map((property) => (
         <PropertyListItem
           key={property.id}
-          value={this.getValue(property.id, values)}
+          value={values[property.id] || null}
           options={options[property.id] || []}
           property={property}
-          onChange={this.props.onChange.bind(this, property.id)}
+          onChange={onChange.bind(this, property.id)}
         />
       ));
 
@@ -31,8 +33,5 @@ export default class PropertyList {
         </div>
       );
     }
-  }
-  getValue(propertyID, values) {
-    return values[propertyID] || null;
   }
 }
