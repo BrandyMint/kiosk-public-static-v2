@@ -55,7 +55,7 @@ export function getMatchedGood(properties, goods, filters) {
 }
 
 function getFiltersForProperty(property, properties, filters) {
-  let propertyFilters = {};
+  const propertyFilters = {};
 
   for (let i = 0; i < properties.length; i++) {
     const prop = properties[i];
@@ -82,9 +82,11 @@ function getEnabledValues(propertyID, goods, filters) {
   return goods.reduce((previous, good) => {
     if (isGoodFiltered(good, filters)) {
       const attrValue = good.attributes[propertyID];
-      const attrIndex = previous.indexOf(attrValue);
 
-      if (attrIndex === -1) previous.push(attrValue);
+      if (typeof attrValue !== 'undefined') {
+        const attrIndex = previous.indexOf(attrValue);
+        if (attrIndex === -1) previous.push(attrValue);
+      }
     }
 
     return previous;
