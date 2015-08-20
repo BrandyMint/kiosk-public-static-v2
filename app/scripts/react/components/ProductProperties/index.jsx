@@ -3,6 +3,10 @@ import { getMatchedGood, getUpdatedValues } from './utils/utils';
 import PropertyList from './PropertyList';
 import ProductAddToCartButton from './ProductAddToCartButton';
 
+// TODO: i18n
+const PRODUCT_ADD_TO_CART_BUTTON = 'В корзину';
+const PRODUCT_NOT_ENOUGH_DATA_BUTTON = 'Укажите больше характеристик';
+
 // const defaultProps = {
 //   properties: [{
 //     id: 123,
@@ -133,7 +137,7 @@ export default class ProductProperties extends Component {
       return (
         <div className="b-item-full__form__row b-item-full__form__submit">
           <ProductAddToCartButton
-            hasGood={!!this.state.good}
+            text={!!this.state.good ? PRODUCT_ADD_TO_CART_BUTTON : PRODUCT_NOT_ENOUGH_DATA_BUTTON}
             disabled={!this.state.good}
           />
         </div>

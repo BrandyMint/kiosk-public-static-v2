@@ -1,14 +1,14 @@
-import React, { PropTypes } from 'react';
+import { PropTypes } from 'react';
 
 export default class ProductAddToCartButton {
   static propTypes = {
-    hasGood: PropTypes.bool.isRequired,
-    disabled: PropTypes.bool.isRequired
+    text: PropTypes.string.isRequired,
+    disabled: PropTypes.bool.isRequired,
   }
   render() {
     return (
-      <button type="submit" className="b-btn" disabled={this.props.disabled}>
-        {this.props.hasGood ? 'В корзину' : 'Укажите больше характеристик'}
+      <button type="submit" disabled={this.props.disabled} className="b-btn">
+        {this.props.text}
       </button>
     );
   }
