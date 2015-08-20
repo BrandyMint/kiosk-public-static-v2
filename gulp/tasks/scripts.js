@@ -11,16 +11,16 @@ import { scripts as config } from '../config';
 // External dependencies we do not want to rebundle while developing,
 // but include in our dist bundle
 const dependencies = {
-  'react': './node_modules/react',
-  'redux': './node_modules/redux',
   'classnames': './node_modules/classnames',
-  'perfect-scrollbar': './node_modules/perfect-scrollbar',
-  'nouislider': './node_modules/noUiSlider/distribute/nouislider',
-  'tinycolor2': './node_modules/tinycolor2',
   'immutable': './node_modules/immutable/dist/immutable',
   'localforage': './node_modules/localforage/src/localforage',
   'jss': './node_modules/jss/lib',
+  'nouislider': './node_modules/noUiSlider/distribute/nouislider',
+  'perfect-scrollbar': './node_modules/perfect-scrollbar',
+  'react': './node_modules/react',
+  'redux': './node_modules/redux',
   'reqwest': './node_modules/reqwest',
+  'tinycolor2': './node_modules/tinycolor2',
   'URIjs': './node_modules/URIjs/src/URI',
 
   'reactUjs': './app/scripts/resources/react_ujs',
