@@ -1,3 +1,4 @@
+import NoticeService from '../services/Notice';
 import buildParams from '../utils/buildParams';
 import * as apiRoutes from '../../routes/api';
 import * as actionTypes from '../constants/actionTypes';
@@ -21,13 +22,9 @@ export function changeImage(name, file) {
 export function saveChanges() {
   return (dispatch, getState) => {
     const current = getState().design.get('current').toJS();
-    const availableKeys = [
-      'pageBgColor', 'pageBgFile', 'fontFamily', 'fontColor', 'fontSize',
-      'feedBgColor', 'feedTransparency', 'productsInRow', 'productLayoutBigpic',
-      'logoFile'
-    ];
+    const ignoredKeys = ['logoUrl', 'pageBgUrl'];
     const data = Object.keys(current).reduce(function (previous, key) {
-      if (availableKeys.indexOf(key) !== -1) previous[key] = current[key];
+      if (ignoredKeys.indexOf(key) === -1) previous[key] = current[key];
       return previous;
     }, {});
 
@@ -60,8 +57,7 @@ export function saveChanges() {
       })
       .fail((xhr) => {
         dispatch({ type: actionTypes.DESIGN_SAVE_FAILURE });
-        // FIXME: Use nice and clean NoticeService.errorResponse
-        alert(JSON.parse(xhr.responseText).error);
+        NoticeService.errorResponse(xhr);
       });
   }
 }

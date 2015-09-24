@@ -26,16 +26,28 @@ global.gon = {
   "operator_api_url": "http://wannabe.3001.vkontraste.ru/operator/api",
   "__data": {
     "design": {
+      "mainPageProductsInRow": 2,
+      "mainPageRows": 5,
+      "mainPageInstagram": true,
+      "mainPageSlider": false,
+      "mainPageBanner": true,
+      "mainPageFilter": true,
+      "categoryPageProductsInRow": 2,
+      "categoryPageRows": 5,
+      "categoryPageInstagram": false,
+      "categoryPageSlider": false,
+      "categoryPageBanner": false,
+      "categoryPageFilter": true,
+      "productPagePhoto": "aside",
+      "productPageSimilarProducts": false,
+      "logoUrl": "http://assets.kiiiosk.ru/uploads/vendor/logo/5/logo.svg",
       "pageBgUrl": null,
       "pageBgColor": "#6c7a89",
-      "fontFamily": "helvetica",
-      "fontColor": "#000000",
-      "fontSize": "md",
       "feedBgColor": "#000000",
       "feedTransparency": 0,
-      "productsInRow": 4,
-      "productLayoutBigpic": true,
-      "logoUrl": "http://assets.kiiiosk.ru/uploads/vendor/logo/5/logo.svg"
-    }
-  }
+      "fontColor": "#000000",
+      "fontFamily": "helvetica",
+      "fontSize": "md",
+    },
+  },
 }

@@ -4,18 +4,28 @@ import createObjectUrl from '../utils/createObjectUrl';
 import * as actionTypes from '../constants/actionTypes';
 
 const current = {
-  pageBgColor: '#6c7a89',
+  mainPageProductsInRow: 2,
+  mainPageRows: 5,
+  mainPageInstagram: true,
+  mainPageSlider: false,
+  mainPageBanner: true,
+  mainPageFilter: true,
+  categoryPageProductsInRow: 2,
+  categoryPageRows: 5,
+  categoryPageInstagram: false,
+  categoryPageSlider: false,
+  categoryPageBanner: false,
+  categoryPageFilter: true,
+  productPagePhoto: 'aside',
+  productPageSimilarProducts: false,
+  logoUrl: null,
   pageBgUrl: null,
-  pageBgFile: null,
-  fontFamily: 'verdana',
-  fontColor: '#2ac67e',
-  fontSize: 'lg',
+  pageBgColor: '#6c7a89',
   feedBgColor: '#000000',
   feedTransparency: .7,
-  productsInRow: 3,
-  productLayoutBigpic: false,
-  logoUrl: null,
-  logoFile: null
+  fontColor: '#000000',
+  fontFamily: 'helvetica',
+  fontSize: 'md',
 };
 
 const initialState = Immutable.fromJS({

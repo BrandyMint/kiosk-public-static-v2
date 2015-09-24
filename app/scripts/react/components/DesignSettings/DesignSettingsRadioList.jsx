@@ -30,28 +30,34 @@ export default class DesignSettingsRadioList {
       case designTypes.DESIGN_COLOR_TYPE:
         return {
           ...props,
-          style: { backgroundColor: item.value },
           className: classNames('radiobtn--circle', {
             'radiobtn--light': tinycolor(item.value).isLight()
-          })
+          }),
+          style: { backgroundColor: item.value },
         };
       case designTypes.DESIGN_FONT_TYPE:
         return {
           ...props,
           className: 'radiobtn--font radiobtn--font-' + item.value,
-          text: 'Aa'
+          text: 'Aa',
         };
       case designTypes.DESIGN_FONT_SIZE_TYPE:
         return {
           ...props,
           className: 'radiobtn--font radiobtn--fontsize-' + item.value,
-          text: 'Aa'
+          text: 'Aa',
+        };
+      case designTypes.DESIGN_RADIO_TYPE:
+        return {
+          ...props,
+          className: 'radiobtn--default',
+          text: item.title,
         };
       default:
         return {
           ...props,
+          className: 'radiobtn--circle',
           text: item.value,
-          className: 'radiobtn--circle'
         };
     }
   }

@@ -1,7 +1,9 @@
 $bg: #e1e1e1
 $fontSize: 14px
+$color: white
 $info: #8fa6ce
-$infoColor: #fff
+$error: #c00f19
+$success: #37a048
 
 .b-notice
   padding: 11px
@@ -12,8 +14,12 @@ $infoColor: #fff
   background-color: $bg
   font-size: $fontSize
   text-align: center
+  color: $color
   &_info
     background-color: $info
-    color: $infoColor
+  &_error
+    background-color: $error;
+  &_success
+    background-color: $success;
   a
     text-decoration: underline

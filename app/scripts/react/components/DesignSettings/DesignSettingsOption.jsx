@@ -3,27 +3,29 @@ import classNames from 'classnames';
 
 export default class DesignSettingsOption {
   static propTypes = {
-    title: PropTypes.string,
     className: PropTypes.string,
-    children: PropTypes.any.isRequired
+    children: PropTypes.any.isRequired,
+    inRow: PropTypes.bool,
+    title: PropTypes.string,
   }
   render() {
+    const { children, className, inRow, title } = this.props;
+    const optionClasses = classNames(className, {
+      'design-settings__option': true,
+      'design-settings__option--row': inRow,
+    });
+
     return (
-      <div className={classNames('design-settings__option', this.props.className)}>
-        {this.renderTitle()}
+      <div className={optionClasses}>
+        {title &&
+         <div className="design-settings__option-title">
+           {title}
+         </div>
+        }
         <div className="design-settings__option-content">
-          {this.props.children}
+          {children}
         </div>
       </div>
     );
-  }
-  renderTitle() {
-    if (this.props.title) {
-      return (
-        <div className="design-settings__option-title">
-          {this.props.title}
-        </div>
-      );
-    }
   }
 }

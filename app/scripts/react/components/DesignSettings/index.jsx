@@ -30,9 +30,67 @@ export default class DesignSettings {
         </header>
         <div className="design-settings__body">
           <Scroller className="design-settings__scroll">
-            <DesignSettingsGroup title="Стили">
-              <DesignSettingsOption title="Цвет страницы">
-                <DesignSettingsRadioList {...this.getProps('pageBgColor')} />
+            <DesignSettingsGroup title="Главная страница">
+              <DesignSettingsOption title="Товаров в ряд">
+                <DesignSettingsRadioList {...this.getProps('mainPageProductsInRow')} />
+              </DesignSettingsOption>
+              <DesignSettingsOption title="Строк товаров">
+                <DesignSettingsSlider {...this.getProps('mainPageRows')} displayValue={true} />
+              </DesignSettingsOption>
+              <DesignSettingsOption inRow={true} title="Показывать Instagram">
+                <DesignSettingsCheckbox {...this.getProps('mainPageInstagram')} />
+              </DesignSettingsOption>
+              <DesignSettingsOption inRow={true} title="Показывать слайдер">
+                <DesignSettingsCheckbox {...this.getProps('mainPageSlider')} />
+              </DesignSettingsOption>
+              <DesignSettingsOption inRow={true} title="Показывать баннер">
+                <DesignSettingsCheckbox {...this.getProps('mainPageBanner')} />
+              </DesignSettingsOption>
+              <DesignSettingsOption inRow={true} title="Показывать фильтр">
+                <DesignSettingsCheckbox {...this.getProps('mainPageFilter')} />
+              </DesignSettingsOption>
+            </DesignSettingsGroup>
+
+            <DesignSettingsGroup title="Страница категории">
+              <DesignSettingsOption title="Товаров в ряд">
+                <DesignSettingsRadioList {...this.getProps('categoryPageProductsInRow')} />
+              </DesignSettingsOption>
+              <DesignSettingsOption title="Строк товаров">
+                <DesignSettingsSlider {...this.getProps('categoryPageRows')} displayValue={true} />
+              </DesignSettingsOption>
+              <DesignSettingsOption inRow={true} title="Показывать Instagram">
+                <DesignSettingsCheckbox {...this.getProps('categoryPageInstagram')} />
+              </DesignSettingsOption>
+              <DesignSettingsOption inRow={true} title="Показывать слайдер">
+                <DesignSettingsCheckbox {...this.getProps('categoryPageSlider')} />
+              </DesignSettingsOption>
+              <DesignSettingsOption inRow={true} title="Показывать баннер">
+                <DesignSettingsCheckbox {...this.getProps('categoryPageBanner')} />
+              </DesignSettingsOption>
+              <DesignSettingsOption inRow={true} title="Показывать фильтр">
+                <DesignSettingsCheckbox {...this.getProps('categoryPageFilter')} />
+              </DesignSettingsOption>
+            </DesignSettingsGroup>
+
+            <DesignSettingsGroup title="Страница товара">
+              <DesignSettingsOption title="Фото">
+                <DesignSettingsRadioList {...this.getProps('productPagePhoto')} />
+              </DesignSettingsOption>
+              <DesignSettingsOption inRow={true} title="Показывать подобные товары">
+                <DesignSettingsCheckbox {...this.getProps('productPageSimilarProducts')} />
+              </DesignSettingsOption>
+            </DesignSettingsGroup>
+
+            <DesignSettingsGroup title="Общие настройки">
+              <DesignSettingsOption title="Логотип (желательно .SVG)">
+                <DesignSettingsAttach
+                  {...this.getAttachProps('logo')}
+                  className="design-settings__attach--image"
+                >
+                  {(SelectFile) =>
+                     <SelectFile className="select-file--icon select-file--icon-pencil" />
+                  }
+                </DesignSettingsAttach>
               </DesignSettingsOption>
               <DesignSettingsOption title="Фон страницы">
                 <DesignSettingsAttach
@@ -40,9 +98,12 @@ export default class DesignSettings {
                   className="design-settings__attach--image"
                 >
                   {(SelectFile) =>
-                    <SelectFile className="select-file--icon select-file--icon-pencil" />
+                     <SelectFile className="select-file--icon select-file--icon-pencil" />
                   }
                 </DesignSettingsAttach>
+              </DesignSettingsOption>
+              <DesignSettingsOption title="Цвет страницы">
+                <DesignSettingsRadioList {...this.getProps('pageBgColor')} />
               </DesignSettingsOption>
               <DesignSettingsOption title="Цвет ленты">
                 <DesignSettingsRadioList {...this.getProps('feedBgColor')} />
@@ -60,29 +121,6 @@ export default class DesignSettings {
                 <DesignSettingsRadioList {...this.getProps('fontSize')} />
               </DesignSettingsOption>
             </DesignSettingsGroup>
-
-            <DesignSettingsGroup title="Каталог">
-              <DesignSettingsOption title="Товаров в ряд">
-                <DesignSettingsRadioList {...this.getProps('productsInRow')} />
-              </DesignSettingsOption>
-            </DesignSettingsGroup>
-
-            <DesignSettingsGroup title="Страница товара">
-              <DesignSettingsOption
-                title="Фото сверху?"
-                className="design-settings__option--row"
-              >
-                <DesignSettingsCheckbox {...this.getProps('productLayoutBigpic')} />
-              </DesignSettingsOption>
-            </DesignSettingsGroup>
-
-            <DesignSettingsGroup title="Логотип (желательно .SVG)">
-              <DesignSettingsOption>
-                <DesignSettingsAttach {...this.getAttachProps('logo')}>
-                  {(SelectFile) => <SelectFile withText={true} />}
-                </DesignSettingsAttach>
-              </DesignSettingsOption>
-            </DesignSettingsGroup>
           </Scroller>
         </div>
         <div className="design-settings__footer">
@@ -95,6 +133,7 @@ export default class DesignSettings {
       </div>
     );
   }
+
   getProps(property) {
     const { current, changeOption } = this.props;
     return {

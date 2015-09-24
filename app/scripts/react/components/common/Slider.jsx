@@ -13,7 +13,7 @@ export default class Slider {
     step: PropTypes.number,
     reverse: PropTypes.bool,
     onSlide: PropTypes.func,
-    onChange: PropTypes.func.isRequired
+    onChange: PropTypes.func.isRequired,
   }
   static defaultProps = {
     from: MINIMUM_VALUE,
