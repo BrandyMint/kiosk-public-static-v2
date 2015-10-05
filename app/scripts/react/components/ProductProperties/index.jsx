@@ -108,7 +108,7 @@ export default class ProductProperties extends Component {
   }
   static defaultProps = {
     goods: [],
-    properties: []
+    properties: [],
   }
   state = {
     good: null,

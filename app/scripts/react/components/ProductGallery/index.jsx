@@ -1,42 +1,23 @@
 import React, { Component, findDOMNode, PropTypes } from 'react';
 
-// const defaultProps = {
-//   images: [{
-//     id: 1,
-//     title: 'Кольцо 1',
-//     url: 'http://assets.kiiiosk.ru/uploads/shop/5/uploads/product_image/image/28959/561876d0-4407-411a-94b6-42711797e61f.jpg',
-//   }, {
-//     id: 2,
-//     title: 'Кольцо 2',
-//     url: 'http://assets.kiiiosk.ru/uploads/shop/5/uploads/product_image/image/28960/60bdcb79-3c3b-421e-8a78-36257d1cb196.jpg',
-//   }, {
-//     id: 3,
-//     title: 'Кольцо 1',
-//     url: 'http://assets.kiiiosk.ru/uploads/shop/5/uploads/product_image/image/28959/561876d0-4407-411a-94b6-42711797e61f.jpg',
-//   }, {
-//     id: 4,
-//     title: 'Кольцо 2',
-//     url: 'http://assets.kiiiosk.ru/uploads/shop/5/uploads/product_image/image/28960/60bdcb79-3c3b-421e-8a78-36257d1cb196.jpg',
-//   }, {
-//     id: 5,
-//     title: 'Кольцо 1',
-//     url: 'http://assets.kiiiosk.ru/uploads/shop/5/uploads/product_image/image/28959/561876d0-4407-411a-94b6-42711797e61f.jpg',
-//   }, {
-//     id: 6,
-//     title: 'Кольцо 2',
-//     url: 'http://assets.kiiiosk.ru/uploads/shop/5/uploads/product_image/image/28960/60bdcb79-3c3b-421e-8a78-36257d1cb196.jpg',
-//   }],
-// }
-
 export default class ProductGallery extends Component {
   static propTypes = {
-    images: PropTypes.array,
+    images: PropTypes.arrayOf(
+      PropTypes.shape({
+        title: PropTypes.string,
+        url: PropTypes.string.isRequired,
+      })
+    ),
+    previewWidth: PropTypes.number,
+    thumbWidth: PropTypes.number,
   }
   state = {
     selectedIndex: 0,
   }
   static defaultProps = {
     images: [],
+    previewWidth: 486,
+    thumbWidth: 115
   }
   componentDidMount() {
     this.initSliders();
@@ -62,10 +43,12 @@ export default class ProductGallery extends Component {
       afterAction: this.onAfterPhotoAction.bind(this),
     });
 
-    $productThumbs.owlCarousel({
-      items: 4,
-      pagination: false,
-    });
+    if ($productThumbs.length) {
+      $productThumbs.owlCarousel({
+        items: 4,
+        pagination: false,
+      });
+    }
   }
   reinitSliders() {
     const $productPhoto = $(findDOMNode(this.refs.productPhoto));
@@ -76,10 +59,12 @@ export default class ProductGallery extends Component {
       afterAction: this.onAfterPhotoAction.bind(this),
     });
 
-    $productThumbs.data('owlCarousel').reinit({
-      items: 4,
-      pagination: false,
-    });
+    if ($productThumbs.length) {
+      $productThumbs.data('owlCarousel').reinit({
+        items: 4,
+        pagination: false,
+      });
+    }
   }
   getIndexByUrl(images, url) {
     for (let i = 0; i < images.length; i++) {
@@ -117,37 +102,53 @@ export default class ProductGallery extends Component {
     ev.preventDefault();
     $productPhoto.trigger('owl.goTo', idx);
   }
+  renderPhotoItem(el, idx) {
+    return (
+      <a
+        className="b-slider__item"
+        data-lightbox={true}
+        href={el.url}
+        key={idx}
+        rel="photo-stack"
+      >
+        <img
+          alt={el.title}
+          className="u-photo"
+          itemProp="image"
+          src={el.url}
+          title={el.title}
+          width={this.props.previewWidth}
+        />
+      </a>
+    );
+  }
+  renderThumbItem(el, idx) {
+    return (
+      <div
+        className="b-slider__item"
+        key={idx}
+        onClick={this.onThumbClick.bind(this, idx)}
+      >
+        <img
+          alt={el.title}
+          src={el.url}
+          title={el.title}
+          width={this.props.thumbWidth}
+        />
+      </div>
+    );
+  }
   render() {
     return (
       <div>
         <div className="b-slider" ref="productPhoto">
-          {
-            this.props.images.map((el) => (
-              <a
-                className="b-slider__item"
-                data-lightbox={true}
-                href={el.url}
-                key={el.id}
-              >
-                <img className="u-photo" src={el.url} title={el.title} />
-              </a>
-            ))
-          }
+          {this.props.images.map(this.renderPhotoItem.bind(this))}
         </div>
-        <div className="b-slider b-slider_thumbs" ref="productThumbs">
-          {
-            this.props.images.map((el, idx) => (
-              <a
-                className="b-slider__item"
-                href={el.url}
-                key={el.id}
-                onClick={this.onThumbClick.bind(this, idx)}
-              >
-                <img className="u-photo" src={el.url} title={el.title} />
-              </a>
-            ))
-          }
-        </div>
+        {this.props.images.length > 1 &&
+          <div className="b-slider b-slider_thumbs" ref="productThumbs">
+            {this.props.images.map(this.renderThumbItem.bind(this))}
+          </div>
+        }
       </div>
     );
   }
