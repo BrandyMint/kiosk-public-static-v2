@@ -8,6 +8,7 @@ import * as designActions from '../../actions/designActions';
 import * as popupActions from '../../actions/popupActions';
 import * as storageKeys from '../../constants/storageKeys';
 import * as cookieKeys from '../../constants/cookieKeys';
+import { DOM_CHANGE } from '../../constants/globalEventKeys';
 import DesignSettings from '.';
 
 @connect((state) => ({
@@ -46,6 +47,7 @@ class DesignSettingsContainer {
     } else {
       $('.b-page').removeClass('b-page--design-settings');
     }
+    $(document).trigger(DOM_CHANGE);
   }
   onItemClick(type, url) {
     if (url && type && this.props.pageType !== type) {

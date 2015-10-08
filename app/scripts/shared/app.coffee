@@ -86,10 +86,3 @@ $ ->
 
   $('[ks-layout-change]').on 'click', ()->
     thisPage.addClass 'b-page_layout-l1'
-
-  $topBanner = $('[ks-topbanner]')
-  $topBanner.stick_in_parent()
-
-  $('[ks-topbanner-close]').on 'click', ->
-    $topBanner.fadeOut 300, ->
-      $(@).trigger('sticky_kit:detach')
