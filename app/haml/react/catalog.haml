@@ -4,6 +4,8 @@
     +include 'app/haml/shared/_head.haml'
   %body.b-page
     .b-page__content
+      %div{data: {react-class: 'TopBanner', react-props: '{"content": "Мы открылись!"}'}}
+
       .b-page__content__inner.b-page__content__inner_navbar
         +include 'app/haml/shared/_navbar.haml'
 
@@ -14,7 +16,7 @@
               %div{data: {react-class: 'CatalogFilter', react-props: '{"options":[{"title":"Ценовой диапазон","type":"range","paramName":"price","units":"руб.","from":5000,"to":902530,"valueFrom":null,"valueTo":null,"step":10000}, {"title": "Показывать", "type": "checkbox", "paramName": "type", "items": [{"name": "Все", "paramValue": "all", "checked": true }, { "name": "Гибридные", "paramValue": "hybrid", "checked": false }]},{"title":"Доступность","type":"radio", "default": "any", "paramName":"availability","value":"any","items":[{"name":"Все","paramValue":"any"},{"name":"В наличии","paramValue":"in-stock"},{"name":"Под заказ","paramValue":"on-request"},{"name":"Распродажа","paramValue":"sale"}]},{"title":"Ценовой диапазон","type":"range","paramName":"price","units":"руб.","from":6,"to":763680,"valueFrom":null,"valueTo":null,"step":10000},{"title":"Женская модель","type":"radio","paramName":"attr_207","value":"any","items":[{"name":"Без разницы","paramValue":"any"},{"name":"Да","paramValue":"true"},{"name":"Нет","paramValue":"false"}]}],"selectedOptions":[],"params":{"category_id": 5}}'}}
 
           .b-item-list__content
-            %div{data: {react-class: 'ProductBlock'}}
+            / %div{data: {react-class: 'ProductBlock'}}
             - for i in [1..7]
               .b-item-list__item
                 %a.b-item{href: 'product.html'}

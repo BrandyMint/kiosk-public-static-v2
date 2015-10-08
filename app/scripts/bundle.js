@@ -37,5 +37,6 @@ global.PropertyList = require('./react/components/ProductProperties/PropertyList
 global.ProductGallery = require('./react/components/ProductGallery');
 global.ProductBlock = require('./react/components/Product/ProductBlock');
 global.ProductCardSimilarProducts = require('./react/components/Product/ProductCard/ProductCardSimilarProducts');
+global.TopBanner = require('./react/components/TopBanner');
 
 import './react/application';
