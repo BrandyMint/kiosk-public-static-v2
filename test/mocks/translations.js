@@ -20,6 +20,12 @@ export default {
       error: 'Ошибка при проверке купона. Попробуйте еще раз',
       invalid: 'Купон "%{value}" НЕ действующий',
     },
+    order: {
+      submit: 'Оформить заказ',
+    },
+    placeholders: {
+      coupon: 'Промо-код (если есть)',
+    },
     product: {
       not_available: 'Не продаётся',
       blank_price: 'Цена неизвестна',

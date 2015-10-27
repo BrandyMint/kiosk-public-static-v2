@@ -16,3 +16,4 @@ import './react/components/Product/ProductCard/index.test';
 import './react/components/Product/ProductCard/ProductCardDetails.test';
 import './react/components/Product/ProductCard/ProductCardGallery.test';
 import './react/components/Product/ProductProperties/index.test';
+import './react/components/Cart/CartCoupon.test';

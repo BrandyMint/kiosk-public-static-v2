@@ -8,5 +8,9 @@ export function designSettings() {
 }
 
 export function productsFilteredCount(filter) {
-  return publicApiUrl + '/v1/products/filtered/count?' + filter
+  return publicApiUrl + '/v1/products/filtered/count?' + filter;
+}
+
+export function checkCouponCode() {
+  return publicApiUrl + '/v1/coupon/call';
 }
