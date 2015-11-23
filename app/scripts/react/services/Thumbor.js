@@ -13,7 +13,7 @@ function filters(additional = []) {
 }
 
 export default {
-  thumborWithUrl: gon.thumbor_url,
+  // thumborWithUrl: gon.thumbor_url,
 
   imageUrl(url, size) {
     const _url = prepareUrl(url);

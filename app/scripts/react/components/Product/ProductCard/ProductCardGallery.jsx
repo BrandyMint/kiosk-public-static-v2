@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import React, { Component, findDOMNode, PropTypes } from 'react';
 import { PHOTO_CHANGE } from '../../../constants/globalEventKeys';
 

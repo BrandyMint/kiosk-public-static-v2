@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+%html
+  %head
+    / +include 'app/haml/shared/_head.haml'
+  %body
+    #product-card
+    %script
+    :javascript
+      !function(t,r){function e(t,e){var n=r.head||r.getElementsByTagName("head")[0],c=r.createElement("script");e=e||function(){},c.type="text/javascript",c.charset="utf8",c.async=!0,c.src=t,c.onload=function(){this.onerror=this.onload=null,e(null,c)},n.appendChild(c)}t.mrch=t.mrch||{widgets:{},registerWidget:function(t,r){this.widgets[t]=r}},mrch.showProduct=function(t,n,c,d){mrch.config=d=d||{};var i=r.querySelector(c);i&&e("../scripts/widgets/productCard.js",function(){var t=mrch.widgets.ProductCard;t&&t.render({productCardID:n},i)})}}(window,document);
+      mrch.showProduct(666, 4273, '#product-card');

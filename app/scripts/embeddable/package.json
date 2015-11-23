@@ -1,0 +1,27 @@
+{
+  "name": "merchantly-widgets",
+  "version": "1.0.0",
+  "description": "Embeddable widgets for Merchantly",
+  "scripts": {
+    "dist": "npm run clean && npm run dist:widgets:dev && npm run dist:widgets:production && npm run dist:snippet",
+    "dist:widgets:dev": "webpack --config webpack.config.development.js",
+    "dist:widgets:production": "webpack --config webpack.config.production.js",
+    "dist:snippet": "uglifyjs src/snippet.js -m -c unused,booleans,conditionals,dead_code,if_return,join_vars > dist/snippet.js",
+    "examples": "webpack-dev-server --config examples/webpack.config.js --content-base examples",
+    "clean": "rimraf lib dist"
+  },
+  "author": "Sergey Laptev <iamsergeylaptev@gmail.com> (https://twitter.com/iamsergeylaptev)",
+  "license": "ISC",
+  "devDependencies": {
+    "babel": "^5.8.21",
+    "babel-core": "^5.8.22",
+    "babel-loader": "^5.3.2",
+    "rimraf": "^2.4.3",
+    "uglify-js": "^2.6.1",
+    "webpack": "^1.12.6",
+    "webpack-dev-server": "^1.12.1"
+  },
+  "dependencies": {
+    "load-script": "^1.0.0"
+  }
+}
