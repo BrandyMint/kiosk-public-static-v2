@@ -1,0 +1,25 @@
+$bannerZindex: 400
+$bannerHeight: 40px
+
+.TopBanner
+  display: none
+  width: 100%
+  position: relative
+  background-color: #3f3f3f
+  color: #fff
+  text-align: center
+  overflow: hidden
+  z-index: $bannerZindex
+  .TopBanner-content
+    height: $bannerHeight
+    padding: 0 40px
+    line-height: $bannerHeight
+    @include text-overflow
+  @include grid-media-query(palm)
+    .TopBanner-content--long
+      display: -webkit-box
+      line-height: $bannerHeight / 2
+      max-height: $bannerHeight
+      white-space: initial
+      -webkit-line-clamp: 2
+      -webkit-box-orient: vertical
