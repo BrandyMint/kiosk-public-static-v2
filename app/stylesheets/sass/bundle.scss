@@ -125,16 +125,10 @@
 @import "partials/design-settings"; // Настройщик дизайна
 @import "partials/lead-text"; // Основной текстовый блок (на главной)
 @import "partials/link"; // Ссылки
-@import "partials/top-banner"; // Верхний информер-баннер
 @import "partials/posts"; // Посты
 @import "partials/postnav"; // Навигация между страницами (на странице поста)
 @import "partials/w1widget"; // Виджет W1
 @import "partials/b-product-properties"; // Форма выбора характеристик в карточке
-
-// Component styles
-@import "partials/Bubble";
-@import "partials/Clientbar";
-@import "partials/Userbar";
 
 // Global layout blocks
 @import "partials/b-page"; // Основная страница
@@ -142,6 +136,14 @@
 @import "partials/b-nav"; // Основная навигация по сайту
 @import "partials/b-footer"; // Подвал сайта
 
+// =====================================================================
+// React components
+// =====================================================================
+
+@import "components/Bubble";
+@import "components/Clientbar";
+@import "components/TopBanner";
+@import "components/Userbar";
 
 // =====================================================================
 // Themes
