@@ -69,6 +69,7 @@ global.gon = {
           payment_type: "Способ оплаты: %{title}",
           delivery_type: "Способ доставки: %{title}",
           free_delivery_text_html: "Бесплатная доставка при заказе свыше <nobr>%{free_delivery_threshold}</nobr>",
+          checkout_free_delivery: "Бесплатно при заказе свыше",
           checkout_free_delivery_text_html: "Бесплатно при заказе свыше <nobr>%{free_delivery_threshold}</nobr>",
           go_back: "Вернуться назад",
           next: "Продолжить",

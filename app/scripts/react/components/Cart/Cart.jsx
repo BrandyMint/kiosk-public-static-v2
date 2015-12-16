@@ -15,6 +15,7 @@ class Cart extends Component {
       onPaymentChange,
       paymentMethod,
       paymentMethods,
+      publicOffer,
       totalCount,
       totalPrice,
     } = this.props;
@@ -34,6 +35,7 @@ class Cart extends Component {
             onPaymentChange={onPaymentChange}
             paymentMethod={paymentMethod}
             paymentMethods={paymentMethods}
+            publicOffer={publicOffer}
           />
         </div>
       </section>
@@ -52,6 +54,7 @@ Cart.propTypes = {
   onPaymentChange: PropTypes.func.isRequired,
   paymentMethod: PropTypes.object,
   paymentMethods: PropTypes.array.isRequired,
+  publicOffer: PropTypes.object,
   totalCount: PropTypes.number,
   totalPrice: PropTypes.object,
 };

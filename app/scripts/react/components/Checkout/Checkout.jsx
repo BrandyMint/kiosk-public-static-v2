@@ -22,6 +22,7 @@ class Checkout extends Component {
       onPaymentChange,
       paymentMethod,
       paymentMethods,
+      publicOffer,
     } = this.props;
 
     return (
@@ -60,7 +61,7 @@ class Checkout extends Component {
             </CheckoutStep>
           </div>
           <div className="b-form__row">
-            <CheckoutActions />
+            <CheckoutActions publicOffer={publicOffer} />
           </div>
         </div>
       </form>
@@ -79,6 +80,7 @@ Checkout.propTypes = {
   onPaymentChange: PropTypes.func.isRequired,
   paymentMethod: PropTypes.object,
   paymentMethods: PropTypes.array,
+  publicOffer: PropTypes.object,
 };
 Checkout.defaultProps = {
   formAuthenticity: {},

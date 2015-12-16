@@ -47,9 +47,14 @@ class CartContainer extends Component {
     );
   }
   getTotalPrice(delivery, cart) {
-    const { totalPrice } = cart;
-
     if (!delivery) return totalPrice;
+
+    const { totalPrice } = cart;
+    const { freeDeliveryThreshold: threshold } = delivery;
+
+    if (threshold.cents === 'undefined' || totalPrice.cents > threshold.cents) {
+      return totalPrice;
+    }
 
     return {
       ...totalPrice,
@@ -92,7 +97,7 @@ class CartContainer extends Component {
     this.setState({ paymentMethod: payment });
   }
   render() {
-    const { cart, coupon, deliveryTypes, formAuthenticity, paymentMethods } = this.props;
+    const { cart, coupon, deliveryTypes, formAuthenticity, paymentMethods, publicOffer } = this.props;
     const { deliveryType, fields, paymentMethod } = this.state;
 
     return (
@@ -107,6 +112,7 @@ class CartContainer extends Component {
         onPaymentChange={this.changePayment}
         paymentMethod={paymentMethod}
         paymentMethods={this.getPaymentsForDelivery(deliveryType, paymentMethods)}
+        publicOffer={publicOffer}
         totalCount={cart.totalCount}
         totalPrice={this.getTotalPrice(deliveryType, cart)}
       />
