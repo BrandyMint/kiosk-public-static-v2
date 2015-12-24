@@ -1,9 +1,14 @@
-import { t } from 'i18next';
+import { translate } from 'react-i18next';
+import makeTranslatable from '../../HoC/makeTranslatable';
 import React, { Component, PropTypes } from 'react';
 import ProductCartWishlist from './ProductCartWishlist';
 
+@makeTranslatable
+@translate
 class ProductCartNotAvailable extends Component {
   render() {
+    const { t } = this.props;
+
     return (
       <div className="b-item-full__form__row b-item-full__form__row_fixed">
         <div className="b-item-full__form__submit">

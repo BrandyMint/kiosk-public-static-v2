@@ -1,9 +1,9 @@
-import React, { PropTypes } from 'react';
-import { t } from 'i18next';
+import React, { Component, PropTypes } from 'react';
+import { translate } from 'react-i18next';
 import { getOptions } from './utils';
 import PropertyListItem from './PropertyListItem';
 
-export default class PropertyList {
+class PropertyList extends Component {
   static propTypes = {
     goods: PropTypes.array.isRequired,
     onChange: PropTypes.func.isRequired,
@@ -11,7 +11,7 @@ export default class PropertyList {
     values: PropTypes.object.isRequired,
   }
   render() {
-    const { goods, values, properties, onChange } = this.props;
+    const { goods, values, properties, onChange, t } = this.props;
 
     if (properties.length) {
       const options = getOptions(properties, goods, values);
@@ -35,3 +35,5 @@ export default class PropertyList {
     }
   }
 }
+
+export default translate(PropertyList);

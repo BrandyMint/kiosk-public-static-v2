@@ -1,11 +1,11 @@
-import React, { PropTypes } from 'react';
-import { t } from 'i18next';
+import React, { Component, PropTypes } from 'react';
+import { translate } from 'react-i18next';
 import { PHOTO_CHANGE } from '../../../constants/globalEventKeys';
 import { goodOrderTitle } from '../../../helpers/product';
 import ProductAddToCartButton from '../ProductAddToCartButton';
 import ProductCartWishlist from '../ProductCart/ProductCartWishlist';
 
-export default class ProductGoods {
+class ProductGoods extends Component {
   static propTypes = {
     addWishlistUrl: PropTypes.string,
     isWishlisted: PropTypes.bool,
@@ -78,7 +78,7 @@ export default class ProductGoods {
     );
   }
   render() {
-    const { product, wishlistUrl } = this.props;
+    const { product, t, wishlistUrl } = this.props;
 
     if (this.isTitlesValid(product)) {
       return (
@@ -119,3 +119,5 @@ export default class ProductGoods {
     }
   }
 }
+
+export default translate(ProductGoods);

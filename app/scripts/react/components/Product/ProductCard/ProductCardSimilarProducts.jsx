@@ -1,14 +1,14 @@
-import React, { PropTypes } from 'react';
-import { t } from 'i18next';
+import React, { Component, PropTypes } from 'react';
+import { translate } from 'react-i18next';
 import * as schemas from '../../../schemas';
 import ProductBlock from '../ProductBlock';
 
-class ProductCardSimilarProducts {
+class ProductCardSimilarProducts extends Component {
   renderProduct(product) {
     return <ProductBlock key={product.id} product={product} />;
   }
   render() {
-    const { products } = this.props;
+    const { products, t } = this.props;
 
     if (products && products.length) {
       return (
@@ -34,4 +34,4 @@ ProductCardSimilarProducts.defaultProps = {
   products: [],
 };
 
-export default ProductCardSimilarProducts;
+export default translate(ProductCardSimilarProducts);

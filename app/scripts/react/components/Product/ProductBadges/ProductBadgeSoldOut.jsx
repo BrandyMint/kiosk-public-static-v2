@@ -1,13 +1,10 @@
-import React, { PropTypes } from 'react';
-import { t } from 'i18next';
+import React, { Component, PropTypes } from 'react';
+import { translate } from 'react-i18next';
 import ProductBadge from './ProductBadge';
 
-export default class ProductBadgeSoldOut {
-  static propTypes = {
-    product: PropTypes.object.isRequired,
-  }
+class ProductBadgeSoldOut extends Component {
   render() {
-    const { product } = this.props;
+    const { product, t } = this.props;
 
     if (product.is_sold) {
       return <ProductBadge text={t('vendor.badges.sold')} status="sold" />;
@@ -16,3 +13,9 @@ export default class ProductBadgeSoldOut {
     }
   }
 }
+
+ProductBadgeSoldOut.propTypes = {
+  product: PropTypes.object.isRequired,
+};
+
+export default translate(ProductBadgeSoldOut);

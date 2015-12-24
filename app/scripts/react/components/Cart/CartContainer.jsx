@@ -170,7 +170,7 @@ CartContainer.defaultProps = {
   cart: {},
   deliveryTypes: [],
   fields: [],
-  paymentMethods: [],
+  paymentTypes: [],
 };
 
 export default CartContainer;

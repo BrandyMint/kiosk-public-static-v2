@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { t } from 'i18next';
+import { translate } from 'react-i18next';
 import * as schemas from '../../schemas';
 import { vendorOrder } from '../../../routes/app';
 import Alert from '../common/Alert';
@@ -28,6 +28,7 @@ class Checkout extends Component {
       paymentTypes,
       publicOffer,
       submitOrderUrl,
+      t,
     } = this.props;
 
     return (
@@ -107,4 +108,4 @@ Checkout.defaultProps = {
   submitOrderUrl: vendorOrder(),
 };
 
-export default Checkout;
+export default translate(Checkout);

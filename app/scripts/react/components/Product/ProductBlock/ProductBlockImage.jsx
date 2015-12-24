@@ -37,6 +37,7 @@ class ProductBlockImage extends Component {
           className="b-item__pic"
           hasFixedSize={true}
           image={this.getCurrentImage()}
+          maxWidth={maxWidth}
           title={title}
         />
         {second_image
@@ -46,6 +47,7 @@ class ProductBlockImage extends Component {
                 hasFixedSize={true}
                 image={second_image}
                 maxWidth={maxWidth}
+                title={title}
               />
             </span>
           : null

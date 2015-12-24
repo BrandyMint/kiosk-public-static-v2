@@ -19,7 +19,7 @@ const baseDependencies = {
   'reqwest': './node_modules/reqwest',
   'tinycolor2': './node_modules/tinycolor2',
   'urijs': './node_modules/urijs/src/URI',
-  'i18next': './node_modules/i18next-client',
+  'i18next': './node_modules/i18next',
 
   'jquery': './node_modules/jquery/dist/jquery',
   'jquery.mmenu': './app/bower_components/jQuery.mmenu/src/js/jquery.mmenu.min.all',
@@ -35,12 +35,10 @@ const baseDependencies = {
 };
 const staticDependencies = {
   'reactUjs': './app/scripts/resources/react_ujs',
-}
+};
 const prerenderDependencies = {
-  // For now we will use client version of i18next, but later
-  // it can change to i18next-node
-  'i18next': './node_modules/i18next-client',
-}
+  'i18next': './node_modules/i18next',
+};
 
 function getDependencies(env) {
   switch(env) {
@@ -223,7 +221,7 @@ gulp.task('[Production] Components scripts', () => {
     .bundle()
     .on('error', handleErrors)
     .pipe(source(config.production.components.outputName))
-    .pipe(streamify(uglify()))
+    .pipe(streamify(uglify({ mangle: false })))
     .pipe(gulp.dest(config.production.components.dest))
     .on('end', () => {
       bundleLogger.end(config.production.components.outputName);

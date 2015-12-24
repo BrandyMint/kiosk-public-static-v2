@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { t } from 'i18next';
+import { translate } from 'react-i18next';
 import { humanizedMoneyWithCurrency } from '../../helpers/money';
 import { simpleFormat } from '../../helpers/text';
 import * as schemas from '../../schemas';
@@ -7,7 +7,7 @@ import HumanizedMoneyWithCurrency from '../common/Money/HumanizedMoneyWithCurren
 
 class CheckoutDeliveries extends Component {
   renderItem(item) {
-    const { current, itemFieldName, onChange } = this.props;
+    const { current, itemFieldName, onChange, t } = this.props;
 
     return (
       <div className="b-form__row__widget" key={item.id}>
@@ -70,4 +70,4 @@ CheckoutDeliveries.defaultProps = {
   items: [],
 };
 
-export default CheckoutDeliveries;
+export default translate(CheckoutDeliveries);

@@ -1,22 +1,27 @@
-import React, { PropTypes } from 'react';
-import { t } from 'i18next';
+import React, { Component, PropTypes } from 'react';
+import { translate } from 'react-i18next';
 
-export default class ProductAddToCartButton {
-  static propTypes = {
-    disabled: PropTypes.bool,
-    text: PropTypes.string.isRequired,
-  }
+class ProductAddToCartButton extends Component {
   render() {
+    const { disabled, t, text } = this.props;
+
     return (
       <button
         className="b-btn element--active-opacity"
         data-disable-with={t('vendor.button.disable_with.adding')}
-        disabled={this.props.disabled}
+        disabled={disabled}
         name="to_cart"
         type="submit"
       >
-        {this.props.text}
+        {text}
       </button>
     );
   }
 }
+
+ProductAddToCartButton.propTypes = {
+  disabled: PropTypes.bool,
+  text: PropTypes.string.isRequired,
+};
+
+export default translate(ProductAddToCartButton);

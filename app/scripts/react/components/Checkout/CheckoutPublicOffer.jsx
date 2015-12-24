@@ -1,11 +1,11 @@
 import React, { Component, PropTypes } from 'react';
-import { t } from 'i18next';
+import { translate } from 'react-i18next';
 import Checkbox from '../common/Checkbox';
 import HiddenInput from '../common/HiddenInput';
 
 class CheckoutPublicOffer extends Component {
   render() {
-    const { errorMessage, value, url } = this.props;
+    const { errorMessage, t, value, url } = this.props;
 
     return (
       <div className="b-form__row b-cart__form__data-row">
@@ -47,4 +47,4 @@ CheckoutPublicOffer.defaultProps = {
   url: '',
 };
 
-export default CheckoutPublicOffer;
+export default translate(CheckoutPublicOffer);

@@ -1,5 +1,4 @@
 import React, { Component, PropTypes } from 'react';
-import { t } from 'i18next';
 import { vendorCartItems } from '../../../../routes/app';
 import CSRFToken from '../../common/CSRFToken';
 import HiddenInput from '../../common/HiddenInput';
@@ -7,7 +6,7 @@ import ProductCartForProduct from './ProductCartForProduct';
 import ProductCartForProductItems from './ProductCartForProductItems';
 import ProductCartNotAvailable from './ProductCartNotAvailable';
 
-export default class ProductCart extends Component {
+class ProductCart extends Component {
   static propTypes = {
     addWishlistUrl: PropTypes.string,
     formAuthenticity: PropTypes.object,
@@ -57,3 +56,5 @@ export default class ProductCart extends Component {
     );
   }
 }
+
+export default ProductCart;

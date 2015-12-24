@@ -1,18 +1,12 @@
-import React, { PropTypes } from 'react';
-import { t } from 'i18next';
+import React, { Component, PropTypes } from 'react';
+import { translate } from 'react-i18next';
 import HiddenInput from '../../common/HiddenInput';
 import ProductCartWishlist from './ProductCartWishlist';
 import ProductAddToCartButton from '../ProductAddToCartButton';
 
-export default class ProductCartForProduct {
-  static propTypes = {
-    addWishlistUrl: PropTypes.string,
-    good: PropTypes.object.isRequired,
-    isWishlisted: PropTypes.bool,
-    wishlistUrl: PropTypes.string,
-  }
+class ProductCartForProduct extends Component {
   render() {
-    const { good, isWishlisted, wishlistUrl } = this.props;
+    const { good, isWishlisted, t, wishlistUrl } = this.props;
 
     return (
       <span>
@@ -31,3 +25,12 @@ export default class ProductCartForProduct {
     );
   }
 }
+
+ProductCartForProduct.propTypes = {
+  addWishlistUrl: PropTypes.string,
+  good: PropTypes.object.isRequired,
+  isWishlisted: PropTypes.bool,
+  wishlistUrl: PropTypes.string,
+};
+
+export default translate(ProductCartForProduct);

@@ -3,23 +3,19 @@ import ErrorService from './services/Error';
 
 // i18n
 if (gon) {
-  const { i18n: { locale = 'ru', translations = {} } } = gon;
+  const { i18n: {locale = 'ru', translations = {}} } = gon;
 
-  if (!i18n.hasResourceBundle(locale)) {
-    i18n.init({
-      fallbackLng: 'ru',
-      interpolationPrefix: '%{',
-      interpolationSuffix: '}',
-      lng: locale,
-      resStore: {
-        [locale]: {
-          translation: translations,
-        },
-      },
-    });
-
-    i18n.setLng(locale);
-  }
+  const inst = i18n.createInstance({
+    lng: locale,
+    fallbackLng: 'ru',
+    interpolationPrefix: '%{',
+    interpolationSuffix: '}',
+    resources: {
+      [locale]: {
+        translation: translations,
+      }
+    }
+  }, () => {});
 }
 
 // Console

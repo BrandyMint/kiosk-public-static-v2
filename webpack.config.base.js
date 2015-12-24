@@ -50,7 +50,6 @@ module.exports = {
     alias: {
       'fancybox': 'fancybox/source/jquery.fancybox',
       'fancybox.wannabe': 'fancybox-wannabe-fix/index',
-      'i18next': 'i18next-client',
       'jquery': 'jquery/dist/jquery',
       'owlCarousel': 'OwlCarousel/owl-carousel/owl.carousel',
     },

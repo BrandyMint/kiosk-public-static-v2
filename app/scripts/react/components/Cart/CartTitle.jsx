@@ -1,6 +1,6 @@
 import React, { findDOMNode, Component, PropTypes } from 'react';
 import $ from 'jquery';
-import { t } from 'i18next';
+import { translate } from 'react-i18next';
 import HumanizedMoneyWithCurrency from '../common/Money/HumanizedMoneyWithCurrency';
 
 class CartTitle extends Component {
@@ -18,7 +18,7 @@ class CartTitle extends Component {
     }, 1000);
   }
   render() {
-    const { totalCount, totalPrice } = this.props;
+    const { totalCount, t, totalPrice } = this.props;
 
     if (totalCount || totalPrice) {
       return (
@@ -42,4 +42,4 @@ CartTitle.propTypes = {
   totalPrice: PropTypes.object,
 };
 
-export default CartTitle;
+export default translate(CartTitle);

@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { t } from 'i18next';
+import { translate } from 'react-i18next';
 import * as apiRoutes from '../../../routes/api';
 import TextInput from '../common/TextInput';
 import CheckoutAlert from './CheckoutAlert';
@@ -15,6 +15,7 @@ class CheckoutCoupon extends Component {
     }
   }
   processCode(value) {
+    const { t } = this.props;
     const { code } = this.state;
 
     if (value === '') {
@@ -58,7 +59,7 @@ class CheckoutCoupon extends Component {
     this.setState({ message });
   }
   render() {
-    const { fieldName } = this.props;
+    const { fieldName, t } = this.props;
     const { code, message } = this.state;
     const id = `vendor_order_${fieldName}`;
     const name = `vendor_order[${fieldName}]`;
@@ -98,4 +99,4 @@ CheckoutCoupon.defaultProps = {
   message: '',
 };
 
-export default CheckoutCoupon;
+export default translate(CheckoutCoupon);

@@ -4,7 +4,6 @@ import './mocks/mrch';
 
 // Libs
 import '../app/scripts/libs';
-import './libsConfigs';
 
 // Components
 import './react/components/Logo/Logo.test';

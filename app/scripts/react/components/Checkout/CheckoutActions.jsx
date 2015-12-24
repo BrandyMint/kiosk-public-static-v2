@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { t } from 'i18next';
+import { translate } from 'react-i18next';
 import * as schemas from '../../schemas';
 import CheckoutPublicOffer from './CheckoutPublicOffer';
 
@@ -17,7 +17,7 @@ class CheckoutActions extends Component {
     }
   }
   render() {
-    const { backUrl, publicOffer } = this.props;
+    const { backUrl, publicOffer, t } = this.props;
 
     return (
       <div className="b-cart__action">
@@ -53,4 +53,4 @@ CheckoutActions.propTypes = {
   publicOffer: schemas.checkoutPublicOffer,
 };
 
-export default CheckoutActions;
+export default translate(CheckoutActions);
