@@ -1,5 +1,8 @@
 import React, { Component, PropTypes } from 'react';
+import classNames from 'classnames';
 import { RelativeImage } from '../../common/Image';
+
+const ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
 
 class ProductBlockImage extends Component {
   constructor(props) {
@@ -25,31 +28,33 @@ class ProductBlockImage extends Component {
     this.setState({ isHover: false });
   }
   render() {
-    const { maxWidth, product: {second_image, title} } = this.props;
-    const { currentImage } = this.state;
+    const { maxWidth, product: {index_image, second_image, title} } = this.props;
 
     return (
       <span
         onMouseEnter={this.handleMouseEnter}
         onMouseLeave={this.handleMouseLeave}
       >
-        <RelativeImage
-          className="b-item__pic"
-          image={this.getCurrentImage()}
-          maxWidth={maxWidth}
-          title={title}
-        />
-        {second_image
-          ? <span style={{ display: 'none!important' }}>
-              <RelativeImage
-                className="b-item__pic"
-                image={second_image}
-                maxWidth={maxWidth}
-                title={title}
-              />
-            </span>
-          : null
-        }
+        <ReactCSSTransitionGroup transitionName="fade">
+          {!this.state.isHover &&
+            <RelativeImage
+              key="one"
+              className="b-item__pic"
+              image={index_image}
+              maxWidth={maxWidth}
+              title={title}
+            />
+          }
+          {second_image && this.state.isHover &&
+            <RelativeImage
+              key="two"
+              className="b-item__pic"
+              image={second_image}
+              maxWidth={maxWidth}
+              title={title}
+            />
+          }
+        </ReactCSSTransitionGroup>
       </span>
     );
   }
