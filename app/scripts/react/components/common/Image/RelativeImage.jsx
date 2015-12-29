@@ -1,5 +1,6 @@
 import React, { findDOMNode, Component, PropTypes } from 'react';
 import * as schemas from '../../../schemas';
+import { getEltHeight, getEltWidth } from '../../../helpers/dom';
 import Image from './Image';
 
 class RelativeImage extends Component {
@@ -22,8 +23,7 @@ class RelativeImage extends Component {
 
     while (current.parentNode) {
       current = current.parentNode;
-
-      if (current.offsetHeight || current.offsetWidth) {
+      if (getEltHeight(current) || getEltWidth(current)) {
         return current;
       }
     }
@@ -35,8 +35,8 @@ class RelativeImage extends Component {
     const parent = this.getParentWithSize(elt);
 
     this.setState({
-      height: parent ? parent.offsetHeight : maxHeight,
-      width: parent ? parent.offsetWidth : maxWidth,
+      height: parent ? getEltHeight(parent) : maxHeight,
+      width: parent ? getEltWidth(parent) : maxWidth,
     });
   }
   render() {
