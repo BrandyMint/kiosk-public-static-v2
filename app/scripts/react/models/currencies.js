@@ -91,6 +91,36 @@ const currencies = {
     "thousands_separator": ",",
     "iso_numeric": "840",
     "smallest_denomination": 1
+  },
+  "tjs": {
+    "priority": 100,
+    "iso_code": "TJS",
+    "name": "Tajikistani Somoni",
+    "symbol": "ЅМ",
+    "alternate_symbols": ["ЅМ"],
+    "subunit": "Diram",
+    "subunit_to_unit": 100,
+    "symbol_first": false,
+    "html_entity": "",
+    "decimal_mark": ".",
+    "thousands_separator": ",",
+    "iso_numeric": "972",
+    "smallest_denomination": 1
+  },
+  "zar": {
+    "priority": 100,
+    "iso_code": "ZAR",
+    "name": "South African Rand",
+    "symbol": "R",
+    "alternate_symbols": ["R"],
+    "subunit": "Cent",
+    "subunit_to_unit": 100,
+    "symbol_first": true,
+    "html_entity": "&#x0052;",
+    "decimal_mark": ".",
+    "thousands_separator": ",",
+    "iso_numeric": "710",
+    "smallest_denomination": 10
   }
 };
 
