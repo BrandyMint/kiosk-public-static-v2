@@ -887,6 +887,7 @@ var Checkout = (function (_Component) {
               _CheckoutStep2['default'],
               { number: 3, title: t('vendor.order.new.payment_title') },
               _react2['default'].createElement(_CheckoutPayments2['default'], {
+                t: t,
                 current: paymentType,
                 items: paymentTypes,
                 onChange: onPaymentChange
@@ -1582,6 +1583,35 @@ var CheckoutPayments = (function (_Component) {
   }
 
   _createClass(CheckoutPayments, [{
+    key: 'renderPaymentTypes',
+    value: function renderPaymentTypes(item) {
+      var t = this.props.t;
+
+      if (item.payment_methods instanceof Array) {
+        return _react2['default'].createElement(
+          'div',
+          { className: 'b-cart__form__payment-payment_types' },
+          _react2['default'].createElement(
+            'div',
+            { className: 'b-item-full__form__option' },
+            _react2['default'].createElement(
+              'select',
+              { name: 'vendor_order[payment_method]' },
+              item.payment_methods.map(function (payment_method, i) {
+                return _react2['default'].createElement(
+                  'option',
+                  { key: i, value: payment_method },
+                  t('vendor.payment.' + item.agent + '.payment_methods.' + payment_method.toLowerCase())
+                );
+              })
+            )
+          )
+        );
+      } else {
+        return null;
+      }
+    }
+  }, {
     key: 'renderItem',
     value: function renderItem(item) {
       var _props = this.props;
@@ -1616,7 +1646,8 @@ var CheckoutPayments = (function (_Component) {
             _react2['default'].createElement('div', {
               className: 'b-cart__form__payment-description',
               dangerouslySetInnerHTML: { __html: (0, _helpersText.simpleFormat)(item.description) }
-            })
+            }),
+            this.renderPaymentTypes(item)
           )
         )
       );

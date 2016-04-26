@@ -126,6 +126,11 @@ global.gon = {
               "title": "Спасибо за заказ",
               "desc": "Оплата заказа была произведена"
             }
+          },
+          "order_payment_yandex_kassa": {
+            "payment_methods": {
+              "ac": "Оплата с произвольной банковской карты"
+            }
           }
         },
         "category": {
