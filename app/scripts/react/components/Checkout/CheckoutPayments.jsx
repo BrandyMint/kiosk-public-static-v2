@@ -3,6 +3,30 @@ import { simpleFormat } from '../../helpers/text';
 import * as schemas from '../../schemas';
 
 class CheckoutPayments extends Component {
+  renderPaymentTypes(item) {
+    const { t } = this.props;
+    if (item.payment_methods instanceof Array) {
+      return (
+        <div className="b-cart__form__payment-payment_types">
+          <div className="b-item-full__form__option">
+            <select name="vendor_order[payment_method]">
+              {
+                item.payment_methods.map((payment_method, i) => {
+                  return(
+                    <option key={i} value={payment_method}>
+                      {t('vendor.payment.' + item.agent + '.payment_methods.' + payment_method.toLowerCase())}
+                    </option>
+                  );
+                })
+              }
+            </select>
+          </div>
+        </div>
+      );
+    }else {
+      return null;
+    }
+  }
   renderItem(item) {
     const { current, itemFieldName, onChange } = this.props;
 
@@ -25,6 +49,7 @@ class CheckoutPayments extends Component {
               className="b-cart__form__payment-description"
               dangerouslySetInnerHTML={{ __html: simpleFormat(item.description) }}
             />
+            {this.renderPaymentTypes(item)}
           </label>
         </span>
       </div>

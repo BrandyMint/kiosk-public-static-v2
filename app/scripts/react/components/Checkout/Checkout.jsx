@@ -70,6 +70,7 @@ class Checkout extends Component {
             </CheckoutStep>
             <CheckoutStep number={3} title={t('vendor.order.new.payment_title')}>
               <CheckoutPayments
+                t={t}
                 current={paymentType}
                 items={paymentTypes}
                 onChange={onPaymentChange}
