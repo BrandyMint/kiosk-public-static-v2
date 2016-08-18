@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import classNames from 'classnames';
 import React, { Component, PropTypes } from 'react';
+import provideTranslations from '../../HoC/provideTranslations';
 import { findDOMNode } from 'react-dom';
 import { PHOTO_CHANGE } from '../../../constants/globalEventKeys';
 import ProductCardGalleryImage from './ProductCardGalleryImage';
@@ -32,4 +33,4 @@ ProductCardGallery.defaultProps = {
   images: [],
 };
 
-export default ProductCardGallery;
+export default provideTranslations(ProductCardGallery);

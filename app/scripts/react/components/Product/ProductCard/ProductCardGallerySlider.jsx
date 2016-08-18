@@ -50,12 +50,13 @@ class ProductCardGallerySlider extends Component {
   initSlider() {
     const $productPhoto = $(findDOMNode(this.refs.productPhoto));
     const $productThumbs = $(findDOMNode(this.refs.productThumbs));
+    const { carouselNavigation } = this.props;
 
     $productPhoto.owlCarousel({
       afterAction: this.onAfterPhotoAction,
       autoHeight: true,
       singleItem: true,
-      navigation: true,
+      navigation: carouselNavigation,
     });
 
     if ($productThumbs.length) {
@@ -63,7 +64,7 @@ class ProductCardGallerySlider extends Component {
         items: 4,
         pagination: false,
         itemsMobile: 2,
-        navigation: true,
+        navigation: carouselNavigation,
       });
     }
   }
@@ -94,7 +95,7 @@ class ProductCardGallerySlider extends Component {
     const $productPhoto = $(findDOMNode(this.refs.productPhoto));
 
     $productPhoto
-      .find('[lightbox], [data-lightbox]')
+      .find('[data-lightbox-${sliderName}]')
       .fancybox({
         parent: 'body',
         padding: 0,
@@ -147,6 +148,8 @@ class ProductCardGallerySlider extends Component {
     $productPhoto.trigger('owl.goTo', idx);
   }
   renderPhoto(elt, idx) {
+    const { sliderName } = this.props;
+
     return (
       <a
         className="b-slider__item"
@@ -183,7 +186,7 @@ class ProductCardGallerySlider extends Component {
     );
   }
   render() {
-    const { images } = this.props;
+    const { images, renderThumbs } = this.props;
 
     return (
       <div>
@@ -193,7 +196,7 @@ class ProductCardGallerySlider extends Component {
         >
           {images && images.map(this.renderPhoto)}
         </div>
-        {images && images.length > 1 &&
+        {renderThumbs && images && images.length > 1 &&
           <div
             className="b-slider b-slider_thumbs"
             ref="productThumbs"
@@ -214,9 +217,15 @@ ProductCardGallerySlider.propTypes = {
       url: PropTypes.string.isRequired,
     }),
   ).isRequired,
+  renderThumbs: PropTypes.bool,
+  carouselNavigation: PropTypes.bool,
+  sliderName: PropTypes.string,
 };
 ProductCardGallerySlider.defaultProps = {
   images: [],
+  renderThumbs: true,
+  carouselNavigation: true,
+  sliderName: 'default'
 };
 
 export default ProductCardGallerySlider;

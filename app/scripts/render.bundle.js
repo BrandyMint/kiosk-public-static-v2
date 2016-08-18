@@ -29,6 +29,7 @@ global.Clientbar = require('./react/components/Clientbar').Clientbar;
 global.Logo = require('./react/components/Logo/LogoContainer');
 global.ProductBlock = require('./react/components/Product/ProductBlock');
 global.ProductCard = require('./react/components/Product/ProductCard').ProductCard;
+global.ProductCardGallery = require('./react/components/Product/ProductCard/ProductCardGallery');
 global.TopBanner = require('./react/components/TopBanner');
 global.CartCoupon = require('./react/components/Cart/CartCoupon').default;
 global.OrderCoupon = require('./react/components/Checkout/CheckoutCoupon');

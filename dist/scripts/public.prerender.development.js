@@ -35,6 +35,7 @@ global.redux = createRedux(prerenderReducers, {});
 
 Logo = require('./react/components/Logo/LogoContainer');
 ProductBlock = require('./react/components/Product/ProductBlock');
+ProductCardGallery = require('./react/components/Product/ProductCard/ProductCardGallery');
 ProductCard = require('./react/components/Product/ProductCard').ProductCard;
 TopBanner = require('./react/components/TopBanner');
 CartCoupon = require('./react/components/Cart/CartCoupon').default;
@@ -44,8 +45,9 @@ OrderContainer = require('./react/components/Cart').CartContainer;
 ScrollToTop = require('./react/components/ScrollToTop');
 ImageSlider = require('./react/components/common/ImageSlider');
 CurrencySwitcher = require('./react/components/CurrencySwitcher');
+
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./locales/numeral/ru":1,"./react/components/Cart":11,"./react/components/Cart/CartCoupon":9,"./react/components/Checkout/CheckoutCoupon":15,"./react/components/Clientbar":22,"./react/components/CurrencySwitcher":24,"./react/components/Logo/LogoContainer":27,"./react/components/Product/ProductBlock":37,"./react/components/Product/ProductCard":54,"./react/components/ScrollToTop":72,"./react/components/TopBanner":73,"./react/components/common/ImageSlider":90,"./react/reducers/Design.prerender":113,"./react/reducers/Popup":114,"react":"react","react-dom":"react-dom","react-dom/server":267,"redux":"redux","redux/react":443}],3:[function(require,module,exports){
+},{"./locales/numeral/ru":1,"./react/components/Cart":11,"./react/components/Cart/CartCoupon":9,"./react/components/Checkout/CheckoutCoupon":15,"./react/components/Clientbar":22,"./react/components/CurrencySwitcher":24,"./react/components/Logo/LogoContainer":27,"./react/components/Product/ProductBlock":37,"./react/components/Product/ProductCard":54,"./react/components/Product/ProductCard/ProductCardGallery":47,"./react/components/ScrollToTop":72,"./react/components/TopBanner":73,"./react/components/common/ImageSlider":90,"./react/reducers/Design.prerender":113,"./react/reducers/Popup":114,"react":"react","react-dom":"react-dom","react-dom/server":267,"redux":"redux","redux/react":443}],3:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -3864,6 +3866,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _HoCProvideTranslations = require('../../HoC/provideTranslations');
+
+var _HoCProvideTranslations2 = _interopRequireDefault(_HoCProvideTranslations);
+
 var _reactDom = require('react-dom');
 
 var _constantsGlobalEventKeys = require('../../../constants/globalEventKeys');
@@ -3913,10 +3919,10 @@ ProductCardGallery.defaultProps = {
   images: []
 };
 
-exports['default'] = ProductCardGallery;
+exports['default'] = (0, _HoCProvideTranslations2['default'])(ProductCardGallery);
 module.exports = exports['default'];
 
-},{"../../../constants/globalEventKeys":101,"./ProductCardGalleryImage":48,"./ProductCardGallerySlider":49,"classnames":"classnames","jquery":"jquery","react":"react","react-dom":"react-dom"}],48:[function(require,module,exports){
+},{"../../../constants/globalEventKeys":101,"../../HoC/provideTranslations":26,"./ProductCardGalleryImage":48,"./ProductCardGallerySlider":49,"classnames":"classnames","jquery":"jquery","react":"react","react-dom":"react-dom"}],48:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4099,12 +4105,13 @@ var ProductCardGallerySlider = (function (_Component) {
     value: function initSlider() {
       var $productPhoto = (0, _jquery2['default'])((0, _reactDom.findDOMNode)(this.refs.productPhoto));
       var $productThumbs = (0, _jquery2['default'])((0, _reactDom.findDOMNode)(this.refs.productThumbs));
+      var carouselNavigation = this.props.carouselNavigation;
 
       $productPhoto.owlCarousel({
         afterAction: this.onAfterPhotoAction,
         autoHeight: true,
         singleItem: true,
-        navigation: true
+        navigation: carouselNavigation
       });
 
       if ($productThumbs.length) {
@@ -4112,7 +4119,7 @@ var ProductCardGallerySlider = (function (_Component) {
           items: 4,
           pagination: false,
           itemsMobile: 2,
-          navigation: true
+          navigation: carouselNavigation
         });
       }
     }
@@ -4149,6 +4156,8 @@ var ProductCardGallerySlider = (function (_Component) {
       var t = _props$t === undefined ? function () {} : _props$t;
 
       var $productPhoto = (0, _jquery2['default'])((0, _reactDom.findDOMNode)(this.refs.productPhoto));
+
+      console.log($productPhoto.find('[lightbox], [data-lightbox]'));
 
       $productPhoto.find('[lightbox], [data-lightbox]').fancybox({
         parent: 'body',
@@ -4256,7 +4265,9 @@ var ProductCardGallerySlider = (function (_Component) {
   }, {
     key: 'render',
     value: function render() {
-      var images = this.props.images;
+      var _props2 = this.props;
+      var images = _props2.images;
+      var renderThumbs = _props2.renderThumbs;
 
       return _react2['default'].createElement(
         'div',
@@ -4269,7 +4280,7 @@ var ProductCardGallerySlider = (function (_Component) {
           },
           images && images.map(this.renderPhoto)
         ),
-        images && images.length > 1 && _react2['default'].createElement(
+        renderThumbs && images && images.length > 1 && _react2['default'].createElement(
           'div',
           {
             className: 'b-slider b-slider_thumbs',
@@ -4289,10 +4300,14 @@ ProductCardGallerySlider.propTypes = {
     title: _react.PropTypes.string,
     uid: _react.PropTypes.oneOfType([_react.PropTypes.string, _react.PropTypes.number]),
     url: _react.PropTypes.string.isRequired
-  })).isRequired
+  })).isRequired,
+  renderThumbs: _react.PropTypes.bool,
+  carouselNavigation: _react.PropTypes.bool
 };
 ProductCardGallerySlider.defaultProps = {
-  images: []
+  images: [],
+  renderThumbs: true,
+  carouselNavigation: true
 };
 
 exports['default'] = ProductCardGallerySlider;

@@ -17,6 +17,7 @@ global.redux = createRedux(prerenderReducers, {});
 
 Logo = require('./react/components/Logo/LogoContainer');
 ProductBlock = require('./react/components/Product/ProductBlock');
+ProductCardGallery = require('./react/components/Product/ProductCard/ProductCardGallery');
 ProductCard = require('./react/components/Product/ProductCard').ProductCard;
 TopBanner = require('./react/components/TopBanner');
 CartCoupon = require('./react/components/Cart/CartCoupon').default;
