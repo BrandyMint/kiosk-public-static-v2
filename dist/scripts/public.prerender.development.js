@@ -365,6 +365,8 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
+exports.animateBounce = animateBounce;
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -391,6 +393,28 @@ var _commonMoneyHumanizedMoneyWithCurrency2 = _interopRequireDefault(_commonMone
 
 var _humps = require('humps');
 
+var ANIMATION_TIMEOUT = 1000;
+
+function animateBounce(node) {
+  if (!node) {
+    return null;
+  }
+
+  node.classList.add('animated');
+  node.classList.add('infinite');
+  node.classList.add('bounce');
+
+  return setTimeout(function () {
+    if (!node) {
+      return;
+    }
+
+    node.classList.remove('animated');
+    node.classList.remove('infinite');
+    node.classList.remove('bounce');
+  }, ANIMATION_TIMEOUT);
+}
+
 var Cart = (function (_Component) {
   _inherits(Cart, _Component);
 
@@ -401,6 +425,22 @@ var Cart = (function (_Component) {
   }
 
   _createClass(Cart, [{
+    key: 'componentWillUpdate',
+    value: function componentWillUpdate(nextProps) {
+      if (this.props.totalPrice.get('cents') !== nextProps.totalPrice.get('cents')) {
+        this.animateTotalPrice();
+      }
+    }
+  }, {
+    key: 'animateTotalPrice',
+    value: function animateTotalPrice() {
+      if (this.animationTimeoutId) {
+        clearTimeout(this.animationTimeoutId);
+      }
+
+      this.animationTimeoutId = animateBounce(this.refs.totalPrice);
+    }
+  }, {
     key: 'renderErrors',
     value: function renderErrors() {
       var cartErrors = this.props.cartErrors;
@@ -485,7 +525,7 @@ var Cart = (function (_Component) {
               ' ',
               _react2['default'].createElement(
                 'span',
-                null,
+                { className: 'b-cart__total-sum-price', ref: 'totalPrice' },
                 _react2['default'].createElement(_commonMoneyHumanizedMoneyWithCurrency2['default'], {
                   money: (0, _humps.decamelizeKeys)(totalPrice.toJS())
                 })
@@ -557,7 +597,6 @@ Cart.propTypes = {
 };
 
 exports['default'] = Cart;
-module.exports = exports['default'];
 
 },{"../common/FormAuthenticity":95,"../common/Money/HumanizedMoneyWithCurrency":107,"./CartCoupon":10,"./CartList":11,"humps":158,"react":"react"}],9:[function(require,module,exports){
 'use strict';
@@ -914,6 +953,8 @@ var _immutable = require('immutable');
 
 var _humps = require('humps');
 
+var _Cart = require('./Cart');
+
 var emptyMap = (0, _immutable.Map)();
 var WEIGHT_STEP = 0.01;
 
@@ -927,6 +968,22 @@ var CartListItem = (function (_Component) {
   }
 
   _createClass(CartListItem, [{
+    key: 'componentWillUpdate',
+    value: function componentWillUpdate(nextProps) {
+      if (this.props.price.get('cents') !== nextProps.price.get('cents')) {
+        this.animatePrice();
+      }
+    }
+  }, {
+    key: 'animatePrice',
+    value: function animatePrice() {
+      if (this.animationTimeoutId) {
+        clearTimeout(this.animationTimeoutId);
+      }
+
+      this.animationTimeoutId = (0, _Cart.animateBounce)(this.refs.price);
+    }
+  }, {
     key: 'changeWeight',
     value: function changeWeight(ev) {
       var _props = this.props;
@@ -1105,7 +1162,7 @@ var CartListItem = (function (_Component) {
           { className: 'b-cart__item__col-price' },
           _react2['default'].createElement(
             'div',
-            { className: 'b-cart__item__price' },
+            { className: 'b-cart__item__price', ref: 'price' },
             _react2['default'].createElement(_commonMoneyHumanizedMoneyWithCurrency2['default'], { money: priceObj })
           )
         ),
@@ -1140,7 +1197,7 @@ CartListItem.propTypes = {
 exports['default'] = CartListItem;
 module.exports = exports['default'];
 
-},{"../common/AssetImage":92,"../common/Image":100,"../common/Money/HumanizedMoneyWithCurrency":107,"../common/Select":109,"humps":158,"immutable":"immutable","react":"react"}],13:[function(require,module,exports){
+},{"../common/AssetImage":92,"../common/Image":100,"../common/Money/HumanizedMoneyWithCurrency":107,"../common/Select":109,"./Cart":8,"humps":158,"immutable":"immutable","react":"react"}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
