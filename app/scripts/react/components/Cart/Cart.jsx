@@ -5,7 +5,41 @@ import FormAuthenticity from '../common/FormAuthenticity';
 import HumanizedMoneyWithCurrency from '../common/Money/HumanizedMoneyWithCurrency';
 import { decamelizeKeys } from 'humps';
 
+const ANIMATION_TIMEOUT = 1000;
+
+export function animateBounce(node) {
+  if (!node) {
+    return null;
+  }
+
+  node.classList.add('animated');
+  node.classList.add('infinite');
+  node.classList.add('bounce');
+
+  return setTimeout(() => {
+    if (!node) {
+      return;
+    }
+
+    node.classList.remove('animated');
+    node.classList.remove('infinite');
+    node.classList.remove('bounce');
+  }, ANIMATION_TIMEOUT);
+}
+
 class Cart extends Component {
+  componentWillUpdate(nextProps) {
+    if (this.props.totalPrice.get('cents') !== nextProps.totalPrice.get('cents')) {
+      this.animateTotalPrice();
+    }
+  }
+  animateTotalPrice() {
+    if (this.animationTimeoutId) {
+      clearTimeout(this.animationTimeoutId);
+    }
+
+    this.animationTimeoutId = animateBounce(this.refs.totalPrice);
+  }
   renderErrors() {
     const {
       cartErrors,
@@ -78,7 +112,7 @@ class Cart extends Component {
               <div className="b-cart__total-sum">
                 {t('vendor.cart.overall')}
                 {' '}
-                <span>
+                <span className="b-cart__total-sum-price" ref="totalPrice">
                   <HumanizedMoneyWithCurrency
                     money={decamelizeKeys(totalPrice.toJS())}
                   />

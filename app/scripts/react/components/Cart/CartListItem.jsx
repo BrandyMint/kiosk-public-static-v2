@@ -6,11 +6,26 @@ import Select from '../common/Select';
 import HumanizedMoneyWithCurrency from '../common/Money/HumanizedMoneyWithCurrency';
 import { Map } from 'immutable';
 import { decamelizeKeys } from 'humps';
+import {
+  animateBounce,
+} from './Cart';
 
 const emptyMap = Map();
 const WEIGHT_STEP = 0.01;
 
 class CartListItem extends Component {
+  componentWillUpdate(nextProps) {
+    if (this.props.price.get('cents') !== nextProps.price.get('cents')) {
+      this.animatePrice();
+    }
+  }
+  animatePrice() {
+    if (this.animationTimeoutId) {
+      clearTimeout(this.animationTimeoutId);
+    }
+
+    this.animationTimeoutId = animateBounce(this.refs.price);
+  }
   changeWeight(ev) {
     const {
       changeAmount,
@@ -163,7 +178,7 @@ class CartListItem extends Component {
           : this.renderQuantity()
         }
         <div className="b-cart__item__col-price">
-          <div className="b-cart__item__price">
+          <div className="b-cart__item__price" ref="price">
             <HumanizedMoneyWithCurrency money={priceObj} />
           </div>
         </div>
