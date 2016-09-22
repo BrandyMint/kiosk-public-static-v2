@@ -1,0 +1,160 @@
+{
+  "initialCart": {
+    "id": 12888917,
+    "total_price": {
+      "cents": 100,
+      "currency_iso_code": "RUB"
+    },
+    "total_with_delivery_price": {
+      "cents": 100,
+      "currency_iso_code": "RUB"
+    },
+    "products_with_package_price": {
+      "cents": 100,
+      "currency_iso_code": "RUB"
+    },
+    "products_price": {
+      "cents": 100,
+      "currency_iso_code": "RUB"
+    },
+    "delivery_price": {
+      "cents": 0,
+      "currency_iso_code": "RUB"
+    },
+    "package_price": {
+      "cents": 0,
+      "currency_iso_code": "RUB"
+    },
+    "items": [
+      {
+        "id": 74389,
+        "good": {
+          "id": 59362,
+          "global_id": "Z2lkOi8vbWVyY2hhbnRseS9Qcm9kdWN0LzU5MzYy",
+          "updated_at": "2016-09-22T14:17:42.802+03:00",
+          "created_at": "2016-09-22T14:17:33.492+03:00",
+          "article": null,
+          "type": "Product",
+          "title": "product2",
+          "image": {
+            "url": "http://assets.stage.kiiiosk.ru/uploads/shop/1270/uploads/product_image/image/73164/6ebbaa9d-b6e2-4cbc-afd3-7ece89bc9192.jpg",
+            "product_id": 59362,
+            "vendor_id": 1270,
+            "id": 73164
+          },
+          "images": [
+            {
+              "title": "product2",
+              "url": "http://assets.stage.kiiiosk.ru/uploads/shop/1270/uploads/product_image/image/73164/6ebbaa9d-b6e2-4cbc-afd3-7ece89bc9192.jpg",
+              "uid": "8578f5a3e1422f8ca6f3fa1639c52f71b6e512493e731c74aac39a48863136a0"
+            },
+            {
+              "title": "product2",
+              "url": "http://assets.stage.kiiiosk.ru/uploads/shop/1270/uploads/product_image/image/73165/84257bd8-2484-4ece-bdac-248e13a90347.jpg",
+              "uid": "5942e1771ed0384985f1a99d52499e3703406ba7b8ca3d1fbc7fce508dd9f172"
+            },
+            {
+              "title": "product2",
+              "url": "http://assets.stage.kiiiosk.ru/uploads/shop/1270/uploads/product_image/image/73166/b7dbaf6c-35bc-4c97-a1ec-9e6eafd0761d.jpg",
+              "uid": "206e64f4e6ecc6bd08f33cad38825104ac30daf3821ba434095d19b2b11e057a"
+            }
+          ],
+          "custom_attributes": {},
+          "default_url": "http://ananevam.stage.kiiiosk.ru/products/59362-product2",
+          "add_to_cart_url": "http://ananevam.stage.kiiiosk.ru/cart/items?cart_item%5Bgood_id%5D=Z2lkOi8vbWVyY2hhbnRseS9Qcm9kdWN0LzU5MzYy",
+          "quantity_unit": {
+            "id": "pcs",
+            "short": "шт."
+          },
+          "category": {
+            "id": 6596,
+            "name": "category1",
+            "full_name": "category1",
+            "parent_id": 5797,
+            "updated_at": "2016-09-22T14:17:42.806+03:00",
+            "position": -2796202,
+            "has_children": false,
+            "is_root": {
+              "id": 5797,
+              "vendor_id": 1270,
+              "created_at": "2016-03-31T12:32:42.983+03:00",
+              "updated_at": "2016-09-22T14:17:42.855+03:00",
+              "position": 2796203,
+              "ancestry": null,
+              "products_count": 0,
+              "published_products_count": 0,
+              "ms_uuid": null,
+              "stock_synced_at": null,
+              "stock_dump": null,
+              "externalcode": null,
+              "deleted_at": null,
+              "vk_album_id": null,
+              "active_products_count": 0,
+              "deep_products_count": 5,
+              "deep_published_products_count": 5,
+              "deep_active_products_count": 5,
+              "stock_description": null,
+              "meta_title": null,
+              "meta_keywords": null,
+              "meta_description": null,
+              "h1": null,
+              "image": {
+                "url": "http://assets.stage.kiiiosk.ru/images/fallback/product-none.png"
+              },
+              "cached_default_slug": "kornevaya-kategoriya",
+              "vk_synced_at": null,
+              "stock_title": null,
+              "show_children_products": true,
+              "custom_title_translations": {
+                "ru": "Корневая категория"
+              },
+              "description_translations": {
+                "ru": null
+              },
+              "bottom_text_translations": null,
+              "cached_title_translations": {
+                "ru": "Корневая категория"
+              }
+            },
+            "products_count": 3
+          },
+          "quantity": null,
+          "count": 0,
+          "description": null,
+          "stock_synced_at": null,
+          "max_orderable_quantity": 100,
+          "has_ordering_goods": true,
+          "sku": "product-59362",
+          "ms_consignment_uuid": null,
+          "ms_uuid": null,
+          "is_archived": false,
+          "is_sale": false,
+          "actual_price": {
+            "cents": 100,
+            "currency_iso_code": "RUB"
+          },
+          "price": {
+            "cents": 100,
+            "currency_iso_code": "RUB"
+          },
+          "selling_by_weight": false,
+          "weight_of_price": null
+        },
+        "quantity": 1,
+        "weight": null,
+        "count": 1,
+        "destroy_path": "/cart/items/74389",
+        "errors": {}
+      }
+    ],
+    "package_item": null,
+    "items_amount": 1,
+    "coupon_code": null,
+    "default_url": "http://ananevam.stage.kiiiosk.ru/cart",
+    "errors": {},
+    "updated_at": "2016-09-22T14:18:57.142+03:00",
+    "created_at": "2016-09-22T14:18:57.142+03:00",
+    "session_id": "8f6d1be5a77168c4ee523632eac265b2"
+  },
+  "initialPackages": []
+}

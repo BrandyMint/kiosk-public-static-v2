@@ -213,6 +213,18 @@
         @extend %two-twelfths
         @extend %palm--three-twelfths
 
+        .owl-theme
+          .owl-controls
+            .owl-pagination
+              display: none
+            .owl-buttons div
+              transform: scale(.5)
+              &.owl-prev
+                left: -10px
+              &.owl-next
+                right: -10px
+
+
       &-content
         @extend %four-twelfths
         @extend %palm--nine-twelfths
