@@ -12,6 +12,7 @@ export default PropTypes.shape({
   custom_attributes: PropTypes.object,
   is_sale: PropTypes.bool.isRequired,
   image: image,
+  images: PropTypes.arrayOf(image),
   price: money,
   actual_price: money,
   add_to_cart_url: PropTypes.string,

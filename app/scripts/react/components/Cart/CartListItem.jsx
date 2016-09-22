@@ -4,8 +4,9 @@ import { RelativeImage } from '../common/Image';
 import AssetImage from '../common/AssetImage';
 import Select from '../common/Select';
 import HumanizedMoneyWithCurrency from '../common/Money/HumanizedMoneyWithCurrency';
-import { Map } from 'immutable';
+import { List, Map } from 'immutable';
 import { decamelizeKeys } from 'humps';
+import OwlCarousel from 'react-owl-carousel';
 
 const emptyMap = Map();
 const WEIGHT_STEP = 0.01;
@@ -129,6 +130,40 @@ class CartListItem extends Component {
       </div>
     );
   }
+  renderImages() {
+    const {
+      item,
+    } = this.props;
+    const images = item.getIn(['good', 'images'], List());
+
+    return images.count() > 1
+      ? (
+        <OwlCarousel
+          autoHeight
+          navigation
+          singleItem
+        >
+          {images.map((image, idx) => (
+            <div key={`cart-img-${idx}`}>
+              <RelativeImage
+                className="b-cart__item__img"
+                image={image.toJS()}
+                maxHeight={143}
+                maxWidth={143}
+              />
+            </div>
+          )).valueSeq()}
+        </OwlCarousel>
+      )
+      : (
+        <RelativeImage
+          className="b-cart__item__img"
+          image={item.getIn(['good', 'image'], Map()).toJS()}
+          maxHeight={143}
+          maxWidth={143}
+        />
+      );
+  }
   render() {
     const {
       item,
@@ -139,12 +174,7 @@ class CartListItem extends Component {
     return (
       <li className="b-cart__item">
         <div className="b-cart__item__col-img">
-          <RelativeImage
-            className="b-cart__item__img"
-            image={item.getIn(['good', 'image'], Map()).toJS()}
-            maxHeight={143}
-            maxWidth={143}
-          />
+          {this.renderImages()}
         </div>
         <div className="b-cart__item__col-content">
           <h2 className="b-cart__item__title">

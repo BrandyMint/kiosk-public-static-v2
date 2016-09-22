@@ -100,7 +100,7 @@ class ProductCardGallerySlider extends Component {
         padding: 0,
         margin: 0,
         helpers: {
-          thumbs: { width: 8, height: 8 }
+          thumbs: { width: 8, height: 8 },
         },
         tpl: {
           closeBtn: `<a title="${t('vendor.gallery.close')}" class="fancybox-item fancybox-close" href="javascript:;"><i></i></a>`,
@@ -117,11 +117,11 @@ class ProductCardGallerySlider extends Component {
       const image = images[i];
 
       if (image.uid === uid) return i;
-    };
+    }
 
     return -1;
   }
-  onAfterPhotoAction(el) {
+  onAfterPhotoAction() {
     const $productPhoto = $(findDOMNode(this.refs.productPhoto));
     const carouselData = $productPhoto.data('owlCarousel');
 
@@ -150,7 +150,7 @@ class ProductCardGallerySlider extends Component {
     return (
       <a
         className="b-slider__item"
-        data-lightbox={true}
+        data-lightbox
         href={elt.url}
         key={idx}
         rel="photo-stack"
@@ -214,6 +214,9 @@ ProductCardGallerySlider.propTypes = {
       url: PropTypes.string.isRequired,
     }),
   ).isRequired,
+  t: PropTypes.func.isRequired,
+  thumbHeight: PropTypes.number,
+  thumbWidth: PropTypes.number,
 };
 ProductCardGallerySlider.defaultProps = {
   images: [],

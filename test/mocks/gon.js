@@ -1,4 +1,5 @@
 global.gon = {
+  max_items_count: 100,
   '__data': {
     design: {
       activeElementsColor: '#000000',
@@ -24,5 +25,5 @@ global.gon = {
       fontFamily: 'helvetica',
       fontSize: 'md',
     },
-  }
-}
+  },
+};
