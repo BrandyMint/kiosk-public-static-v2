@@ -45,3 +45,4 @@ CategoriesShow = require('./react/components/CategoriesShow');
 ErrorPage = require('./react/components/ErrorPage');
 CategoriesShowChildren = require('./react/components/CategoriesShowChildren');
 PostProducts = require('./react/components/common/PostProducts');
+BlogPost = require('./react/components/BlogPost');
