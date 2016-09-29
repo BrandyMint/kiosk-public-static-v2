@@ -51,5 +51,6 @@ global.ErrorPage = require('./react/components/ErrorPage');
 global.CategoriesShowChildren = require('rc/CategoriesShowChildren');
 global.PostProducts = require('rc/common/PostProducts');
 global.DictionaryEntitiesShow = require('rc/DictionaryEntitiesShow');
+global.BlogPost = require('./react/components/BlogPost');
 
 import './react/application';
