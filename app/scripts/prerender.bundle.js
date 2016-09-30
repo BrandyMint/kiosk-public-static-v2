@@ -46,3 +46,4 @@ ErrorPage = require('./react/components/ErrorPage');
 CategoriesShowChildren = require('./react/components/CategoriesShowChildren');
 PostProducts = require('./react/components/common/PostProducts');
 DictionaryEntitiesShow = require('./react/components/DictionaryEntitiesShow');
+BlogPost = require('./react/components/BlogPost');
