@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import provideTranslations from '../HoC/provideTranslations'
 
 class BlogPost extends Component {
   render() {
@@ -7,7 +8,8 @@ class BlogPost extends Component {
       title,
       text,
       prev,
-      next
+      next,
+      t
     } = this.props;
 
     return (
@@ -23,8 +25,14 @@ class BlogPost extends Component {
         </article>
         <nav className="postnav">
           <div className="postnav__inner">
-            { prev }
-            { next }
+            <a className="postnav__prev" href={prev.url}>
+              <span>{t('operator.blog_post.prev_post')}</span>
+              {prev.title}
+            </a>
+            <a className="postnav__next" href={next.url}>
+              <span>{t('operator.blog_post.next_post')}</span>
+              {next.title}
+            </a>
           </div>
         </nav>
       </div>
@@ -36,8 +44,8 @@ BlogPost.propTypes = {
   date: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   text: PropTypes.string.isRequired,
-  prev: PropTypes.string.isRequired,
-  next: PropTypes.string.isRequired
+  prev: PropTypes.object.isRequired,
+  next: PropTypes.object.isRequired
 };
 
-export default BlogPost;
+export default provideTranslations(BlogPost);
