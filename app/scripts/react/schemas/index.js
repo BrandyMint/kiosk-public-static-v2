@@ -19,3 +19,4 @@ export { default as vendor } from './vendor';
 export { default as vendorContact } from './vendorContact';
 export { default as pagination } from './pagination';
 export { default as catalogFilterOption } from './catalogFilterOption';
+export { default as productList } from './productList';

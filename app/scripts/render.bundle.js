@@ -52,5 +52,6 @@ global.CategoriesShowChildren = require('rc/CategoriesShowChildren');
 global.PostProducts = require('rc/common/PostProducts');
 global.DictionaryEntitiesShow = require('rc/DictionaryEntitiesShow');
 global.ProductArchived = require('rc/ProductArchived');
+global.ProductSearch = require('rc/ProductSearch');
 
 import './react/application';

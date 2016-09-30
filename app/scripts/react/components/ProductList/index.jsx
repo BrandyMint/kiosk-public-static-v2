@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import ProductList from './ProductList';
-import ProductBlock from 'rc/Product/ProductBlock';
 import provideTranslations from 'rc/HoC/provideTranslations';
 import * as schemas from 'r/schemas';
 import CatalogFilterContainer from 'rc/CatalogFilter';
@@ -19,12 +18,7 @@ ProductListContainer.propTypes = {
     bottom_text: PropTypes.string,
   }),
   i18n: PropTypes.object,
-  products: PropTypes.shape({
-    items: PropTypes.arrayOf(
-      PropTypes.shape(...ProductBlock.wrapped.propTypes)
-    ).isRequired,
-    pagination: schemas.pagination.isRequired,
-  }).isRequired,
+  products: schemas.productList.isRequired,
   showCartButton: PropTypes.bool,
   showCatalogFilter: PropTypes.bool,
   showPagination: PropTypes.bool,
@@ -34,7 +28,6 @@ ProductListContainer.propTypes = {
 };
 
 ProductListContainer.defaultProps = {
-  container: {},
   products: {
     items: [],
     pagination: {},
