@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import ProductSearch from 'rc/common/ProductSearch';
+import ProductSearchForm from 'rc/common/ProductSearchForm';
 import { schemaOrgMarkup } from 'r/helpers/product';
 import { h1 } from 'r/helpers/seo';
 
@@ -48,7 +48,7 @@ class ProductArchived extends Component {
         </div>
         <div className="b-search-box">
           <div className="b-search-box__content">
-            <ProductSearch searchProductsPath={searchProductsPath} t={t} />
+            <ProductSearchForm searchProductsPath={searchProductsPath} t={t} />
           </div>
         </div>
       </div>

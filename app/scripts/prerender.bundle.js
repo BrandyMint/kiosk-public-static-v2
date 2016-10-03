@@ -47,3 +47,4 @@ CategoriesShowChildren = require('./react/components/CategoriesShowChildren');
 PostProducts = require('./react/components/common/PostProducts');
 DictionaryEntitiesShow = require('./react/components/DictionaryEntitiesShow');
 ProductArchived = require('./react/components/ProductArchived');
+ProductSearch = require('./react/components/ProductSearch');

@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import * as schemas from 'r/schemas';
 import NavBarContacts from './NavBarContacts';
-import ProductSearch from 'rc/common/ProductSearch';
+import ProductSearchForm from 'rc/common/ProductSearchForm';
 import Logo from 'rc/Logo';
 import { Clientbar } from 'rc/Clientbar';
 
@@ -30,7 +30,7 @@ class NavBar extends Component {
               <Logo {...logoProps} />
             </div>
             <div className="b-header__search">
-              <ProductSearch
+              <ProductSearchForm
                 searchProductsPath={vendor.search_products_path}
                 searchQuery={searchQuery}
                 t={t}

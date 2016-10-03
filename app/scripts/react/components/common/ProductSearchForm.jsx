@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 
-class ProductSearch extends Component {
+class ProductSearchForm extends Component {
   render() {
     const {
       searchProductsPath,
@@ -25,14 +25,14 @@ class ProductSearch extends Component {
   }
 }
 
-ProductSearch.propTypes = {
+ProductSearchForm.propTypes = {
   searchProductsPath: PropTypes.string.isRequired,
   searchQuery: PropTypes.string,
   t: PropTypes.func.isRequired,
 };
 
-ProductSearch.defaultProps = {
+ProductSearchForm.defaultProps = {
   searchQuery: '',
 };
 
-export default ProductSearch;
+export default ProductSearchForm;
