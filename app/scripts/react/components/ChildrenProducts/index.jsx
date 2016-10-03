@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import ChildrenProducts from './ChildrenProducts';
-import ProductBlock from 'rc/Product/ProductBlock';
+import * as schemas from 'r/schemas';
 
 class ChildrenProductsContainer extends Component {
   render() {
@@ -9,13 +9,7 @@ class ChildrenProductsContainer extends Component {
 }
 
 ChildrenProductsContainer.propTypes = {
-  childrenProducts: PropTypes.arrayOf(PropTypes.shape({
-    products: PropTypes.arrayOf(
-      PropTypes.shape(...ProductBlock.wrapped.propTypes)
-    ).isRequired,
-    vendorCategoryPath: PropTypes.string.isRequired,
-    title: PropTypes.string,
-  })).isRequired,
+  childrenProducts: schemas.childrenProducts.isRequired,
   title: PropTypes.string,
 };
 
