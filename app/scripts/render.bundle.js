@@ -58,5 +58,6 @@ global.ProductSearch = require('rc/ProductSearch');
 global.WelcomeChildren = require('rc/WelcomeChildren');
 global.Welcome = require('rc/Welcome');
 global.Lookbook = require('./react/components/Lookbook');
+global.ContentPage = require('./react/components/ContentPage');
 
 import './react/application';

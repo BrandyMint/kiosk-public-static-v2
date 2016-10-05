@@ -53,3 +53,4 @@ ProductSearch = require('./react/components/ProductSearch');
 WelcomeChildren = require('./react/components/WelcomeChildren');
 Welcome = require('./react/components/Welcome');
 Lookbook = require('./react/components/Lookbook');
+ContentPage = require('./react/components/ContentPage');
