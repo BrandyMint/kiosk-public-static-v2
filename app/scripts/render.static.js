@@ -33,6 +33,7 @@ import productSearchEmpty from 'test/fixtures/productSearch/empty.json';
 import welcomeChildrenSample from 'test/fixtures/welcomeChildren/sample.json';
 import welcomeSample from 'test/fixtures/welcome/sample.json';
 import lookbookSample from 'test/fixtures/lookbook/sample.json';
+import dictionarySample from 'test/fixtures/dictionary/sample.json';
 
 global.CartContainerEmpty = () => React.createElement(global.CartContainer, cartEmpty);
 global.CartContainerSelectPackage = () => React.createElement(global.CartContainer, cartSelectPackage);
@@ -67,5 +68,6 @@ global.ProductSearchEmpty = () => React.createElement(global.ProductSearch, prod
 global.WelcomeChildrenSample = () => React.createElement(global.WelcomeChildren, welcomeChildrenSample);
 global.WelcomeSample = () => React.createElement(global.Welcome, welcomeSample);
 global.LookbookSample = () => React.createElement(global.Lookbook, lookbookSample);
+global.DictionarySample = () => React.createElement(global.Dictionary, dictionarySample);
 
 import './lib/ReactRailsUJS';
