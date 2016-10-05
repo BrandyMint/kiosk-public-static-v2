@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/BrandyMint/kiosk-public-static-v2.svg?branch=master)](https://travis-ci.org/BrandyMint/kiosk-public-static-v2)
 Развертывание проекта
 ---------------------
-
+ 
 * Установка nvm (пропустить если уже установлен) 
 
   [nvm installation](https://github.com/creationix/nvm#installation)
