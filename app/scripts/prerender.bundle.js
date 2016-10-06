@@ -62,3 +62,4 @@ OrderPayment = require('./react/components/OrderPayment');
 OrderShow = require('./react/components/OrderShow');
 Payment = require('./react/components/Payment');
 ClientSessionNew = require('./react/components/ClientSessionNew');
+Cabinet = require('./react/components/Cabinet');

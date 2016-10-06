@@ -40,6 +40,7 @@ import orderPaidProps from 'test/fixtures/orderPaid/sample.json';
 import orderPaymentProps from 'test/fixtures/orderPayment/sample.json';
 import orderShowProps from 'test/fixtures/orderShow/sample.json';
 import clientSessionNewProps from 'test/fixtures/clientSessionNew/sample.json';
+import cabinetProps from 'test/fixtures/cabinet/sample.json'
 
 global.CartContainerEmpty = () => React.createElement(global.CartContainer, cartEmpty);
 global.CartContainerSelectPackage = () => React.createElement(global.CartContainer, cartSelectPackage);
@@ -81,5 +82,6 @@ global.OrderPaidSample = () => React.createElement(global.OrderPaid, orderPaidPr
 global.OrderPaymentSample = () => React.createElement(global.OrderPayment, orderPaymentProps);
 global.OrderShowSample = () => React.createElement(global.OrderShow, orderShowProps);
 global.ClientSessionNewSample = () => React.createElement(global.ClientSessionNew, clientSessionNewProps);
+global.CabinetSample = () =>  React.createElement(global.Cabinet, cabinetProps);
 
 import './lib/ReactRailsUJS';
