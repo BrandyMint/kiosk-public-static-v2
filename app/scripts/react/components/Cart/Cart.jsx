@@ -116,7 +116,6 @@ class Cart extends Component {
               noValidate
             >
               <FormAuthenticity {...formAuthenticity} />
-              {hasErrors && this.renderErrors('top')}
               <CartList
                 amounts={amounts}
                 changeAmount={changeAmount}
