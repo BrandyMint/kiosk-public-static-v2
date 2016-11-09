@@ -42,7 +42,7 @@ describe('[Component] CartContainer', () => {
 
     expect(render(<CartContainer {...props} />)
       .find('.help-block [id^="cart-error-minimal-price"]')
-    ).to.have.length(2);
+    ).to.have.length(1);
   });
 
   it('should not disable submit button when there is no any minimal price', () => {
@@ -59,6 +59,6 @@ describe('[Component] CartContainer', () => {
 
     expect (render(<CartContainer {...props} />)
       .find('.help-block [id^="cart-error-"]')
-    ).to.have.length(4);
+    ).to.have.length(2);
   });
 });

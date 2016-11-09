@@ -2118,7 +2118,6 @@ var Cart = function (_Component) {
               noValidate: true
             },
             _react2.default.createElement(_FormAuthenticity2.default, formAuthenticity),
-            hasErrors && this.renderErrors('top'),
             _react2.default.createElement(_CartList2.default, {
               amounts: amounts,
               changeAmount: changeAmount,
